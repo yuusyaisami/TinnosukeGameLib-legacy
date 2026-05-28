@@ -61,6 +61,26 @@ namespace Game.Kernel.Layers.Composition
                 KernelComponentPlacementScope.Scene,
                 "Verified scope graph runtime becomes the scene-local entity/scope boundary."),
             new KernelComponentPlacementDescriptor(
+                "Game.Kernel.Layers.ISceneKernelSpawnBoundary",
+                KernelMappedComponentKind.SceneSpawnBoundary,
+                KernelComponentPlacementScope.Scene,
+                "SceneKernel owns scene-local spawn/pool/release/delete mediation through an explicit boundary instead of legacy RuntimeManager authority."),
+            new KernelComponentPlacementDescriptor(
+                "Game.Kernel.Layers.Unity.SceneKernelSpawnHostMB",
+                KernelMappedComponentKind.SceneSpawnHost,
+                KernelComponentPlacementScope.Scene,
+                "Scene-local spawn host binds declaration data to the SceneKernel-owned spawn boundary without turning SceneKernelHostMB into a manager."),
+            new KernelComponentPlacementDescriptor(
+                "Game.Kernel.Authoring.SceneKernelSpawnDeclarationMB",
+                KernelMappedComponentKind.SceneSpawnDeclaration,
+                KernelComponentPlacementScope.Scene,
+                "Scene-local spawn declaration stores route, warmup, and parking-root authoring data without relying on IFeatureInstaller or runtime scans."),
+            new KernelComponentPlacementDescriptor(
+                "Game.Kernel.Layers.Unity.SceneKernelEntityInstanceMB",
+                KernelMappedComponentKind.SceneEntityInstanceAnchor,
+                KernelComponentPlacementScope.Scene,
+                "Spawned runtime roots carry explicit lease-anchor state instead of inferring ownership from RuntimeLifetimeScope."),
+            new KernelComponentPlacementDescriptor(
                 "Game.Kernel.Boot.KernelLifecycleDispatcher",
                 KernelMappedComponentKind.LifecycleDispatcher,
                 KernelComponentPlacementScope.Scene,
@@ -85,6 +105,10 @@ namespace Game.Kernel.Layers.Composition
             ScenePlacements[2],
             ScenePlacements[3],
             ScenePlacements[4],
+            ScenePlacements[5],
+            ScenePlacements[6],
+            ScenePlacements[7],
+            ScenePlacements[8],
         };
 
         public static IReadOnlyList<KernelComponentPlacementDescriptor> SharedGeneration => SharedGenerationPlacements;

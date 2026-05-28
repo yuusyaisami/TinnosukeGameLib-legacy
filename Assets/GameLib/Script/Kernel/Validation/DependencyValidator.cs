@@ -1036,9 +1036,15 @@ namespace Game.Kernel.Validation
                             issues.Add(CreateInvalidLifecycleTargetIssue(lifecycle, step, context));
                             break;
 
+                        case LifecycleTargetKind.ValueStore:
+                            if (context.HasAvailableValueStoreTarget(step.Target.TargetLocalRef, step.Phase))
+                                continue;
+
+                            issues.Add(CreateInvalidLifecycleTargetIssue(lifecycle, step, context));
+                            break;
+
                         case LifecycleTargetKind.RuntimeObjectOwner:
                         case LifecycleTargetKind.LegacyAdapter:
-                        case LifecycleTargetKind.ValueStore:
                             issues.Add(CreateUnsupportedLifecycleLocalTargetIssue(lifecycle, step, context));
                             break;
 

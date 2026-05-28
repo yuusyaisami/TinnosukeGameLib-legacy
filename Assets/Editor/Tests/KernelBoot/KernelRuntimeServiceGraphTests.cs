@@ -284,7 +284,7 @@ namespace TinnosukeGameLib.Tests.Editor
 
         static ServiceGraphPlan CreateServiceGraphPlan(ServiceIR[] services)
         {
-            Hash128 generatedHash = KernelProjectionHashing.ComputeServiceGraphHash(services);
+            Hash128 generatedHash = KernelProjectionHashingTestAdapter.ComputeServiceGraphHash(services);
 
             VerifiedArtifactHeader header = new VerifiedArtifactHeader(
                 new PlanId(31),

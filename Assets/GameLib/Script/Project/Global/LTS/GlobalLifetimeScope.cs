@@ -1,5 +1,6 @@
-﻿using Game.Platform;
-
+﻿using System;
+using Game.Commands;
+using Game.Platform;
 using UnityEngine;
 namespace Game
 {
@@ -16,6 +17,15 @@ namespace Game
         protected override bool IsBuildRoot => true;       // EnsureInScene縺九ｉ閾ｪ蜍輔ン繝ｫ繝・
         protected override bool AutoBuildOnAwake => true; // 
         protected override LifetimeScopeKind RequiredParentKind => LifetimeScopeKind.Platform;
+
+        protected override void AwakeConfigure(IRuntimeContainerBuilder builder)
+        {
+            var commandRunner = GetComponent<CommandRunnerMB>();
+            if (commandRunner == null)
+                throw new InvalidOperationException($"{nameof(GlobalLifetimeScope)} requires {nameof(CommandRunnerMB)}.");
+
+            commandRunner.InstallRuntime(builder, this);
+        }
 
         protected override void Awake()
         {

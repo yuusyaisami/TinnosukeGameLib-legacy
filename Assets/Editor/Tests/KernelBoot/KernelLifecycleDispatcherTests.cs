@@ -335,8 +335,8 @@ namespace TinnosukeGameLib.Tests.Editor
                     CreateStep(731, LifecyclePhase.Boot, 10, new LifecycleTargetRefIR(new ServiceId(7401)), LifecycleActionKind.ServiceMethod, 7301, executionMode: LifecycleExecutionModeKind.TrackedAsync, asyncPolicy: asyncPolicy),
                 });
 
-            Hash128 synchronousHash = KernelProjectionHashing.ComputeLifecyclePlanHash(new[] { synchronousLifecycle });
-            Hash128 asyncHash = KernelProjectionHashing.ComputeLifecyclePlanHash(new[] { asyncLifecycle });
+            Hash128 synchronousHash = KernelProjectionHashingTestAdapter.ComputeLifecyclePlanHash(new[] { synchronousLifecycle });
+            Hash128 asyncHash = KernelProjectionHashingTestAdapter.ComputeLifecyclePlanHash(new[] { asyncLifecycle });
 
             Assert.That(synchronousHash, Is.Not.EqualTo(asyncHash));
         }
@@ -352,12 +352,37 @@ namespace TinnosukeGameLib.Tests.Editor
                     CreateStep(501, LifecyclePhase.Acquire, 10, new LifecycleTargetRefIR(LifecycleTargetKind.LegacyAdapter, "legacy-bridge"), LifecycleActionKind.LegacyAdapterCall, 5001),
                 });
 
-            Assert.That(() => CreatePlan(lifecycle), Throws.ArgumentOutOfRangeException);
+            Assert.That(() => CreatePlan(lifecycle), Throws.TypeOf<ArgumentOutOfRangeException>());
+        }
+
+        [Test]
+        public void DispatchPhase_DispatchesValueStoreTargets()
+        {
+            LifecycleIR lifecycle = CreateLifecycle(
+                800,
+                "ValueStoreLifecycle",
+                new[]
+                {
+                    CreateStep(801, LifecyclePhase.Create, 10, new LifecycleTargetRefIR(LifecycleTargetKind.ValueStore, "local:blackboard"), LifecycleActionKind.ValueInit, 8001),
+                });
+
+            LifecyclePlan plan = CreatePlan(lifecycle);
+            RecordingExecutor executor = new RecordingExecutor(Array.Empty<int>());
+            KernelLifecycleDispatcher dispatcher = new KernelLifecycleDispatcher(plan);
+
+            LifecycleDispatchResult result = dispatcher.DispatchPhase(LifecyclePhase.Create, executor);
+
+            Assert.That(result.AttemptedStepCount, Is.EqualTo(1));
+            Assert.That(result.SucceededStepCount, Is.EqualTo(1));
+            Assert.That(result.FailedStepCount, Is.EqualTo(0));
+            Assert.That(result.StoppedEarly, Is.False);
+            Assert.That(executor.AttemptedStepIds, Is.EqualTo(new[] { 801 }));
+            Assert.That(executor.ValueStoreDispatchAttemptedStepIds, Is.EqualTo(new[] { 801 }));
         }
 
         static LifecyclePlan CreatePlan(params LifecycleIR[] lifecycles)
         {
-            Hash128 contentHash = KernelProjectionHashing.ComputeLifecyclePlanHash(lifecycles);
+            Hash128 contentHash = KernelProjectionHashingTestAdapter.ComputeLifecyclePlanHash(lifecycles);
             VerifiedArtifactHeader header = new VerifiedArtifactHeader(
                 new PlanId(901),
                 new ArtifactSetId(902),
@@ -427,6 +452,8 @@ namespace TinnosukeGameLib.Tests.Editor
 
             public List<int> RollbackAttemptedStepIds { get; } = new List<int>();
 
+            public List<int> ValueStoreDispatchAttemptedStepIds { get; } = new List<int>();
+
             public bool TryDispatchService(in LifecycleDispatchStep step, out KernelDiagnostic? diagnostic)
             {
                 return TryExecute(step, out diagnostic);
@@ -457,6 +484,17 @@ namespace TinnosukeGameLib.Tests.Editor
                 return TryRollback(step, out diagnostic);
             }
 
+            public bool TryDispatchValueStore(in LifecycleDispatchStep step, out KernelDiagnostic? diagnostic)
+            {
+                ValueStoreDispatchAttemptedStepIds.Add(step.StepId.Value);
+                return TryExecute(step, out diagnostic);
+            }
+
+            public bool TryRollbackValueStore(in LifecycleDispatchStep step, out KernelDiagnostic? diagnostic)
+            {
+                return TryRollback(step, out diagnostic);
+            }
+
             public Task<LifecycleDispatchStepOutcome> TryDispatchServiceAsync(LifecycleDispatchStep step, CancellationToken cancellationToken)
             {
                 return TryExecuteAsync(step, cancellationToken);
@@ -469,6 +507,12 @@ namespace TinnosukeGameLib.Tests.Editor
 
             public Task<LifecycleDispatchStepOutcome> TryDispatchRuntimeQueryAsync(LifecycleDispatchStep step, CancellationToken cancellationToken)
             {
+                return TryExecuteAsync(step, cancellationToken);
+            }
+
+            public Task<LifecycleDispatchStepOutcome> TryDispatchValueStoreAsync(LifecycleDispatchStep step, CancellationToken cancellationToken)
+            {
+                ValueStoreDispatchAttemptedStepIds.Add(step.StepId.Value);
                 return TryExecuteAsync(step, cancellationToken);
             }
 

@@ -28,7 +28,7 @@ namespace Game.Search
             if (scope == null)
                 return;
 
-            if (!_identityMb.RegisterToDynamicRegistry)
+            if (!_identityMb.LegacyDynamicRegistryOptIn)
                 return;
 
             var kind = scope.Kind;

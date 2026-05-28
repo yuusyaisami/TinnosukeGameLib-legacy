@@ -269,7 +269,7 @@ function Write-RunSummaryJson(
     Set-Content -LiteralPath $SummaryJsonPath -Value $json -Encoding utf8
 }
 
-function Ensure-JsonArtifactFile(
+function New-JsonArtifactFile(
     [string]$Path,
     [string]$ReportKind,
     [string]$RunId,
@@ -473,10 +473,10 @@ else {
 
 $classification = Get-RunClassification -ResultsPath $resultsPath -ExitCode $exitCode -TimedOut:$timedOut
 $fallbackArtifacts = @()
-if (Ensure-JsonArtifactFile -Path (Join-Path $runDir "DiagnosticsReport.json") -ReportKind "DiagnosticsReport" -RunId $runId -Platform $Platform -TestFilter $TestFilter -Target $targetName -RunDirectory $runDir) { $fallbackArtifacts += "DiagnosticsReport.json" }
-if (Ensure-JsonArtifactFile -Path (Join-Path $runDir "ValidationReport.json") -ReportKind "ValidationReport" -RunId $runId -Platform $Platform -TestFilter $TestFilter -Target $targetName -RunDirectory $runDir) { $fallbackArtifacts += "ValidationReport.json" }
-if (Ensure-JsonArtifactFile -Path (Join-Path $runDir "GenerationReport.json") -ReportKind "GenerationReport" -RunId $runId -Platform $Platform -TestFilter $TestFilter -Target $targetName -RunDirectory $runDir) { $fallbackArtifacts += "GenerationReport.json" }
-if (Ensure-JsonArtifactFile -Path (Join-Path $runDir "PerformanceReport.json") -ReportKind "PerformanceReport" -RunId $runId -Platform $Platform -TestFilter $TestFilter -Target $targetName -RunDirectory $runDir) { $fallbackArtifacts += "PerformanceReport.json" }
+if (New-JsonArtifactFile -Path (Join-Path $runDir "DiagnosticsReport.json") -ReportKind "DiagnosticsReport" -RunId $runId -Platform $Platform -TestFilter $TestFilter -Target $targetName -RunDirectory $runDir) { $fallbackArtifacts += "DiagnosticsReport.json" }
+if (New-JsonArtifactFile -Path (Join-Path $runDir "ValidationReport.json") -ReportKind "ValidationReport" -RunId $runId -Platform $Platform -TestFilter $TestFilter -Target $targetName -RunDirectory $runDir) { $fallbackArtifacts += "ValidationReport.json" }
+if (New-JsonArtifactFile -Path (Join-Path $runDir "GenerationReport.json") -ReportKind "GenerationReport" -RunId $runId -Platform $Platform -TestFilter $TestFilter -Target $targetName -RunDirectory $runDir) { $fallbackArtifacts += "GenerationReport.json" }
+if (New-JsonArtifactFile -Path (Join-Path $runDir "PerformanceReport.json") -ReportKind "PerformanceReport" -RunId $runId -Platform $Platform -TestFilter $TestFilter -Target $targetName -RunDirectory $runDir) { $fallbackArtifacts += "PerformanceReport.json" }
 Register-ArtifactFallbackFailure -Classification $classification -FallbackArtifacts $fallbackArtifacts
 Write-RunSummary -SummaryPaths @($summaryPath, $legacySummaryPath) -RunId $runId -Platform $Platform -TestFilter $TestFilter -Target $targetName -CommandLine $commandLine -RunDirectory $runDir -LogPath $logPath -ResultsPath $resultsPath -Classification $classification -ExitCode $exitCode
 Write-RunSummaryJson -SummaryJsonPath $summaryJsonPath -RunId $runId -Platform $Platform -TestFilter $TestFilter -Target $targetName -RunDirectory $runDir -LogPath $logPath -ResultsPath $resultsPath -Classification $classification -ExitCode $exitCode

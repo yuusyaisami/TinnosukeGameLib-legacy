@@ -29,6 +29,9 @@ namespace Game.UI
         readonly Dictionary<string, LayerState> _layers = new(StringComparer.Ordinal);
         readonly List<ModalLayerResolvedState> _layerStates = new(16);
         readonly List<ModalRootResolvedState> _rootStates = new(32);
+        readonly Dictionary<UINodeHandle, int> _rootStateIndexByHandle = new();
+        readonly HashSet<UINodeHandle> _activeInputRootHandles = new();
+        readonly IUINodeGraphService? _nodeGraph;
 
         ulong _sequence;
         IUIModalRoot? _currentInputRoot;
@@ -39,8 +42,9 @@ namespace Game.UI
 
         public event Action<ModalLayerStatesChangedContext>? OnLayerStatesChanged;
 
-        public ModalStackChannelHubService()
+        public ModalStackChannelHubService(IUINodeGraphService? nodeGraph = null)
         {
+            _nodeGraph = nodeGraph;
             RegisterLayer(ModalLayerPreset.Default("default"));
         }
 
@@ -83,6 +87,9 @@ namespace Game.UI
             if (owner == null)
                 return false;
 
+            if (_nodeGraph != null && _nodeGraph.TryGetHandle(owner, out var ownerHandle))
+                return TryGetRootState(ownerHandle, out state);
+
             for (int i = 0; i < _rootStates.Count; i++)
             {
                 var candidate = _rootStates[i];
@@ -100,10 +107,77 @@ namespace Game.UI
             return false;
         }
 
+        public bool TryGetRootState(UINodeHandle owner, out ModalRootResolvedState state)
+        {
+            state = default;
+            if (!owner.IsValid)
+                return false;
+
+            if (TryFindBestRootStateIndex(owner, out var index))
+            {
+                state = _rootStates[index];
+                return true;
+            }
+
+            for (int i = 0; i < _rootStates.Count; i++)
+            {
+                var candidate = _rootStates[i];
+                var root = candidate.Root;
+                if (root == null)
+                    continue;
+
+                if (root.OwnerHandle == owner || root.IsDescendant(owner))
+                {
+                    state = candidate;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public bool IsInAnyInputRoot(IScopeNode? element)
         {
             if (element == null)
                 return false;
+
+            if (_nodeGraph != null && _nodeGraph.TryGetHandle(element, out var elementHandle))
+                return IsInAnyInputRoot(elementHandle);
+
+            var layerStates = _layerStates;
+            for (var i = 0; i < layerStates.Count; i++)
+            {
+                var layerState = layerStates[i];
+                if (!layerState.InputActive)
+                    continue;
+
+                var activeRoot = layerState.ActiveRoot;
+                if (activeRoot != null && activeRoot.IsDescendant(element))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public bool IsInAnyInputRoot(UINodeHandle element)
+        {
+            if (!element.IsValid)
+                return false;
+
+            if (_nodeGraph != null)
+            {
+                var current = element;
+                while (current.IsValid)
+                {
+                    if (_activeInputRootHandles.Contains(current))
+                        return true;
+
+                    if (!_nodeGraph.TryGetParentHandle(current, out current))
+                        break;
+                }
+
+                return false;
+            }
 
             var layerStates = _layerStates;
             for (var i = 0; i < layerStates.Count; i++)
@@ -284,6 +358,8 @@ namespace Game.UI
         {
             _layerStates.Clear();
             _rootStates.Clear();
+            _rootStateIndexByHandle.Clear();
+            _activeInputRootHandles.Clear();
             _currentInputRoot = null;
 
             var temp = new List<TempLayer>(Math.Max(4, _layers.Count));
@@ -439,11 +515,54 @@ namespace Game.UI
                     t.IsPrimaryInOrder,
                     t.SuppressedByLayerKey));
 
+                if (t.InputActive && t.ActiveRoot != null && t.ActiveRoot.OwnerHandle.IsValid)
+                    _activeInputRootHandles.Add(t.ActiveRoot.OwnerHandle);
+
                 if (_currentInputRoot == null && t.InputActive && t.ActiveRoot != null)
                     _currentInputRoot = t.ActiveRoot;
 
                 BuildRootStatesForLayer(t, _rootStates);
             }
+
+            RebuildRootStateIndex();
+        }
+
+        void RebuildRootStateIndex()
+        {
+            _rootStateIndexByHandle.Clear();
+
+            for (int i = 0; i < _rootStates.Count; i++)
+            {
+                var handle = _rootStates[i].Root.OwnerHandle;
+                if (!handle.IsValid || _rootStateIndexByHandle.ContainsKey(handle))
+                    continue;
+
+                _rootStateIndexByHandle.Add(handle, i);
+            }
+        }
+
+        bool TryFindBestRootStateIndex(UINodeHandle owner, out int index)
+        {
+            index = -1;
+            if (_nodeGraph == null)
+                return false;
+
+            var current = owner;
+            var bestIndex = int.MaxValue;
+            while (current.IsValid)
+            {
+                if (_rootStateIndexByHandle.TryGetValue(current, out var candidateIndex) && candidateIndex < bestIndex)
+                    bestIndex = candidateIndex;
+
+                if (!_nodeGraph.TryGetParentHandle(current, out current))
+                    break;
+            }
+
+            if (bestIndex == int.MaxValue)
+                return false;
+
+            index = bestIndex;
+            return true;
         }
 
         static void BuildRootStatesForLayer(TempLayer layer, List<ModalRootResolvedState> dest)
@@ -460,14 +579,14 @@ namespace Game.UI
                 if (root == null || !activeSet.Add(root))
                     continue;
 
-                AppendRootState(layer, root, activeRoot, dest);
+                AppendRootState(layer, root, activeRoot, layer.Layer.Entries[i].Options, dest);
             }
 
             if (layer.Layer.DefaultRoot != null && activeSet.Add(layer.Layer.DefaultRoot))
-                AppendRootState(layer, layer.Layer.DefaultRoot, activeRoot, dest);
+                AppendRootState(layer, layer.Layer.DefaultRoot, activeRoot, ModalOptions.Default, dest);
         }
 
-        static void AppendRootState(TempLayer layer, IUIModalRoot root, IUIModalRoot? activeRoot, List<ModalRootResolvedState> dest)
+        static void AppendRootState(TempLayer layer, IUIModalRoot root, IUIModalRoot? activeRoot, ModalOptions options, List<ModalRootResolvedState> dest)
         {
             var isActiveInLayer = ReferenceEquals(root, activeRoot);
             var visible = layer.Visible && (isActiveInLayer || layer.Preset.KeepNonActiveInLayerVisible);
@@ -479,7 +598,15 @@ namespace Game.UI
             if (!string.IsNullOrEmpty(layer.SuppressedByLayerKey))
                 reason = ModalLayerRootInactiveReason.LayerSuppressedByOtherLayer;
 
-            dest.Add(new ModalRootResolvedState(layer.Key, root, isActiveInLayer, visible, input, reason));
+            dest.Add(new ModalRootResolvedState(
+                layer.Key,
+                root,
+                isActiveInLayer,
+                visible,
+                input,
+                options.DefaultSelectedElement,
+                options.DefaultSelectedHandle,
+                reason));
         }
 
         static bool AreLayerStatesEqual(List<ModalLayerResolvedState> a, List<ModalLayerResolvedState> b)
@@ -519,6 +646,10 @@ namespace Game.UI
                 if (!ReferenceEquals(x.Root, y.Root))
                     return false;
                 if (x.IsActiveInLayer != y.IsActiveInLayer || x.Visible != y.Visible || x.InputActive != y.InputActive || x.InactiveReason != y.InactiveReason)
+                    return false;
+                if (!ReferenceEquals(x.DefaultSelectedElement, y.DefaultSelectedElement))
+                    return false;
+                if (x.DefaultSelectedHandle != y.DefaultSelectedHandle)
                     return false;
             }
 

@@ -74,6 +74,12 @@ namespace Game.UI
         public IScopeNode? Element { get; }
 
         /// <summary>
+        /// 候補の graph handle。
+        /// graph 未解決候補では Invalid。
+        /// </summary>
+        public UINodeHandle Handle { get; }
+
+        /// <summary>
         /// 候補のスコア（大きいほど優先）。
         /// 
         /// ## スコアの目安
@@ -131,9 +137,11 @@ namespace Game.UI
             float score,
             bool isExplicitLink = false,
             float directionMatch = 0,
-            float distance = 0)
+            float distance = 0,
+            UINodeHandle handle = default)
         {
             Element = element;
+            Handle = handle;
             Score = score;
             IsExplicitLink = isExplicitLink;
             DirectionMatch = directionMatch;
@@ -156,12 +164,18 @@ namespace Game.UI
         /// <returns>明示的リンク候補</returns>
         public static SelectCandidate FromExplicitLink(IScopeNode element)
         {
+            return FromExplicitLink(UINodeHandle.Invalid, element);
+        }
+
+        public static SelectCandidate FromExplicitLink(UINodeHandle handle, IScopeNode? element = null)
+        {
             return new SelectCandidate(
                 element,
                 score: 100f, // 明示的リンクは最優先
                 isExplicitLink: true,
                 directionMatch: 1f,
-                distance: 0f
+                distance: 0f,
+                handle: handle
             );
         }
 
@@ -180,7 +194,7 @@ namespace Game.UI
                 ? Element.Identity.SelfTransform.name
                 : "null";
             return $"SelectCandidate({name}, Score={Score:F2}, " +
-                   $"Explicit={IsExplicitLink}, Dir={DirectionMatch:F2}, Dist={Distance:F1})";
+                   $"Explicit={IsExplicitLink}, Dir={DirectionMatch:F2}, Dist={Distance:F1}, Handle={Handle})";
         }
     }
 

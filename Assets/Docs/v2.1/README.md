@@ -21,9 +21,19 @@ v2 の意味論を再定義せず、live game migration の entry condition、pr
 - [04 VarStore / Command / Scalar Treatment Specification](04_VarStoreCommandScalarTreatmentSpec.md)
   - `VarStore`、`CommandRunner`、`Scalar` をどこまで再利用し、`Blackboard` や legacy bootstrap をどこで切るかを定義する。
 - [05 Implementation Milestone Specification](05_ImplementationMilestoneSpec.md)
-  - foundation、legacy teardown、value/command/scalar、UI、feature port、legacy purge の実装順序と出口条件を定義する。
+  - foundation、legacy teardown、value/command/scalar、UI、全 service / command / scene / prefab cutover、full replacement verification の実装順序と出口条件を定義する。
 - [06 Kernel Layer Composition Specification](06_KernelLayerCompositionSpec.md)
   - `ApplicationKernel` と `SceneKernel` の 2 層構成を定義し、V2 の kernel 部品をどこにまとめるかを決める。
+- [07 Spawn / Pool Lifecycle Specification](07_SpawnPoolLifecycleSpec.md)
+  - runtime-created entity の spawn / pool / delete mediation と unified spawn core の compatibility contract を定義する。
+- [08 Full Replacement Completion Specification](08_FullReplacementCompletionSpec.md)
+  - V2.1 完了を、全 service / command / scene / prefab の差し替え、asset migration、real gameplay verification、legacy purge まで含めて固定する。
+- [09 Service Cutover Milestone Specification](09_ServiceCutoverMilestoneSpec.md)
+  - service surface の全件 inventory と置換状態を固定し、サービス差し替えの完了条件を surface 単位で追跡する。
+- [10 Command Cutover Milestone Specification](10_CommandCutoverMilestoneSpec.md)
+  - command surface の全件 inventory と置換状態を固定し、command 差し替えの完了条件を surface 単位で追跡する。
+- [11 Dynamic Source Cutover Milestone Specification](11_DynamicSourceCutoverMilestoneSpec.md)
+  - dynamic source surface の全件 inventory と置換状態を固定し、`DynamicValue` / `IDynamicSource` cutover の完了条件を surface 単位で追跡する。
 
 ## Principles
 
@@ -31,6 +41,7 @@ v2 の意味論を再定義せず、live game migration の entry condition、pr
 - Command field shape、DynamicValue authoring surface、ValueStore generated key identity は preservation floor とする
 - direct-play side path の成功だけでは移行完了とみなさない
 - 最終目標は、現在動いているゲーム本体が verified kernel path で起動・進行・終了すること
+- V2.1 完了は、既存 scene / prefab を少修正で維持したまま、ゲーム全体が新アーキテクチャのみでコンパイル・起動・進行・終了することを意味する
 
 ## Test Cases
 
@@ -44,3 +55,8 @@ v2 の意味論を再定義せず、live game migration の entry condition、pr
 | TC-V21-README-06 | Confirm subsystem treatment for VarStore/Command/Scalar is exposed at the index level. | This file must link to 04_VarStoreCommandScalarTreatmentSpec.md and summarize its role. |
 | TC-V21-README-07 | Confirm the v2.1 implementation order spec is exposed at the index level. | This file must link to 05_ImplementationMilestoneSpec.md and summarize milestone ordering. |
 | TC-V21-README-08 | Confirm kernel layer composition is exposed at the index level. | This file must link to 06_KernelLayerCompositionSpec.md and summarize ApplicationKernel / SceneKernel. |
+| TC-V21-README-09 | Confirm spawn / pool lifecycle spec is exposed at the index level. | This file must link to 07_SpawnPoolLifecycleSpec.md and summarize spawn / pool / delete mediation. |
+| TC-V21-README-10 | Confirm v2.1 completion is defined as full-game cutover, not representative slices. | This file must state that existing scene / prefab assets are migrated with minimal edits and that the running game uses only the new architecture. |
+| TC-V21-README-11 | Confirm the full replacement completion spec is exposed at the index level. | This file must link to 08_FullReplacementCompletionSpec.md and summarize inventory, asset migration, verification, and legacy purge gates. |
+| TC-V21-README-12 | Confirm command cutover inventory and milestone are exposed at the index level. | This file must link to 10_CommandCutoverMilestoneSpec.md and summarize its role. |
+| TC-V21-README-13 | Confirm dynamic source cutover inventory and milestone are exposed at the index level. | This file must link to 11_DynamicSourceCutoverMilestoneSpec.md and summarize dynamic source inventory coverage. |

@@ -1,9 +1,11 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using Game.Kernel.Boot;
 using Game.Kernel.Diagnostics;
 using Game.Kernel.Generation;
 using Game.Kernel.IR;
+using Game.Kernel.ScopeGraph;
 using NUnit.Framework;
 
 namespace TinnosukeGameLib.Tests.Editor
@@ -255,6 +257,20 @@ namespace TinnosukeGameLib.Tests.Editor
         }
 
         [Test]
+        public void TryGetScopeHandle_UsesPlanIndex_AndStopsResolvingAfterDestroy()
+        {
+            ScopeGraphPlan plan = CreatePlan(includeChild: false);
+            KernelRuntimeScopeGraph graph = new KernelRuntimeScopeGraph(plan, new[] { ScopeIdentity(21) });
+
+            ScopeHandle rootHandle = graph.RootScopeHandles[0];
+            Assert.That(graph.TryGetScopeHandle(new ScopePlanId(21), out ScopeHandle resolvedHandle), Is.True);
+            Assert.That(resolvedHandle, Is.EqualTo(rootHandle));
+
+            Assert.That(graph.TryDestroyScope(rootHandle), Is.True);
+            Assert.That(graph.TryGetScopeHandle(new ScopePlanId(21), out _), Is.False);
+        }
+
+        [Test]
         public void StateTransitions_RejectMissingLifecyclePlan_WhenResolverCannotResolvePlanId()
         {
             ScopeGraphPlan plan = CreatePlan(includeChild: false);
@@ -396,7 +412,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 };
 
             ValueInitPlanIR[] resolvedValueInitPlans = valueInitPlans ?? Array.Empty<ValueInitPlanIR>();
-            Hash128 contentHash = KernelProjectionHashing.ComputeScopeGraphHash(scopes, resolvedValueInitPlans);
+            Hash128 contentHash = KernelProjectionHashingTestAdapter.ComputeScopeGraphHash(scopes, resolvedValueInitPlans);
             VerifiedArtifactHeader header = new VerifiedArtifactHeader(
                 new PlanId(32),
                 new ArtifactSetId(11),
@@ -457,7 +473,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 new SourceLocationId(planId + 3),
                 LifecycleFailurePolicy.FailOperation);
 
-            Hash128 contentHash = KernelProjectionHashing.ComputeLifecyclePlanHash(new[] { lifecycle });
+            Hash128 contentHash = KernelProjectionHashingTestAdapter.ComputeLifecyclePlanHash(new[] { lifecycle });
             VerifiedArtifactHeader header = new VerifiedArtifactHeader(
                 new PlanId(planId),
                 new ArtifactSetId(11),

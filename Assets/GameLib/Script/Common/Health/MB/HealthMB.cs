@@ -60,7 +60,6 @@ namespace Game.Health
         bool _isInvincible;
 
         IHealthService _healthService;
-        IBaseScalarService _fallbackScalarService;
         IScopeBindingRegistry _fallbackProfileRegistry;
         bool _disposed;
         bool _loggedMissingHealthService;
@@ -72,9 +71,14 @@ namespace Game.Health
         public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
         {
             // HealthService 繧堤匳骭ｲ・・untimeLTS 縺ｧ縺ｯ IEntityEventService 譛ｪ逋ｻ骭ｲ縺ｮ繧ｱ繝ｼ繧ｹ縺後≠繧九◆繧√ヵ繧ｩ繝ｼ繝ｫ繝舌ャ繧ｯ隗｣豎ｺ・・
-            builder.Register<HealthService>(resolver =>
+            builder.Register<IHealthService>(resolver =>
                 {
                     var scalarService = ResolveScalarService(scope, resolver);
+                    if (scalarService == null)
+                    {
+                        throw new InvalidOperationException($"[HealthMB] IBaseScalarService is not available for scope '{DescribeScope(scope)}'.");
+                    }
+
                     var blackboardService = ResolveBlackboardService(scope, resolver);
                     var profileRegistry = ResolveProfileRegistry(scope, resolver, blackboardService, scalarService);
                     var eventService = ResolveEntityEventService(resolver);
@@ -88,7 +92,6 @@ namespace Game.Health
                         transform);
                 },
                 RuntimeLifetime.Singleton)
-                .As<IHealthService>()
                 .As<IScopeTickHandler>();
 
             builder.RegisterInstance(_eventCommandSettings ?? new HealthEventCommandSettings());
@@ -172,9 +175,7 @@ namespace Game.Health
             _disposed = true;
 
             (_healthService as IDisposable)?.Dispose();
-            (_fallbackScalarService as IDisposable)?.Dispose();
             _healthService = null;
-            _fallbackScalarService = null;
             _fallbackProfileRegistry = null;
             _initialModifiersRegistered = false;
         }
@@ -207,8 +208,7 @@ namespace Game.Health
             if (TryResolveOwnedService(scope, resolver, out IBaseScalarService scalarService))
                 return scalarService;
 
-            _fallbackScalarService ??= new BaseScalarService(scope, new NullScalarRuntimeConfigProvider());
-            return _fallbackScalarService;
+            return null;
         }
 
         IBlackboardService ResolveBlackboardService(IScopeNode scope, IRuntimeResolver resolver)
@@ -236,7 +236,7 @@ namespace Game.Health
             if (_fallbackProfileRegistry is not ScopeBindingRegistryService fallback)
             {
                 var scopeIdentity = scope.Identity?.Id ?? string.Empty;
-                fallback = new ScopeBindingRegistryService(blackboardService, scalarService, scopeIdentity, scope);
+                fallback = new ScopeBindingRegistryService(blackboardService.LocalVars, scalarService, scopeIdentity, scope);
                 _fallbackProfileRegistry = fallback;
             }
 
@@ -300,6 +300,17 @@ namespace Game.Health
 
             Debug.LogWarning("[HealthMB] IEntityEventService/IEventService was not resolved. Using local EventService fallback.");
             return new EventService();
+        }
+
+        static string DescribeScope(IScopeNode scope)
+        {
+            if (scope == null)
+                return "(null)";
+
+            var scopeId = scope.Identity?.Id;
+            return string.IsNullOrWhiteSpace(scopeId)
+                ? scope.Kind.ToString()
+                : $"{scope.Kind}:{scopeId}";
         }
 
 #if UNITY_EDITOR

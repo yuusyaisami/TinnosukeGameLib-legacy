@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using Game.Kernel.IR;
+using Game.Scalar;
 using Game.VarStoreKeys;
 
 namespace Game.Profile
@@ -86,6 +88,11 @@ namespace Game.Profile
         }
 
         public Type ProfileType => GetType();
+
+        public bool TryCreateScalarDeclarations(ScalarOwnerIdentity owner, SourceLocationIR source, out ScalarDeclarationInput[] declarations, out string failureReason)
+        {
+            return ProfileScalarDeclarationProjection.TryCreateScalarDeclarations(EnumerateBindings(), owner, ProfileType.Name, source, out declarations, out failureReason);
+        }
 
         // ================================================================
         // Internal

@@ -2,11 +2,15 @@
 
 using System;
 using System.Collections.Generic;
+using Game.Kernel.Authoring;
 using Game.Kernel.Boot;
 using Game.Kernel.Contributions;
+using Game.Kernel.Diagnostics;
 using Game.Kernel.IR;
 using Game.Kernel.Validation;
 using UnityEngine;
+
+using AuthoringUnitySourceLocation = Game.Kernel.Authoring.UnitySourceLocation;
 
 namespace TinnosukeGameLib.Editor.KernelBoot
 {
@@ -29,6 +33,8 @@ namespace TinnosukeGameLib.Editor.KernelBoot
         public const string DeclarationOwnerMismatch = "UNITY_ENTITY_DECLARATION_OWNER_MISMATCH";
         public const string ServiceDeclarationInvalid = "UNITY_ENTITY_SERVICE_DECLARATION_INVALID";
         public const string DuplicateServiceDeclaration = "UNITY_ENTITY_SERVICE_DECLARATION_DUPLICATE_ID";
+        public const string CommandDeclarationInvalid = "UNITY_COMMAND_DECLARATION_INVALID";
+        public const string DuplicateCommandDeclaration = "UNITY_COMMAND_DECLARATION_DUPLICATE_ID";
     }
 
     public sealed class ScopeAuthoringValidationInput
@@ -259,7 +265,7 @@ namespace TinnosukeGameLib.Editor.KernelBoot
                         root.HasModuleMetadata ? root.ModuleId : default,
                         "Scope authoring links with preserved base source trace are not supported by the current extraction model.",
                         link.HasSourceLocation ? link.CreateSourceLocation() : null,
-                        baseSourceLocation: link.TryGetBaseSourceLocation(out UnitySourceLocation baseSourceLocation) ? baseSourceLocation : null,
+                        baseSourceLocation: link.TryGetBaseSourceLocation(out AuthoringUnitySourceLocation baseSourceLocation) ? baseSourceLocation : null,
                         subjectName: link.name,
                         runtimeIdentities: BuildRuntimeIdentities(root, link)));
                 }
@@ -305,8 +311,8 @@ namespace TinnosukeGameLib.Editor.KernelBoot
             if (issue.Primary.HasScopeAuthoringId)
                 runtimeIdentities.Add(new RuntimeIdentityRef(RuntimeIdentityKind.ScopeAuthoring, issue.Primary.ScopeAuthoringId.Value));
 
-            if (issue.Secondary.HasValue && issue.Secondary.Value.HasScopeAuthoringId)
-                runtimeIdentities.Add(new RuntimeIdentityRef(RuntimeIdentityKind.ScopeAuthoring, issue.Secondary.Value.ScopeAuthoringId.Value));
+            if (issue.Secondary != null && issue.Secondary.HasScopeAuthoringId)
+                runtimeIdentities.Add(new RuntimeIdentityRef(RuntimeIdentityKind.ScopeAuthoring, issue.Secondary.ScopeAuthoringId.Value));
 
             return new AuthoringValidationIssue(
                 issue.Code,
@@ -347,8 +353,8 @@ namespace TinnosukeGameLib.Editor.KernelBoot
                 new DiagnosticPayloadEntry("ScopeAuthoringId", DiagnosticPayloadValue.FromInt32(issue.AuthoringId.Value)),
             };
 
-            if (issue.Secondary.HasValue && issue.Secondary.Value.HasScopeAuthoringId)
-                payloadEntries.Add(new DiagnosticPayloadEntry("ScopeAuthoringSecondaryId", DiagnosticPayloadValue.FromInt32(issue.Secondary.Value.ScopeAuthoringId.Value)));
+            if (issue.Secondary != null && issue.Secondary.HasScopeAuthoringId)
+                payloadEntries.Add(new DiagnosticPayloadEntry("ScopeAuthoringSecondaryId", DiagnosticPayloadValue.FromInt32(issue.Secondary.ScopeAuthoringId.Value)));
 
             if (issue.HasSecondarySourceLocation)
                 payloadEntries.Add(new DiagnosticPayloadEntry("ScopeAuthoringSecondarySourceLocation", DiagnosticPayloadValue.FromString(issue.SecondarySourceLocation.ToString())));
@@ -368,8 +374,8 @@ namespace TinnosukeGameLib.Editor.KernelBoot
             if (issue.Primary.HasScopeAuthoringId)
                 runtimeIdentities.Add(new RuntimeIdentityRef(RuntimeIdentityKind.ScopeAuthoring, issue.Primary.ScopeAuthoringId.Value));
 
-            if (issue.Secondary.HasValue && issue.Secondary.Value.HasScopeAuthoringId)
-                runtimeIdentities.Add(new RuntimeIdentityRef(RuntimeIdentityKind.ScopeAuthoring, issue.Secondary.Value.ScopeAuthoringId.Value));
+            if (issue.Secondary != null && issue.Secondary.HasScopeAuthoringId)
+                runtimeIdentities.Add(new RuntimeIdentityRef(RuntimeIdentityKind.ScopeAuthoring, issue.Secondary.ScopeAuthoringId.Value));
 
             return runtimeIdentities.ToArray();
         }
@@ -383,8 +389,8 @@ namespace TinnosukeGameLib.Editor.KernelBoot
             if (primary.HasScopeAuthoringId)
                 runtimeIdentities.Add(new RuntimeIdentityRef(RuntimeIdentityKind.ScopeAuthoring, primary.ScopeAuthoringId.Value));
 
-            if (secondary.HasValue && secondary.Value.HasScopeAuthoringId)
-                runtimeIdentities.Add(new RuntimeIdentityRef(RuntimeIdentityKind.ScopeAuthoring, secondary.Value.ScopeAuthoringId.Value));
+            if (secondary != null && secondary.HasScopeAuthoringId)
+                runtimeIdentities.Add(new RuntimeIdentityRef(RuntimeIdentityKind.ScopeAuthoring, secondary.ScopeAuthoringId.Value));
 
             return runtimeIdentities.ToArray();
         }

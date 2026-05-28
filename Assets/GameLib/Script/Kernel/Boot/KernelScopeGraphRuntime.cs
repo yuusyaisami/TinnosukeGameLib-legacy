@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Game.Kernel.Diagnostics;
 using Game.Kernel.Generation;
 using Game.Kernel.IR;
+using Game.Kernel.ScopeGraph;
 
 namespace Game.Kernel.Boot
 {
@@ -63,184 +64,6 @@ namespace Game.Kernel.Boot
         public const string ScopeStateTransitionMissingLifecyclePlan = "KERNEL_RUNTIME_SCOPE_STATE_TRANSITION_MISSING_LIFECYCLE_PLAN";
         public const string ScopeBoundaryMissingScope = "KERNEL_RUNTIME_SCOPE_BOUNDARY_MISSING_SCOPE";
         public const string ScopeBoundaryInvalidState = "KERNEL_RUNTIME_SCOPE_BOUNDARY_INVALID_STATE";
-    }
-
-    public readonly struct ScopeHandle : IEquatable<ScopeHandle>
-    {
-        public ScopeHandle(int index, int generation)
-        {
-            if (index <= 0)
-                throw new ArgumentOutOfRangeException(nameof(index), index, "Scope handles must use a positive slot index.");
-
-            if (generation <= 0)
-                throw new ArgumentOutOfRangeException(nameof(generation), generation, "Scope handles must use a positive generation.");
-
-            Index = index;
-            Generation = generation;
-        }
-
-        public int Index { get; }
-
-        public int Generation { get; }
-
-        public bool IsDefault => Index == 0 && Generation == 0;
-
-        public bool IsValid => Index > 0 && Generation > 0;
-
-        public bool Equals(ScopeHandle other)
-        {
-            return Index == other.Index && Generation == other.Generation;
-        }
-
-        public override bool Equals(object? obj)
-        {
-            return obj is ScopeHandle other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (Index * 397) ^ Generation;
-            }
-        }
-
-        public override string ToString()
-        {
-            return IsDefault ? "ScopeHandle(<default>)" : "ScopeHandle(" + Index + ", " + Generation + ")";
-        }
-
-        public static bool operator ==(ScopeHandle left, ScopeHandle right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(ScopeHandle left, ScopeHandle right)
-        {
-            return !left.Equals(right);
-        }
-    }
-
-    public enum UnityObjectLinkKind
-    {
-        Unknown = 0,
-        Asset = 10,
-        Scene = 20,
-        Runtime = 30,
-        Selection = 40,
-    }
-
-    public readonly struct UnityObjectLink : IEquatable<UnityObjectLink>
-    {
-        readonly string? sourceGuid;
-        readonly string? debugName;
-
-        public UnityObjectLink(
-            UnityObjectLinkKind kind,
-            string? sourceGuid,
-            long localFileId,
-            int runtimeInstanceId,
-            string? debugName)
-        {
-            if (kind == UnityObjectLinkKind.Unknown)
-            {
-                if (!string.IsNullOrEmpty(sourceGuid) || localFileId != 0 || runtimeInstanceId != 0 || !string.IsNullOrEmpty(debugName))
-                    throw new ArgumentException("Unity object links with unknown kind must be empty.", nameof(kind));
-
-                Kind = kind;
-                this.sourceGuid = string.IsNullOrWhiteSpace(sourceGuid) ? null : sourceGuid.Trim();
-                LocalFileId = 0;
-                RuntimeInstanceId = 0;
-                this.debugName = string.Empty;
-                return;
-            }
-
-            if (runtimeInstanceId < 0)
-                throw new ArgumentOutOfRangeException(nameof(runtimeInstanceId), runtimeInstanceId, "Unity object links must use a non-negative runtime instance id.");
-
-            if (!string.IsNullOrWhiteSpace(sourceGuid))
-                sourceGuid = sourceGuid.Trim();
-
-            if (!string.IsNullOrWhiteSpace(debugName))
-                debugName = debugName.Trim();
-
-            if (string.IsNullOrWhiteSpace(debugName))
-                throw new ArgumentException("Unity object links must provide a debug name.", nameof(debugName));
-
-            if (!string.IsNullOrEmpty(sourceGuid) && localFileId <= 0)
-                throw new ArgumentException("Unity object links with a source GUID must provide a positive local file id.", nameof(localFileId));
-
-            if (localFileId < 0)
-                throw new ArgumentOutOfRangeException(nameof(localFileId), localFileId, "Unity object links must use a non-negative local file id.");
-
-            Kind = kind;
-            this.sourceGuid = sourceGuid == null ? null : sourceGuid.Trim();
-            LocalFileId = localFileId;
-            RuntimeInstanceId = runtimeInstanceId;
-            this.debugName = debugName.Trim();
-        }
-
-        public UnityObjectLinkKind Kind { get; }
-
-        public string SourceGuid => sourceGuid ?? string.Empty;
-
-        public long LocalFileId { get; }
-
-        public int RuntimeInstanceId { get; }
-
-        public string DebugName => debugName ?? string.Empty;
-
-        public bool IsEmpty => Kind == UnityObjectLinkKind.Unknown
-            && string.IsNullOrEmpty(sourceGuid)
-            && LocalFileId == 0
-            && RuntimeInstanceId == 0
-            && string.IsNullOrEmpty(debugName);
-
-        public bool HasPersistentSource => !string.IsNullOrEmpty(sourceGuid) && LocalFileId > 0;
-
-        public bool Equals(UnityObjectLink other)
-        {
-            return Kind == other.Kind
-                && string.Equals(SourceGuid, other.SourceGuid, StringComparison.Ordinal)
-                && LocalFileId == other.LocalFileId
-                && RuntimeInstanceId == other.RuntimeInstanceId
-                && string.Equals(DebugName, other.DebugName, StringComparison.Ordinal);
-        }
-
-        public override bool Equals(object? obj)
-        {
-            return obj is UnityObjectLink other && Equals(other);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hash = (int)Kind;
-                hash = (hash * 397) ^ (sourceGuid != null ? StringComparer.Ordinal.GetHashCode(sourceGuid) : 0);
-                hash = (hash * 397) ^ LocalFileId.GetHashCode();
-                hash = (hash * 397) ^ RuntimeInstanceId;
-                hash = (hash * 397) ^ (debugName != null ? StringComparer.Ordinal.GetHashCode(debugName) : 0);
-                return hash;
-            }
-        }
-
-        public override string ToString()
-        {
-            return IsEmpty
-                ? "UnityObjectLink(<empty>)"
-                : "UnityObjectLink(Kind=" + Kind + ", SourceGuid=" + (SourceGuid.Length == 0 ? "<none>" : SourceGuid) + ", LocalFileId=" + LocalFileId + ", RuntimeInstanceId=" + RuntimeInstanceId + ", DebugName=" + DebugName + ")";
-        }
-
-        public static bool operator ==(UnityObjectLink left, UnityObjectLink right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(UnityObjectLink left, UnityObjectLink right)
-        {
-            return !left.Equals(right);
-        }
     }
 
     public readonly struct ScopeCreateRequest
@@ -434,6 +257,7 @@ namespace Game.Kernel.Boot
         readonly Dictionary<ScopeHandle, List<ScopeBoundaryChangeRecord>> boundaryChangeJournal = new();
         readonly Dictionary<ScopeHandle, List<ScopeLifecycleTransitionRequest>> lifecycleTransitionJournal = new();
         readonly Dictionary<ScopePlanId, ScopeIR> scopesByPlanId = new();
+        readonly Dictionary<ScopePlanId, ScopeHandle> liveHandlesByPlanId = new();
         readonly Dictionary<ValueInitPlanId, ValueInitPlanIR> valueInitPlansById = new();
         readonly Dictionary<ScopeAuthoringId, ScopeRuntimeNode> scopesByAuthoringId = new();
         readonly ILifecyclePlanResolver? lifecyclePlanResolver;
@@ -567,6 +391,11 @@ namespace Game.Kernel.Boot
             return true;
         }
 
+        public bool TryGetScopeHandle(ScopePlanId planId, out ScopeHandle handle)
+        {
+            return liveHandlesByPlanId.TryGetValue(planId, out handle);
+        }
+
         public bool TryGetScopeBoundary(
             ScopeHandle handle,
             out ScopeBoundarySnapshot snapshot,
@@ -643,6 +472,8 @@ namespace Game.Kernel.Boot
             if (!instanceTable.TryRelease(handle))
                 throw new InvalidOperationException("Kernel scope graph destroy failed to release a live handle.");
 
+            liveHandlesByPlanId.Remove(node.PlanId);
+
             return true;
         }
 
@@ -703,6 +534,25 @@ namespace Game.Kernel.Boot
             out ScopeStateTransitionFailureKind failureKind,
             out KernelDiagnostic? diagnostic)
         {
+            return TrySetStateCore(handle, nextState, recordLifecycleTransition: true, out failureKind, out diagnostic);
+        }
+
+        public bool TryCommitState(
+            ScopeHandle handle,
+            ScopeRuntimeState nextState,
+            out ScopeStateTransitionFailureKind failureKind,
+            out KernelDiagnostic? diagnostic)
+        {
+            return TrySetStateCore(handle, nextState, recordLifecycleTransition: false, out failureKind, out diagnostic);
+        }
+
+        bool TrySetStateCore(
+            ScopeHandle handle,
+            ScopeRuntimeState nextState,
+            bool recordLifecycleTransition,
+            out ScopeStateTransitionFailureKind failureKind,
+            out KernelDiagnostic? diagnostic)
+        {
             diagnostic = null;
             failureKind = ScopeStateTransitionFailureKind.None;
 
@@ -721,7 +571,7 @@ namespace Game.Kernel.Boot
 
             ScopeRuntimeState currentState = node.State;
 
-            if (currentState != nextState && lifecyclePlanResolver != null)
+            if (recordLifecycleTransition && currentState != nextState && lifecyclePlanResolver != null)
             {
                 if (!lifecyclePlanResolver.TryGetLifecycleDispatcher(node.Lifecycle.PlanId, out _))
                 {
@@ -1046,6 +896,7 @@ namespace Game.Kernel.Boot
                 resolvedUnityLink,
                 ScopeRuntimeState.Created);
             instanceTable.Store(slotIndex, handle, node);
+            liveHandlesByPlanId.Add(planId, handle);
             node.MarkBoundaryChange(ScopeBoundaryChangeKind.Created);
             RecordBoundaryChange(node, default);
 
@@ -1165,7 +1016,7 @@ namespace Game.Kernel.Boot
 
         bool TryHasLiveNodeWithPlanId(ScopePlanId planId)
         {
-            return instanceTable.ContainsLivePlanId(planId);
+            return liveHandlesByPlanId.ContainsKey(planId);
         }
 
         bool TryGetNode(ScopeHandle handle, out ScopeRuntimeNode? node)
@@ -1311,18 +1162,6 @@ namespace Game.Kernel.Boot
                 slot.Instance = null;
                 freeSlots.Push(slotIndex);
                 return true;
-            }
-
-            public bool ContainsLivePlanId(ScopePlanId planId)
-            {
-                for (int index = 0; index < slots.Count; index++)
-                {
-                    ScopeRuntimeNode? node = slots[index].Instance;
-                    if (node != null && node.State != ScopeRuntimeState.Destroyed && node.PlanId == planId)
-                        return true;
-                }
-
-                return false;
             }
 
             public ScopeRuntimeNode GetNodeOrThrow(ScopeHandle handle)

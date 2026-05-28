@@ -1,4 +1,6 @@
 ﻿#nullable enable
+using System;
+using Game.Commands;
 using UnityEngine;
 using System.Collections.Generic;
 using Game.Common;
@@ -18,7 +20,7 @@ namespace Game.UI
     // ## UIElement縺ｮ險ｭ險域晄Φ
     //
     // UIElement縺ｯFeatureInstaller縺ｫ繧医ｊ譟碑ｻ溘↓讖溯・繧定ｿｽ蜉縺ｧ縺阪ｋ:
-    // - 繝懊ち繝ｳ讖溯・繧定ｿｽ蜉 竊・ButtonChannelHubMB
+    // - 繝懊ち繝ｳ讖溯・繧定ｿｽ蜉 竊・ButtonChannelHubDeclarationMB
     // - 繝壹・繧ｸ讖溯・繧定ｿｽ蜉 竊・UIPageFeatureInstaller
     // - 繝医げ繝ｫ讖溯・繧定ｿｽ蜉 竊・UIToggleFeatureInstaller
     //
@@ -76,7 +78,6 @@ namespace Game.UI
     [RequireComponent(typeof(Game.Scalar.BaseScalarMB))]
     [RequireComponent(typeof(Game.Common.EventMB))]
     [RequireComponent(typeof(UIElementStateMB))]
-    [RequireComponent(typeof(BlackboardMB))]
     public class UIElementLifetimeScope : RuntimeLifetimeScopeBase
     {
         // ----------------------------------------------------------------
@@ -109,7 +110,11 @@ namespace Game.UI
         /// </summary>
         protected override void AwakeConfigure(IRuntimeContainerBuilder builder)
         {
-            // 蟆・擂逧・↓UIElement蝗ｺ譛峨・蛻晄悄險ｭ螳壹ｒ霑ｽ蜉蜿ｯ閭ｽ
+            var commandRunner = GetComponent<CommandRunnerMB>();
+            if (commandRunner == null)
+                throw new InvalidOperationException($"{nameof(UIElementLifetimeScope)} requires {nameof(CommandRunnerMB)}.");
+
+            commandRunner.InstallRuntime(builder, this);
         }
 
         /// <summary>

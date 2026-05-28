@@ -9,8 +9,8 @@ using AuthoringUnityBridge = Game.Kernel.Authoring.UnityAuthoringBridge;
 using KernelSourceLocationIR = Game.Kernel.IR.SourceLocationIR;
 using KernelSourceLocationKind = Game.Kernel.IR.SourceLocationKind;
 using NUnit.Framework;
-using RuntimeUnityObjectLink = Game.Kernel.Boot.UnityObjectLink;
-using RuntimeUnityObjectLinkKind = Game.Kernel.Boot.UnityObjectLinkKind;
+using RuntimeUnityObjectLink = Game.Kernel.ScopeGraph.UnityObjectLink;
+using RuntimeUnityObjectLinkKind = Game.Kernel.ScopeGraph.UnityObjectLinkKind;
 
 namespace TinnosukeGameLib.Tests.Editor
 {
@@ -93,7 +93,7 @@ namespace TinnosukeGameLib.Tests.Editor
         {
             AuthoringUnityObjectLink first = CreateUnityObjectLink();
             AuthoringUnityObjectLink same = CreateUnityObjectLink();
-            AuthoringUnityObjectLink different = new AuthoringUnityObjectLink(RuntimeUnityObjectLinkKind.Asset, "asset-guid-2", 24, 5, "Other/Link");
+            AuthoringUnityObjectLink different = new AuthoringUnityObjectLink(AuthoringUnityObjectLinkKind.Asset, "asset-guid-2", 24, 5, "Other/Link");
 
             Assert.That(first.IsEmpty, Is.False);
             Assert.That(first, Is.EqualTo(same));

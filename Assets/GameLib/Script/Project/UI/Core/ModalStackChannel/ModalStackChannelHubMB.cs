@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Common;
+using Game.Kernel.Authoring;
+using Game.Kernel.IR;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using VContainer;
@@ -185,5 +187,119 @@ namespace Game.UI
                 _layers.Add(new ModalLayerPresetEntry());
         }
 #endif
+    }
+
+    [DisallowMultipleComponent]
+    public sealed class ModalStackChannelHubDeclarationMB : EntityDeclarationMB, IEntityServiceDeclarationAuthoring
+    {
+        [Header("Modal Stack Hub Service")]
+        [LabelText("Modal Stack Hub Service Id")]
+        [SerializeField]
+        int modalStackChannelHubServiceId;
+
+        public int ModalStackChannelHubServiceId => modalStackChannelHubServiceId;
+
+        public bool TryCreateServiceDeclarations(
+            in EntityDeclarationPlanInput declarationInput,
+            out EntityServiceDeclarationInput[] declarations,
+            out string failureReason)
+        {
+            if (modalStackChannelHubServiceId <= 0)
+            {
+                declarations = Array.Empty<EntityServiceDeclarationInput>();
+                failureReason = "ModalStackChannelHubDeclarationMB requires a positive service id.";
+                return false;
+            }
+
+            declarations = new[]
+            {
+                new EntityServiceDeclarationInput(
+                    declarationInput.OwnerModule,
+                    declarationInput.OwnerEntityRef,
+                    new ServiceId(modalStackChannelHubServiceId),
+                    CreateStableId(declarationInput.OwnerEntityRef, modalStackChannelHubServiceId),
+                    typeof(ModalStackChannelHubService).Name,
+                    typeof(ModalStackChannelHubService).Name,
+                    new[]
+                    {
+                        typeof(IModalStackChannelHubService).FullName ?? nameof(IModalStackChannelHubService),
+                        typeof(IModalStackChannelTelemetry).FullName ?? nameof(IModalStackChannelTelemetry),
+                    },
+                    Array.Empty<EntityServiceDependencyInput>(),
+                    Array.Empty<ServiceLifecycleContributionInput>(),
+                    SourceKind,
+                    ServiceLifetimeKind.Singleton,
+                    ServiceFactoryKind.GeneratedFactory,
+                    declarationInput.Source),
+            };
+
+            failureReason = string.Empty;
+            return true;
+        }
+
+        protected override void OnValidate()
+        {
+            base.OnValidate();
+
+#if UNITY_EDITOR
+            EnsureLegacyMigrationBindings();
+#endif
+
+            modalStackChannelHubServiceId = Mathf.Max(0, modalStackChannelHubServiceId);
+        }
+
+#if UNITY_EDITOR
+        public void EnsureLegacyMigrationBindings()
+        {
+            if (Application.isPlaying)
+                throw new InvalidOperationException("ModalStackChannelHubDeclarationMB authoring state may only be mutated in edit mode.");
+
+            if (EntityIdentity == null)
+            {
+                EntityIdentityMB? entityIdentity = GetComponent<EntityIdentityMB>();
+                if (entityIdentity == null)
+                    entityIdentity = GetComponentInParent<EntityIdentityMB>(true);
+
+                if (entityIdentity != null)
+                    SetEntityIdentity(entityIdentity);
+            }
+
+            if (modalStackChannelHubServiceId <= 0 && HasSourceLocation)
+                modalStackChannelHubServiceId = ComputeMigratedServiceId(CreateSourceLocation(), 1_200_000_000);
+        }
+
+        public void SetServiceId(int newServiceId)
+        {
+            if (Application.isPlaying)
+                throw new InvalidOperationException("ModalStackChannelHubDeclarationMB authoring state may only be mutated in edit mode.");
+
+            modalStackChannelHubServiceId = Math.Max(0, newServiceId);
+        }
+#endif
+
+        static string CreateStableId(Game.Kernel.Abstractions.EntityRef ownerEntityRef, int serviceId)
+        {
+            return "entity-service:" + ownerEntityRef.Value + ":modal-stack-hub:" + serviceId.ToString("D10");
+        }
+
+        static int ComputeMigratedServiceId(UnitySourceLocation sourceLocation, int baseServiceId)
+        {
+            const int rangeFloor = 100_000_000;
+            int range = Math.Max(rangeFloor, int.MaxValue - baseServiceId);
+
+            unchecked
+            {
+                uint hash = 2166136261;
+                string seed = sourceLocation.ToString();
+                for (int index = 0; index < seed.Length; index++)
+                {
+                    hash ^= seed[index];
+                    hash *= 16777619;
+                }
+
+                int serviceId = baseServiceId + (int)(hash % (uint)range);
+                return serviceId <= 0 ? baseServiceId : serviceId;
+            }
+        }
     }
 }

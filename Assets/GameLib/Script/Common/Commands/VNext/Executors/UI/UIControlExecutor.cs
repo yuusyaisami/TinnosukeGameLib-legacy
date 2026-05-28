@@ -481,9 +481,7 @@ namespace Game.Commands.VNext
                     return true;
                 }
 
-                var identity = candidate.GetComponent<EntityIdentityMB>();
-                var authoringId = identity != null && !string.IsNullOrEmpty(identity.id) ? identity.id : candidate.name;
-                if (string.Equals(authoringId, uiLifetimeScopeId, StringComparison.Ordinal))
+                if (string.Equals(candidate.name, uiLifetimeScopeId, StringComparison.Ordinal))
                 {
                     scope = candidate;
                     return true;

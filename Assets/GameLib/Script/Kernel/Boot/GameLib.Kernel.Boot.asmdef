@@ -6,7 +6,10 @@
     "GameLib.Kernel.Diagnostics",
     "GameLib.Kernel.IR",
     "GameLib.Kernel.Generation",
-    "GameLib.Kernel.Validation"
+    "GameLib.Kernel.Validation",
+    "GameLib.Kernel.ScopeGraph",
+    "GameLib.Kernel.Authoring",
+    "GameLib.Kernel.Contributions"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],
@@ -16,5 +19,5 @@
   "autoReferenced": true,
   "defineConstraints": [],
   "versionDefines": [],
-  "noEngineReferences": true
+  "noEngineReferences": false
 }

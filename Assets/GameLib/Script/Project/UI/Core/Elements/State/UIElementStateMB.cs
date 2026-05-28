@@ -233,6 +233,7 @@ namespace Game.UI
                 .As<IScopeReleaseHandler>()
                 .As<IUIElementState>()
                 .As<IUIElementStateController>()
+                .As<IUIHandleNode>()
                 .As<IUIModalRoot>();
 
             // IUIInputConsumerHub繧堤匳骭ｲ

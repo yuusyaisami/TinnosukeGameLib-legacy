@@ -2,8 +2,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Game;
 using Game.Kernel.Abstractions;
 using Game.Kernel.Authoring;
 using Game.Kernel.Boot;
@@ -12,16 +14,20 @@ using Game.Kernel.Diagnostics;
 using Game.Kernel.Generation;
 using Game.Kernel.IR;
 using Game.Kernel.Validation;
-using Game.UI;
 using NUnit.Framework;
 using TinnosukeGameLib.Editor.KernelBoot;
 using UnityEngine;
+
+using KernelHash128 = Game.Kernel.IR.Hash128;
 
 namespace TinnosukeGameLib.Tests.Editor
 {
     [TestFixture]
     public sealed class AuthoringBridgeDirectPlayTests
     {
+        const string ButtonChannelHubServiceName = "ButtonChannelHubService";
+        const string ButtonChannelHubServiceContractName = "Game.UI.IButtonChannelHubService";
+
         [Test]
         public void PrepareDirectPlay_BootsVerifiedPlanAndCommitsAfterBoot()
         {
@@ -89,11 +95,86 @@ namespace TinnosukeGameLib.Tests.Editor
                 Assert.That(runtimeSurfaceFactory.CreatedContext!.Manifest, Is.EqualTo(result.Manifest));
                 Assert.That(runtimeSurfaceFactory.CreatedContext.Input.RootState.AvailableRootServices.Length, Is.GreaterThan(0));
                 Assert.That(runtimeSurfaceFactory.CreatedContext.Input.RootState.AvailableRootScopes.Length, Is.GreaterThan(0));
+                Assert.That(runtimeSurfaceFactory.CreatedContext.Input.EntityRegistrationPlan, Is.Not.Null);
+                Assert.That(runtimeSurfaceFactory.CreatedContext.Input.EntityRegistrationPlan!.Entries.Length, Is.EqualTo(0));
             }
             finally
             {
-                Object.DestroyImmediate(linkObject);
-                Object.DestroyImmediate(rootObject);
+                UnityEngine.Object.DestroyImmediate(linkObject);
+                UnityEngine.Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void PrepareDirectPlay_ExtractsCommandExecutorBindingsAndCarriesExecutorTableIntoBoot()
+        {
+            GameObject rootObject = new GameObject("DirectPlayCommandRoot");
+            GameObject linkObject = new GameObject("DirectPlayLink");
+
+            try
+            {
+                ScopeAuthoringRoot root = rootObject.AddComponent<ScopeAuthoringRoot>();
+                ConfigureRoot(root, 111, "DirectPlayCommandModule", "Assets/Scenes/DirectPlayCommand.unity", "DirectPlayCommandRoot", "ScopeAuthoringRoot", "module");
+                AddCommandRunnerInstaller(rootObject);
+
+                linkObject.transform.SetParent(rootObject.transform, false);
+                ScopeAuthoringLink link = linkObject.AddComponent<ScopeAuthoringLink>();
+                link.SetAuthoringId(new ScopeAuthoringId(1));
+                link.SetSourceLocation(
+                    UnityAuthoringSourceKind.SceneObject,
+                    "4f4f3b04b1e44671b9f1b6a8613bb2d6",
+                    "Assets/Scenes/DirectPlayCommand.unity",
+                    12001,
+                    "Assets/Scenes/DirectPlayCommand.unity",
+                    "DirectPlayCommandRoot/DirectPlayLink",
+                    "ScopeAuthoringLink",
+                    "scope");
+
+                int debugCommandExecutorId = GetDebugCommandExecutorId();
+                KernelIR kernelIR = CreateKernelIR(debugCommandExecutorId);
+                FakeKernelBootRuntimeSurfaceFactory runtimeSurfaceFactory = new FakeKernelBootRuntimeSurfaceFactory();
+
+                AuthoringDirectPlayInput input = new AuthoringDirectPlayInput(
+                    new[] { root },
+                    kernelIR,
+                    new KernelProfile(new KernelProfileId(7), KernelProfileKind.Development),
+                    new PlanId(101),
+                    new ArtifactSetId(202),
+                    4,
+                    "1.0.0",
+                    new ManifestId(303),
+                    new BootPolicyId(404),
+                    ArtifactSetPublicationState.Empty,
+                    runtimeSurfaceFactory);
+
+                AuthoringDirectPlayResult result = AuthoringBridge.PrepareDirectPlay(input);
+
+                Assert.That(result.IsSuccessful, Is.True);
+                Assert.That(result.GenerationResult, Is.Not.Null);
+                Assert.That(result.GenerationResult!.Projections.CommandExecutorTable.Entries.Length, Is.GreaterThan(0));
+
+                bool hasDebugExecutorBinding = false;
+                ReadOnlySpan<CommandExecutorEntryPlan> entries = result.GenerationResult.Projections.CommandExecutorTable.Entries;
+                for (int index = 0; index < entries.Length; index++)
+                {
+                    if (entries[index].ExecutorId != new CommandExecutorId(debugCommandExecutorId))
+                        continue;
+
+                    hasDebugExecutorBinding = true;
+                    Assert.That(entries[index].BindingToken, Does.Contain("CommandDebugExecutor"));
+                    Assert.That(entries[index].BindingKind, Is.EqualTo(CommandExecutorBindingKind.Singleton));
+                    break;
+                }
+
+                Assert.That(hasDebugExecutorBinding, Is.True);
+                Assert.That(runtimeSurfaceFactory.CreatedContext, Is.Not.Null);
+                Assert.That(runtimeSurfaceFactory.CreatedContext!.Input.CommandExecutorTablePlan, Is.Not.Null);
+                Assert.That(runtimeSurfaceFactory.CreatedContext.Input.CommandExecutorTablePlan!.Entries.Length, Is.EqualTo(entries.Length));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(linkObject);
+                UnityEngine.Object.DestroyImmediate(rootObject);
             }
         }
 
@@ -143,12 +224,15 @@ namespace TinnosukeGameLib.Tests.Editor
                 Assert.That(result.IsSuccessful, Is.True);
                 Assert.That(result.ExtractionReport.EntityInputs.Count, Is.EqualTo(1));
                 Assert.That(result.ExtractionReport.DeclarationInputs.Count, Is.EqualTo(1));
+                Assert.That(result.GenerationResult, Is.Not.Null);
+                Assert.That(result.GenerationResult!.Projections.EntityRegistrationPlan.Entries.Length, Is.EqualTo(1));
+                Assert.That(result.GenerationResult.Projections.EntityRegistrationPlan.Entries[0].EntityRef.Value, Is.EqualTo("entity.player"));
                 Assert.That(result.EffectiveKernelIR.DiagnosticSeeds.Length, Is.EqualTo(kernelIR.DiagnosticSeeds.Length + 2));
                 Assert.That(result.EffectiveKernelIR.Sources.Count, Is.GreaterThanOrEqualTo(kernelIR.Sources.Count + 2));
             }
             finally
             {
-                Object.DestroyImmediate(rootObject);
+                UnityEngine.Object.DestroyImmediate(rootObject);
             }
         }
 
@@ -202,6 +286,8 @@ namespace TinnosukeGameLib.Tests.Editor
                 Assert.That(result.EffectiveKernelIR.DiagnosticSeeds.Length, Is.EqualTo(kernelIR.DiagnosticSeeds.Length + 4));
                 Assert.That(result.GenerationResult, Is.Not.Null);
                 Assert.That(result.GenerationResult!.Projections.ServiceGraph.Services.Length, Is.EqualTo(kernelIR.Services.Length + 2));
+                Assert.That(result.GenerationResult.Projections.ServiceRegistrationPlan.Entries.Length, Is.EqualTo(2));
+                Assert.That(result.GenerationResult.Projections.ServiceRegistrationPlan.Entries[0].EntityRef.Value, Is.EqualTo("entity.navigation"));
                 Assert.That(result.EffectiveKernelIR.Services[^2].Dependencies.Length, Is.EqualTo(3));
                 Assert.That(result.EffectiveKernelIR.Services[^2].Dependencies[0].Target, Is.EqualTo(new DependencyNodeIR(new ServiceId(100))));
                 Assert.That(result.EffectiveKernelIR.Services[^2].Dependencies[1].Target, Is.EqualTo(new DependencyNodeIR(new ServiceId(110))));
@@ -209,12 +295,83 @@ namespace TinnosukeGameLib.Tests.Editor
                 Assert.That(result.EffectiveKernelIR.Services[^1].Dependencies.Length, Is.EqualTo(1));
                 Assert.That(result.EffectiveKernelIR.Services[^1].Dependencies[0].Target, Is.EqualTo(new DependencyNodeIR(new ServiceId(100))));
                 Assert.That(runtimeSurfaceFactory.CreatedContext, Is.Not.Null);
-                Assert.That(runtimeSurfaceFactory.CreatedContext!.Input.RootState.AvailableRootServices, Has.Some.EqualTo(new RuntimeIdentityRef(RuntimeIdentityKind.Service, 6101)));
-                Assert.That(runtimeSurfaceFactory.CreatedContext.Input.RootState.AvailableRootServices, Has.Some.EqualTo(new RuntimeIdentityRef(RuntimeIdentityKind.Service, 6102)));
+                RuntimeIdentityRef[] availableRootServices = runtimeSurfaceFactory.CreatedContext!.Input.RootState.AvailableRootServices.ToArray();
+                Assert.That(availableRootServices, Has.Some.EqualTo(new RuntimeIdentityRef(RuntimeIdentityKind.Service, 6101)));
+                Assert.That(availableRootServices, Has.Some.EqualTo(new RuntimeIdentityRef(RuntimeIdentityKind.Service, 6102)));
+                Assert.That(runtimeSurfaceFactory.CreatedContext.Input.EntityRegistrationPlan, Is.Not.Null);
+                Assert.That(runtimeSurfaceFactory.CreatedContext.Input.EntityRegistrationPlan!.Entries[0].EntityRef.Value, Is.EqualTo("entity.navigation"));
+                Assert.That(runtimeSurfaceFactory.CreatedContext.Input.ServiceRegistrationPlan, Is.Not.Null);
+                Assert.That(runtimeSurfaceFactory.CreatedContext.Input.ServiceRegistrationPlan!.Entries[0].ServiceId, Is.EqualTo(new ServiceId(6101)));
             }
             finally
             {
-                Object.DestroyImmediate(rootObject);
+                UnityEngine.Object.DestroyImmediate(linkObject);
+                UnityEngine.Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void PrepareDirectPlay_ProjectsButtonChannelHubServiceDeclarationIntoVerifiedServiceGraph()
+        {
+            GameObject rootObject = new GameObject("DirectPlayButtonChannelRoot");
+            GameObject linkObject = new GameObject("DirectPlayLink");
+
+            try
+            {
+                ScopeAuthoringRoot root = rootObject.AddComponent<ScopeAuthoringRoot>();
+                ConfigureRoot(root, 104, "DirectPlayButtonChannelModule", "Assets/Scenes/DirectPlayButtonChannel.unity", "DirectPlayButtonChannelRoot", "ScopeAuthoringRoot", "module");
+
+                linkObject.transform.SetParent(rootObject.transform, false);
+                ScopeAuthoringLink link = linkObject.AddComponent<ScopeAuthoringLink>();
+                link.SetAuthoringId(new ScopeAuthoringId(1));
+                link.SetSourceLocation(
+                    UnityAuthoringSourceKind.SceneObject,
+                    "4f4f3b04b1e44671b9f1b6a8613bb2d6",
+                    "Assets/Scenes/DirectPlayButtonChannel.unity",
+                    12001,
+                    "Assets/Scenes/DirectPlayButtonChannel.unity",
+                    "DirectPlayButtonChannelRoot/DirectPlayLink",
+                    "ScopeAuthoringLink",
+                    "scope");
+
+                EntityIdentityMB entity = CreateEntity(rootObject.transform, "ButtonChannelEntity", "entity.button", "Assets/Scenes/DirectPlayButtonChannel.unity", "DirectPlayButtonChannelRoot/ButtonChannelEntity", 17001);
+                CreateButtonChannelHubDeclaration(entity, "ButtonChannelDecl", "Assets/Scenes/DirectPlayButtonChannel.unity", "DirectPlayButtonChannelRoot/ButtonChannelEntity/ButtonChannelDecl", 17002, 6201);
+
+                KernelIR kernelIR = CreateKernelIR();
+                FakeKernelBootRuntimeSurfaceFactory runtimeSurfaceFactory = new FakeKernelBootRuntimeSurfaceFactory();
+                AuthoringDirectPlayInput input = new AuthoringDirectPlayInput(
+                    new[] { root },
+                    kernelIR,
+                    new KernelProfile(new KernelProfileId(7), KernelProfileKind.Development),
+                    new PlanId(101),
+                    new ArtifactSetId(202),
+                    4,
+                    "1.0.0",
+                    new ManifestId(303),
+                    new BootPolicyId(404),
+                    ArtifactSetPublicationState.Empty,
+                    runtimeSurfaceFactory);
+
+                AuthoringDirectPlayResult result = AuthoringBridge.PrepareDirectPlay(input);
+
+                Assert.That(result.IsSuccessful, Is.True);
+                Assert.That(result.ExtractionReport.ServiceDeclarations.Count, Is.EqualTo(1));
+                Assert.That(result.EffectiveKernelIR.Services.Length, Is.EqualTo(kernelIR.Services.Length + 1));
+                Assert.That(result.GenerationResult, Is.Not.Null);
+                Assert.That(result.GenerationResult!.Projections.ServiceGraph.Services.Length, Is.EqualTo(kernelIR.Services.Length + 1));
+                Assert.That(result.GenerationResult.Projections.ServiceRegistrationPlan.Entries.Length, Is.EqualTo(1));
+                Assert.That(result.GenerationResult.Projections.ServiceRegistrationPlan.Entries[0].EntityRef.Value, Is.EqualTo("entity.button"));
+                Assert.That(result.EffectiveKernelIR.Services[^1].Dependencies.Length, Is.EqualTo(0));
+                Assert.That(runtimeSurfaceFactory.CreatedContext, Is.Not.Null);
+                RuntimeIdentityRef[] availableRootServices = runtimeSurfaceFactory.CreatedContext!.Input.RootState.AvailableRootServices.ToArray();
+                Assert.That(availableRootServices, Has.Some.EqualTo(new RuntimeIdentityRef(RuntimeIdentityKind.Service, 6201)));
+                Assert.That(runtimeSurfaceFactory.CreatedContext.Input.ServiceRegistrationPlan, Is.Not.Null);
+                Assert.That(runtimeSurfaceFactory.CreatedContext.Input.ServiceRegistrationPlan!.Entries[0].ServiceId, Is.EqualTo(new ServiceId(6201)));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(linkObject);
+                UnityEngine.Object.DestroyImmediate(rootObject);
             }
         }
 
@@ -268,8 +425,8 @@ namespace TinnosukeGameLib.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(linkObject);
-                Object.DestroyImmediate(rootObject);
+                UnityEngine.Object.DestroyImmediate(linkObject);
+                UnityEngine.Object.DestroyImmediate(rootObject);
             }
         }
 
@@ -307,7 +464,7 @@ namespace TinnosukeGameLib.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(rootObject);
+                UnityEngine.Object.DestroyImmediate(rootObject);
             }
         }
 
@@ -360,8 +517,8 @@ namespace TinnosukeGameLib.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(linkObject);
-                Object.DestroyImmediate(rootObject);
+                UnityEngine.Object.DestroyImmediate(linkObject);
+                UnityEngine.Object.DestroyImmediate(rootObject);
             }
         }
 
@@ -417,8 +574,8 @@ namespace TinnosukeGameLib.Tests.Editor
             }
             finally
             {
-                Object.DestroyImmediate(linkObject);
-                Object.DestroyImmediate(rootObject);
+                UnityEngine.Object.DestroyImmediate(linkObject);
+                UnityEngine.Object.DestroyImmediate(rootObject);
             }
         }
 
@@ -430,6 +587,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 Array.Empty<EntityAuthoringInput>(),
                 Array.Empty<EntityDeclarationPlanInput>(),
                 Array.Empty<EntityServiceDeclarationInput>(),
+                Array.Empty<CommandDeclarationInput>(),
                 new[]
                 {
                     new AuthoringValidationIssue(
@@ -453,10 +611,10 @@ namespace TinnosukeGameLib.Tests.Editor
                 new BootPolicyId(404));
 
             KernelIRNormalizationReport normalizationReport = new KernelIRNormalizationReport(
-                new Hash128(1, 2, 3, 4),
-                new Hash128(4, 3, 2, 1),
-                new Hash128(5, 6, 7, 8),
-                new Hash128(8, 7, 6, 5));
+                new KernelHash128(1, 2, 3, 4),
+                new KernelHash128(4, 3, 2, 1),
+                new KernelHash128(5, 6, 7, 8),
+                new KernelHash128(8, 7, 6, 5));
 
             DependencyValidationReport dependencyValidationReport = new DependencyValidationReport(input.Profile.Kind.ToString(), Array.Empty<DependencyValidationIssue>());
 
@@ -495,7 +653,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 new ManifestId(303),
                 new BootPolicyId(404));
 
-            ScopeAuthoringExtractionReport extractionReport = new ScopeAuthoringExtractionReport(Array.Empty<ModuleContributionData>(), Array.Empty<EntityAuthoringInput>(), Array.Empty<EntityDeclarationPlanInput>(), Array.Empty<EntityServiceDeclarationInput>(), Array.Empty<AuthoringValidationIssue>());
+            ScopeAuthoringExtractionReport extractionReport = new ScopeAuthoringExtractionReport(Array.Empty<ModuleContributionData>(), Array.Empty<EntityAuthoringInput>(), Array.Empty<EntityDeclarationPlanInput>(), Array.Empty<EntityServiceDeclarationInput>(), Array.Empty<CommandDeclarationInput>(), Array.Empty<AuthoringValidationIssue>());
             KernelIRNormalizationReport normalizationReport = new KernelIRNormalizationReport(
                 input.KernelIR.Header.SourceHash,
                 input.KernelIR.Header.SourceHash,
@@ -527,21 +685,6 @@ namespace TinnosukeGameLib.Tests.Editor
             KernelDiagnostic[] diagnostics = AuthoringDirectPlayDiagnostics.ToKernelDiagnostics(result);
 
             Assert.That(diagnostics, Is.Empty);
-        }
-
-        static void ConfigureRoot(ScopeAuthoringRoot root, int moduleId, string moduleName, string assetPath, string gameObjectPath, string componentType, string propertyPath)
-        {
-            root.SetModuleMetadata(moduleId, moduleName, ModuleKind.Feature, 1);
-            root.SetContributionAvailability("Battle", "Windows", "Desktop", ContributionEnvironment.Release);
-            root.SetSourceLocation(
-                UnityAuthoringSourceKind.SceneObject,
-                "4f4f3b04b1e44671b9f1b6a8613bb2d6",
-                assetPath,
-                12001,
-                assetPath,
-                gameObjectPath,
-                componentType,
-                propertyPath);
         }
 
         static EntityIdentityMB CreateEntity(Transform parent, string name, string entityRef, string assetPath, string gameObjectPath, long localFileId)
@@ -582,12 +725,12 @@ namespace TinnosukeGameLib.Tests.Editor
             return declaration;
         }
 
-        static UINavigationDeclarationMB CreateNavigationDeclaration(EntityIdentityMB entity, string name, string assetPath, string gameObjectPath, long localFileId, int navigationServiceId, int inputNavigateServiceId, int selectionServiceId, int controlSchemeServiceId)
+        static TestNavigationDeclarationMB CreateNavigationDeclaration(EntityIdentityMB entity, string name, string assetPath, string gameObjectPath, long localFileId, int navigationServiceId, int inputNavigateServiceId, int selectionServiceId, int controlSchemeServiceId)
         {
             GameObject declarationObject = new GameObject(name);
             declarationObject.transform.SetParent(entity.transform, false);
 
-            UINavigationDeclarationMB declaration = declarationObject.AddComponent<UINavigationDeclarationMB>();
+            TestNavigationDeclarationMB declaration = declarationObject.AddComponent<TestNavigationDeclarationMB>();
             declaration.SetEntityIdentity(entity);
             declaration.SetServiceIds(navigationServiceId, inputNavigateServiceId, selectionServiceId, controlSchemeServiceId);
             declaration.SetSourceLocation(
@@ -597,26 +740,71 @@ namespace TinnosukeGameLib.Tests.Editor
                 localFileId,
                 assetPath,
                 gameObjectPath,
-                nameof(UINavigationDeclarationMB),
+                nameof(TestNavigationDeclarationMB),
+                "declaration");
+            return declaration;
+        }
+
+        static TestButtonChannelHubDeclarationMB CreateButtonChannelHubDeclaration(EntityIdentityMB entity, string name, string assetPath, string gameObjectPath, long localFileId, int serviceId)
+        {
+            GameObject declarationObject = new GameObject(name);
+            declarationObject.transform.SetParent(entity.transform, false);
+
+            TestButtonChannelHubDeclarationMB declaration = declarationObject.AddComponent<TestButtonChannelHubDeclarationMB>();
+            declaration.SetEntityIdentity(entity);
+            declaration.SetServiceId(serviceId);
+            declaration.SetSourceLocation(
+                UnityAuthoringSourceKind.SceneObject,
+                "4f4f3b04b1e44671b9f1b6a8613bb2d6",
+                assetPath,
+                localFileId,
+                assetPath,
+                gameObjectPath,
+                nameof(TestButtonChannelHubDeclarationMB),
                 "declaration");
             return declaration;
         }
 
         static KernelIR CreateKernelIRWithMismatchedHashes()
         {
-            KernelIR provisional = CreateKernelIRCore(new Hash128(1, 2, 3, 4), new Hash128(5, 6, 7, 8));
-            Hash128 normalizedHash = KernelIRHashing.ComputeNormalizedHash(provisional);
-            return CreateKernelIRCore(normalizedHash, new Hash128(normalizedHash.A ^ 1u, normalizedHash.B, normalizedHash.C, normalizedHash.D));
+            KernelIR provisional = CreateKernelIRCore(new KernelHash128(1, 2, 3, 4), new KernelHash128(5, 6, 7, 8));
+            KernelHash128 normalizedHash = KernelIRHashing.ComputeNormalizedHash(provisional);
+            return CreateKernelIRCore(normalizedHash, new KernelHash128(normalizedHash.A ^ 1u, normalizedHash.B, normalizedHash.C, normalizedHash.D));
         }
 
-        static KernelIR CreateKernelIR()
+        static KernelIR CreateKernelIR(int commandExecutorId = 202)
         {
-            KernelIR provisional = CreateKernelIRCore(new Hash128(1, 2, 3, 4), new Hash128(5, 6, 7, 8));
-            Hash128 normalizedHash = KernelIRHashing.ComputeNormalizedHash(provisional);
-            return CreateKernelIRCore(normalizedHash, normalizedHash);
+            KernelIR provisional = CreateKernelIRCore(new KernelHash128(1, 2, 3, 4), new KernelHash128(5, 6, 7, 8), commandExecutorId);
+            KernelHash128 normalizedHash = KernelIRHashing.ComputeNormalizedHash(provisional);
+            return CreateKernelIRCore(normalizedHash, normalizedHash, commandExecutorId);
         }
 
-        static KernelIR CreateKernelIRCore(Hash128 sourceHash, Hash128 normalizedHash)
+        static void AddCommandRunnerInstaller(GameObject target)
+        {
+            if (target == null)
+                throw new ArgumentNullException(nameof(target));
+
+            Type? installerType = Type.GetType("Game.Commands.CommandRunnerMB, Assembly-CSharp", throwOnError: false);
+            if (installerType == null)
+                throw new InvalidOperationException("CommandRunnerMB type is unavailable from Assembly-CSharp.");
+
+            target.AddComponent(installerType);
+        }
+
+        static int GetDebugCommandExecutorId()
+        {
+            Type? commandIdsType = Type.GetType("Game.Commands.VNext.CommandIds, Assembly-CSharp", throwOnError: false);
+            if (commandIdsType == null)
+                throw new InvalidOperationException("CommandIds type is unavailable from Assembly-CSharp.");
+
+            FieldInfo? field = commandIdsType.GetField("DebugCommandContext", BindingFlags.Public | BindingFlags.Static);
+            if (field?.GetValue(null) is int commandId && commandId > 0)
+                return commandId;
+
+            throw new InvalidOperationException("CommandIds.DebugCommandContext is unavailable from Assembly-CSharp.");
+        }
+
+        static KernelIR CreateKernelIRCore(KernelHash128 sourceHash, KernelHash128 normalizedHash, int commandExecutorId = 202)
         {
             ModuleIR module = new ModuleIR(
                 new ModuleId(10),
@@ -699,7 +887,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 new CommandCategoryId(1),
                 new ModuleId(10),
                 new CommandPayloadSchemaRefIR(new CommandPayloadSchemaId(201), new SourceLocationId(18)),
-                new CommandExecutorRefIR(new CommandExecutorId(202), new SourceLocationId(19)),
+                new CommandExecutorRefIR(new CommandExecutorId(commandExecutorId), new SourceLocationId(19)),
                 commandDependencies,
                 new SourceLocationId(15));
 
@@ -750,7 +938,8 @@ namespace TinnosukeGameLib.Tests.Editor
                 "RootLifecycle",
                 new ModuleId(10),
                 lifecycleSteps,
-                new SourceLocationId(28));
+                new SourceLocationId(28),
+                LifecycleFailurePolicy.FailOperation);
 
             RuntimeIdentityFieldIR[] runtimeQueryFields = new[]
             {
@@ -888,7 +1077,26 @@ namespace TinnosukeGameLib.Tests.Editor
             {
                 lifecycleDispatcher = new KernelLifecycleDispatcher(context.LifecyclePlan ?? throw new ArgumentException("Direct play boot tests require a lifecycle plan.", nameof(context)));
                 LifecyclePlanResolver = new KernelLifecyclePlanResolver(new[] { lifecycleDispatcher });
+                EntityRegistrationPlan = context.EntityRegistrationPlan;
+                ServiceRegistrationPlan = context.ServiceRegistrationPlan;
+                EntityServiceRoutePlan = context.EntityServiceRoutePlan;
+                DebugMap = context.Input.DebugMap ?? throw new ArgumentException("Direct play boot tests require a debug map.", nameof(context));
+                Diagnostics = new KernelRuntimeDiagnostics(context.ValidationReport, DebugMap);
             }
+
+            public EntityRegistrationPlan? EntityRegistrationPlan { get; }
+
+            public ServiceRegistrationPlan? ServiceRegistrationPlan { get; }
+
+            public EntityServiceRoutePlan? EntityServiceRoutePlan { get; }
+
+            public CommandCatalogPlan? CommandCatalogPlan => null;
+
+            public CommandExecutorTablePlan? CommandExecutorTablePlan => null;
+
+            public KernelRuntimeDiagnostics Diagnostics { get; }
+
+            public KernelDebugMap DebugMap { get; }
 
             public KernelLifecycleDispatcher? LifecycleDispatcher => lifecycleDispatcher;
 
@@ -907,6 +1115,187 @@ namespace TinnosukeGameLib.Tests.Editor
 
         sealed class TestEntityDeclarationMB : EntityDeclarationMB
         {
+        }
+
+        sealed class TestNavigationDeclarationMB : EntityDeclarationMB, IEntityServiceDeclarationAuthoring
+        {
+            [SerializeField]
+            int navigationServiceId;
+
+            [SerializeField]
+            int inputNavigateServiceId;
+
+            [SerializeField]
+            int selectionServiceId;
+
+            [SerializeField]
+            int controlSchemeServiceId;
+
+#if UNITY_EDITOR
+            public void SetServiceIds(int newNavigationServiceId, int newInputNavigateServiceId, int newSelectionServiceId, int newControlSchemeServiceId)
+            {
+                if (Application.isPlaying)
+                    throw new InvalidOperationException("Test authoring state may only be mutated in edit mode.");
+
+                navigationServiceId = newNavigationServiceId;
+                inputNavigateServiceId = newInputNavigateServiceId;
+                selectionServiceId = newSelectionServiceId;
+                controlSchemeServiceId = newControlSchemeServiceId;
+            }
+#endif
+
+            public bool TryCreateServiceDeclarations(in EntityDeclarationPlanInput declarationInput, out EntityServiceDeclarationInput[] declarations, out string failureReason)
+            {
+                if (navigationServiceId <= 0 || inputNavigateServiceId <= 0 || selectionServiceId <= 0 || controlSchemeServiceId <= 0)
+                {
+                    declarations = Array.Empty<EntityServiceDeclarationInput>();
+                    failureReason = "TestNavigationDeclarationMB requires positive service ids.";
+                    return false;
+                }
+
+                if (navigationServiceId == inputNavigateServiceId
+                    || navigationServiceId == selectionServiceId
+                    || navigationServiceId == controlSchemeServiceId
+                    || inputNavigateServiceId == selectionServiceId
+                    || inputNavigateServiceId == controlSchemeServiceId
+                    || selectionServiceId == controlSchemeServiceId)
+                {
+                    declarations = Array.Empty<EntityServiceDeclarationInput>();
+                    failureReason = "TestNavigationDeclarationMB requires distinct service ids.";
+                    return false;
+                }
+
+                declarations = new[]
+                {
+                    new EntityServiceDeclarationInput(
+                        declarationInput.OwnerModule,
+                        declarationInput.OwnerEntityRef,
+                        new ServiceId(navigationServiceId),
+                        CreateStableId(declarationInput.OwnerEntityRef, navigationServiceId, "navigation"),
+                        "UINavigationService",
+                        "test-navigation",
+                        new[]
+                        {
+                            "Game.UI.IUINavigationService",
+                            "Game.UI.IUINavigationTelemetry",
+                        },
+                        new[]
+                        {
+                            new EntityServiceDependencyInput(new DependencyNodeIR(new ServiceId(selectionServiceId)), DependencyStrength.Required),
+                            new EntityServiceDependencyInput(new DependencyNodeIR(new ServiceId(controlSchemeServiceId)), DependencyStrength.Required),
+                            new EntityServiceDependencyInput(new DependencyNodeIR(new ServiceId(inputNavigateServiceId)), DependencyStrength.Required),
+                        },
+                        Array.Empty<ServiceLifecycleContributionInput>(),
+                        SourceKind,
+                        ServiceLifetimeKind.Singleton,
+                        ServiceFactoryKind.GeneratedFactory,
+                        declarationInput.Source),
+                    new EntityServiceDeclarationInput(
+                        declarationInput.OwnerModule,
+                        declarationInput.OwnerEntityRef,
+                        new ServiceId(inputNavigateServiceId),
+                        CreateStableId(declarationInput.OwnerEntityRef, inputNavigateServiceId, "input-navigate"),
+                        "UIInputNavigateManagerService",
+                        "test-input-navigate",
+                        new[]
+                        {
+                            "Game.UI.IUIInputNavigateService",
+                        },
+                        new[]
+                        {
+                            new EntityServiceDependencyInput(new DependencyNodeIR(new ServiceId(selectionServiceId)), DependencyStrength.Required),
+                        },
+                        new[]
+                        {
+                            new ServiceLifecycleContributionInput(
+                                LifecyclePhase.Acquire,
+                                10,
+                                LifecycleActionKind.ServiceMethod,
+                                CreateLifecycleStableId(declarationInput.OwnerEntityRef, inputNavigateServiceId, "acquire"),
+                                "IUIInputNavigateService.Acquire",
+                                declarationInput.Source),
+                            new ServiceLifecycleContributionInput(
+                                LifecyclePhase.Release,
+                                10,
+                                LifecycleActionKind.ServiceMethod,
+                                CreateLifecycleStableId(declarationInput.OwnerEntityRef, inputNavigateServiceId, "release"),
+                                "IUIInputNavigateService.Release",
+                                declarationInput.Source),
+                        },
+                        SourceKind,
+                        ServiceLifetimeKind.Singleton,
+                        ServiceFactoryKind.GeneratedFactory,
+                        declarationInput.Source),
+                };
+
+                failureReason = string.Empty;
+                return true;
+            }
+
+            static string CreateStableId(EntityRef ownerEntityRef, int serviceId, string suffix)
+            {
+                return "entity-service:" + ownerEntityRef.Value + ':' + suffix + ':' + serviceId.ToString("D10");
+            }
+
+            static string CreateLifecycleStableId(EntityRef ownerEntityRef, int serviceId, string phase)
+            {
+                return "entity-lifecycle:" + ownerEntityRef.Value + ':' + serviceId.ToString("D10") + ':' + phase;
+            }
+        }
+
+        sealed class TestButtonChannelHubDeclarationMB : EntityDeclarationMB, IEntityServiceDeclarationAuthoring
+        {
+            [SerializeField]
+            int buttonChannelHubServiceId;
+
+#if UNITY_EDITOR
+            public void SetServiceId(int newServiceId)
+            {
+                if (Application.isPlaying)
+                    throw new InvalidOperationException("Test authoring state may only be mutated in edit mode.");
+
+                buttonChannelHubServiceId = Math.Max(0, newServiceId);
+            }
+#endif
+
+            public bool TryCreateServiceDeclarations(in EntityDeclarationPlanInput declarationInput, out EntityServiceDeclarationInput[] declarations, out string failureReason)
+            {
+                if (buttonChannelHubServiceId <= 0)
+                {
+                    declarations = Array.Empty<EntityServiceDeclarationInput>();
+                    failureReason = "TestButtonChannelHubDeclarationMB requires a positive service id.";
+                    return false;
+                }
+
+                declarations = new[]
+                {
+                    new EntityServiceDeclarationInput(
+                        declarationInput.OwnerModule,
+                        declarationInput.OwnerEntityRef,
+                        new ServiceId(buttonChannelHubServiceId),
+                        CreateStableId(declarationInput.OwnerEntityRef, buttonChannelHubServiceId),
+                        ButtonChannelHubServiceName,
+                        "test-button-channel-hub",
+                        new[]
+                        {
+                            ButtonChannelHubServiceContractName,
+                        },
+                        Array.Empty<EntityServiceDependencyInput>(),
+                        Array.Empty<ServiceLifecycleContributionInput>(),
+                        SourceKind,
+                        ServiceLifetimeKind.Singleton,
+                        ServiceFactoryKind.GeneratedFactory,
+                        declarationInput.Source),
+                };
+
+                failureReason = string.Empty;
+                return true;
+            }
+
+            static string CreateStableId(EntityRef ownerEntityRef, int serviceId)
+            {
+                return "entity-service:" + ownerEntityRef.Value + ":button-channel-hub:" + serviceId.ToString("D10");
+            }
         }
     }
 }

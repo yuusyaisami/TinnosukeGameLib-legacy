@@ -68,11 +68,15 @@ namespace Game.Kernel.Boot
 
         bool TryDispatchRuntimeQuery(in LifecycleDispatchStep step, out KernelDiagnostic? diagnostic);
 
+        bool TryDispatchValueStore(in LifecycleDispatchStep step, out KernelDiagnostic? diagnostic);
+
         bool TryRollbackService(in LifecycleDispatchStep step, out KernelDiagnostic? diagnostic);
 
         bool TryRollbackScope(in LifecycleDispatchStep step, out KernelDiagnostic? diagnostic);
 
         bool TryRollbackRuntimeQuery(in LifecycleDispatchStep step, out KernelDiagnostic? diagnostic);
+
+        bool TryRollbackValueStore(in LifecycleDispatchStep step, out KernelDiagnostic? diagnostic);
     }
 
     public readonly struct LifecycleDispatchStepOutcome
@@ -95,6 +99,8 @@ namespace Game.Kernel.Boot
         Task<LifecycleDispatchStepOutcome> TryDispatchScopeAsync(LifecycleDispatchStep step, CancellationToken cancellationToken);
 
         Task<LifecycleDispatchStepOutcome> TryDispatchRuntimeQueryAsync(LifecycleDispatchStep step, CancellationToken cancellationToken);
+
+        Task<LifecycleDispatchStepOutcome> TryDispatchValueStoreAsync(LifecycleDispatchStep step, CancellationToken cancellationToken);
     }
 
     public readonly struct LifecycleRollbackResult
@@ -253,7 +259,8 @@ namespace Game.Kernel.Boot
                 if (allowAcquireRollback && step.Phase == LifecyclePhase.Acquire && succeededStepCount > 0 && step.FailurePolicy != LifecycleFailurePolicy.ContinueWithError)
                 {
                     rollbackResult = RollbackCompletedAcquireSteps(steps, succeededStepCount, executor);
-                    diagnosticService?.Report(in CreatePartialAcquireFailureDiagnostic(step, attemptedStepCount, succeededStepCount, failedStepCount, rollbackResult));
+                    KernelDiagnostic partialAcquireFailureDiagnostic = CreatePartialAcquireFailureDiagnostic(step, attemptedStepCount, succeededStepCount, failedStepCount, rollbackResult);
+                    diagnosticService?.Report(in partialAcquireFailureDiagnostic);
                 }
 
                 if (step.FailurePolicy != LifecycleFailurePolicy.ContinueWithError)
@@ -310,7 +317,8 @@ namespace Game.Kernel.Boot
                     if (allowAcquireRollback && step.Phase == LifecyclePhase.Acquire && succeededStepCount > 0 && step.FailurePolicy != LifecycleFailurePolicy.ContinueWithError)
                     {
                         rollbackResult = RollbackCompletedAcquireSteps(steps, succeededStepCount, executor);
-                        diagnosticService?.Report(in CreatePartialAcquireFailureDiagnostic(step, attemptedStepCount, succeededStepCount, failedStepCount, rollbackResult));
+                        KernelDiagnostic partialAcquireFailureDiagnostic = CreatePartialAcquireFailureDiagnostic(step, attemptedStepCount, succeededStepCount, failedStepCount, rollbackResult);
+                        diagnosticService?.Report(in partialAcquireFailureDiagnostic);
                     }
 
                     if (step.FailurePolicy != LifecycleFailurePolicy.ContinueWithError)
@@ -358,7 +366,8 @@ namespace Game.Kernel.Boot
                     if (allowAcquireRollback && step.Phase == LifecyclePhase.Acquire && succeededStepCount > 0 && step.FailurePolicy != LifecycleFailurePolicy.ContinueWithError)
                     {
                         rollbackResult = RollbackCompletedAcquireSteps(steps, succeededStepCount, executor);
-                        diagnosticService?.Report(in CreatePartialAcquireFailureDiagnostic(step, attemptedStepCount, succeededStepCount, failedStepCount, rollbackResult));
+                        KernelDiagnostic partialAcquireFailureDiagnostic = CreatePartialAcquireFailureDiagnostic(step, attemptedStepCount, succeededStepCount, failedStepCount, rollbackResult);
+                        diagnosticService?.Report(in partialAcquireFailureDiagnostic);
                     }
 
                     if (step.FailurePolicy != LifecycleFailurePolicy.ContinueWithError)
@@ -582,6 +591,8 @@ namespace Game.Kernel.Boot
                     return executor.TryDispatchScopeAsync(step, cancellationToken);
                 case LifecycleTargetKind.RuntimeQuery:
                     return executor.TryDispatchRuntimeQueryAsync(step, cancellationToken);
+                case LifecycleTargetKind.ValueStore:
+                    return executor.TryDispatchValueStoreAsync(step, cancellationToken);
                 default:
                     return Task.FromResult(new LifecycleDispatchStepOutcome(false, CreateUnsupportedTargetKindDiagnostic(step, rollbackMode: false)));
             }
@@ -597,6 +608,8 @@ namespace Game.Kernel.Boot
                     return executor.TryDispatchScope(in step, out diagnostic);
                 case LifecycleTargetKind.RuntimeQuery:
                     return executor.TryDispatchRuntimeQuery(in step, out diagnostic);
+                case LifecycleTargetKind.ValueStore:
+                    return executor.TryDispatchValueStore(in step, out diagnostic);
                 default:
                     diagnostic = new KernelDiagnostic(
                         new DiagnosticCode(KernelLifecycleDispatchCodes.UnsupportedTargetKind),
@@ -629,6 +642,8 @@ namespace Game.Kernel.Boot
                     return executor.TryRollbackScope(in step, out diagnostic);
                 case LifecycleTargetKind.RuntimeQuery:
                     return executor.TryRollbackRuntimeQuery(in step, out diagnostic);
+                case LifecycleTargetKind.ValueStore:
+                    return executor.TryRollbackValueStore(in step, out diagnostic);
                 default:
                     diagnostic = new KernelDiagnostic(
                         new DiagnosticCode(KernelLifecycleDispatchCodes.UnsupportedTargetKind),

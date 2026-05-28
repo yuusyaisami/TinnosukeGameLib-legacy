@@ -511,6 +511,74 @@ namespace Game
                 .As<Game.Common.IDynamicCounterController>()
                 .As<IScopeAcquireHandler>()
                 .As<IScopeReleaseHandler>();
+
+            RegisterBlackboardRuntime(builder);
+        }
+
+        void RegisterBlackboardRuntime(IRuntimeContainerBuilder builder)
+        {
+            BlackboardMB? blackboardMb = FindOwnedBlackboardMb(includeInactiveFeatureInstallers);
+            if (blackboardMb == null)
+                return;
+
+            blackboardMb.AttachOwnerScope(this);
+
+            var blackboard = builder.Register<IBlackboardService, BlackboardService>(RuntimeLifetime.Singleton)
+                .WithParameter(this);
+
+            switch (Kind)
+            {
+                case LifetimeScopeKind.Project:
+                    blackboard.As<IProjectBlackboardService>();
+                    break;
+                case LifetimeScopeKind.Platform:
+                    blackboard.As<IPlatformBlackboardService>();
+                    break;
+                case LifetimeScopeKind.Global:
+                    blackboard.As<IGlobalBlackboardService>();
+                    break;
+                case LifetimeScopeKind.Scene:
+                    blackboard.As<ISceneBlackboardService>();
+                    break;
+                case LifetimeScopeKind.Field:
+                    blackboard.As<IFieldBlackboardService>();
+                    break;
+                case LifetimeScopeKind.Entity:
+                    blackboard.As<IEntityBlackboardService>();
+                    break;
+                case LifetimeScopeKind.UI:
+                    blackboard.As<IUIBlackboardService>();
+                    break;
+                case LifetimeScopeKind.UIElement:
+                    blackboard.As<IUIElementBlackboardService>();
+                    break;
+                case LifetimeScopeKind.Runtime:
+                    blackboard.As<IRuntimeBlackboardService>();
+                    break;
+                default:
+                    Debug.LogWarning($"Unhandled LifetimeScopeKind: {Kind} in {nameof(RuntimeLifetimeScopeBase)} blackboard registration.", this);
+                    break;
+            }
+
+            builder.Register<IGridBlackboardService, GridBlackboardService>(RuntimeLifetime.Singleton)
+                .As<IGridBlackboardService>()
+                .As<IScopeAcquireHandler>()
+                .As<IScopeReleaseHandler>();
+
+            // Register BlackboardMB after grid service so grid reset runs before local value reinitialization.
+            builder.RegisterComponent(blackboardMb)
+                .AsSelf()
+                .As<IScopeAcquireHandler>()
+                .As<IScopeReleaseHandler>();
+
+            if (blackboardMb.AutoWriteTransformVars)
+            {
+                builder.Register<TransformVarAutoWriterService>(RuntimeLifetime.Singleton)
+                    .WithParameter(blackboardMb.transform)
+                    .As<IScopeTickHandler>()
+                    .As<IScopeAcquireHandler>()
+                    .As<IScopeReleaseHandler>();
+            }
         }
 
         void InstallFeatures(IRuntimeContainerBuilder builder)
@@ -554,6 +622,40 @@ namespace Game
             }
 
             _ownedFeatureInstallersCached = true;
+        }
+
+        BlackboardMB? FindOwnedBlackboardMb(bool includeInactive)
+        {
+            var blackboards = ListPool<BlackboardMB>.Get();
+            try
+            {
+                GetComponentsInChildren(includeInactive, blackboards);
+
+                BlackboardMB? resolved = null;
+                for (int index = 0; index < blackboards.Count; index++)
+                {
+                    BlackboardMB blackboard = blackboards[index];
+                    if (!blackboard)
+                        continue;
+
+                    if (!ScopeFeatureInstallerUtility.TryGetNearestScopeNode(blackboard, includeInactive, out var owner) || !ReferenceEquals(owner, this))
+                        continue;
+
+                    if (resolved != null && !ReferenceEquals(resolved, blackboard))
+                    {
+                        throw new InvalidOperationException(
+                            $"{GetType().Name} found multiple owned {nameof(BlackboardMB)} components. M11 blackboard cutover requires a single explicit authoring host per scope.");
+                    }
+
+                    resolved = blackboard;
+                }
+
+                return resolved;
+            }
+            finally
+            {
+                ListPool<BlackboardMB>.Release(blackboards);
+            }
         }
 
         void ApplyIdentityFromComponent()
@@ -780,9 +882,16 @@ namespace Game
     [DisallowMultipleComponent]
     [RequireComponent(typeof(EntityIdentityMB))]
     [RequireComponent(typeof(RuntimeTickHub))]
-    [RequireComponent(typeof(BlackboardMB))]
     [RequireComponent(typeof(CommandRunnerMB))]
     public class RuntimeLifetimeScope : RuntimeLifetimeScopeBase
     {
+        protected override void AwakeConfigure(IRuntimeContainerBuilder builder)
+        {
+            var commandRunner = GetComponent<CommandRunnerMB>();
+            if (commandRunner == null)
+                throw new InvalidOperationException($"{nameof(RuntimeLifetimeScope)} requires {nameof(CommandRunnerMB)}.");
+
+            commandRunner.InstallRuntime(builder, this);
+        }
     }
 }

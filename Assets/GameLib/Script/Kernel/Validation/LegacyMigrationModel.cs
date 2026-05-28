@@ -498,6 +498,12 @@ namespace Game.Kernel.Validation
                 || kind == LegacyCompatKind.TemporaryBridge;
         }
 
+        static bool IsProfileForbidden(LegacyCompatDescriptorIR legacyCompat, KernelProfileMask selectedProfileMask)
+        {
+            return legacyCompat.Kind == LegacyCompatKind.ForbiddenFallback
+                || (legacyCompat.Profiles & selectedProfileMask) == KernelProfileMask.None;
+        }
+
         static LegacyAdapterDescriptor[] CloneAndSortAdapters(IReadOnlyList<LegacyAdapterDescriptor> source)
         {
             LegacyAdapterDescriptor[] clone = new LegacyAdapterDescriptor[source.Count];
@@ -606,9 +612,24 @@ namespace Game.Kernel.Validation
                 new DiagnosticPayloadEntry("ExplicitTargets", DiagnosticPayloadValue.FromString(FormatTargets(adapter.ExplicitTargets))),
             };
 
-            payloadEntries.AddRange(adapter.RemovalPolicy.ToDiagnosticPayloadEntries());
+            payloadEntries.AddRange(CreateRemovalPolicyPayloadEntries(adapter.RemovalPolicy));
 
             return payloadEntries.ToArray();
+        }
+
+        static DiagnosticPayloadEntry[] CreateRemovalPolicyPayloadEntries(LegacyRemovalPolicy removalPolicy)
+        {
+            return new[]
+            {
+                new DiagnosticPayloadEntry("RemovalPolicyOwnerModule", DiagnosticPayloadValue.FromInt32(removalPolicy.OwnerModule.Value)),
+                new DiagnosticPayloadEntry("RemovalPolicyStatus", DiagnosticPayloadValue.FromString(removalPolicy.Status.ToString())),
+                new DiagnosticPayloadEntry("RemovalPolicyAllowedProfiles", DiagnosticPayloadValue.FromString(removalPolicy.AllowedProfiles.ToString())),
+                new DiagnosticPayloadEntry("RemovalPolicyReason", DiagnosticPayloadValue.FromString(removalPolicy.Reason)),
+                new DiagnosticPayloadEntry("RemovalPolicyTargetReplacement", DiagnosticPayloadValue.FromString(removalPolicy.TargetReplacement)),
+                new DiagnosticPayloadEntry("RemovalPolicyExpirationCondition", DiagnosticPayloadValue.FromString(removalPolicy.ExpirationCondition)),
+                new DiagnosticPayloadEntry("RemovalPolicyDiagnosticsCode", DiagnosticPayloadValue.FromString(removalPolicy.DiagnosticsCode)),
+                new DiagnosticPayloadEntry("RemovalPolicyTrackingIssueOrBlockingCondition", DiagnosticPayloadValue.FromString(removalPolicy.TrackingIssueOrBlockingCondition)),
+            };
         }
 
         static bool IsSurfaceCompatible(LegacyCompatKind kind, LegacyAdapterSurface surface)
@@ -985,21 +1006,33 @@ namespace Game.Kernel.Validation
                         break;
                     case ValidationSeverity.Warning:
                         warningCount++;
-                        return (infoCount, warningCount, errorCount, fatalCount);
-                }
-
-                static ValidationResultStatus DeriveStatus(int infoCount, int warningCount, int errorCount, int fatalCount)
-                {
-                    if (fatalCount > 0)
-                        return ValidationResultStatus.Fatal;
-
-                    if (errorCount > 0)
-                        return ValidationResultStatus.Failed;
-
-                    if (warningCount > 0 || infoCount > 0)
-                        return ValidationResultStatus.PassedWithWarnings;
-
-                    return ValidationResultStatus.Passed;
+                        break;
+                    case ValidationSeverity.Error:
+                        errorCount++;
+                        break;
+                    case ValidationSeverity.Fatal:
+                        fatalCount++;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(source), source[index].Severity, "Unsupported legacy migration validation severity.");
                 }
             }
+
+            return (infoCount, warningCount, errorCount, fatalCount);
         }
+
+        static ValidationResultStatus DeriveStatus(int infoCount, int warningCount, int errorCount, int fatalCount)
+        {
+            if (fatalCount > 0)
+                return ValidationResultStatus.Fatal;
+
+            if (errorCount > 0)
+                return ValidationResultStatus.Failed;
+
+            if (warningCount > 0 || infoCount > 0)
+                return ValidationResultStatus.PassedWithWarnings;
+
+            return ValidationResultStatus.Passed;
+        }
+    }
+}

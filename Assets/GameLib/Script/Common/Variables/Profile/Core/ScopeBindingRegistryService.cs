@@ -10,6 +10,7 @@ using UnityEngine;
 using UnityEngine.Pool;
 using Game;
 using Game.Common;
+using Game.Kernel.IR;
 using Game.Save;
 using Game.Scalar;
 
@@ -29,7 +30,7 @@ namespace Game.Profile
         // _profiles は再適用用に全件保持し、_latestProfileByType は型解決 API 互換のため最新定義だけ保持する。
         readonly List<IProfileRuntime> _profiles = new();
         readonly Dictionary<Type, IProfileRuntime> _latestProfileByType = new();
-        readonly IBlackboardService _blackboard;
+        readonly IVarStore _blackboard;
         readonly IBaseScalarService _scalar;
         readonly IScopeNode _scope;
         string _scopeIdentity;
@@ -43,11 +44,11 @@ namespace Game.Profile
         /// <summary>
         /// ScopeBindingRegistryService を作成。
         /// </summary>
-        /// <param name="blackboard">Blackboard サービス（null 可）</param>
+        /// <param name="blackboard">Blackboard vocabulary に対応する value seam（null 可）</param>
         /// <param name="scalar">Scalar サービス（null 可）</param>
-        /// <param name="scopeIdentity">Scope の安定 ID（EntityIdentityMB.id）。Save 対象にする場合は必須。</param>
+        /// <param name="scopeIdentity">Scope の安定 ID。Save 対象にする場合は必須。</param>
         public ScopeBindingRegistryService(
-            IBlackboardService blackboard = null,
+            IVarStore blackboard = null,
             IBaseScalarService scalar = null,
             string scopeIdentity = null,
             IScopeNode scope = null
@@ -197,7 +198,7 @@ namespace Game.Profile
         /// ScopeBindingRegistryMB など、遅延インジェクションを行う場合に使用。
         /// </summary>
         public void ApplyBindings(IProfileRuntime runtime, IProfileDefinition profile,
-            IBlackboardService blackboard, IBaseScalarService scalar)
+            IVarStore blackboard, IBaseScalarService scalar)
         {
             if (runtime == null || profile == null)
                 return;
@@ -215,7 +216,7 @@ namespace Game.Profile
         /// IProfileRuntime からバインディングを適用する（非ジェネリック版）
         /// </summary>
         void ApplyBindingsInternal(IProfileRuntime runtime, IProfileDefinition profile,
-            IBlackboardService blackboard, IBaseScalarService scalar)
+            IVarStore blackboard, IBaseScalarService scalar)
         {
             var bindings = ListPool<IProfileValueBinding>.Get();
             try
@@ -226,6 +227,7 @@ namespace Game.Profile
                 runtime.ClearSaveEntries();
 
                 var profileTypeName = runtime.ProfileType.Name;
+                bool bindingsAppliedSuccessfully = true;
 
                 for (int i = 0; i < bindings.Count; i++)
                 {
@@ -234,21 +236,10 @@ namespace Game.Profile
                     if (!binding.HasAnyBinding)
                         continue;
 
-                    // Blackboard への書き込み
+                    // Blackboard vocabulary に対応する value seam への書き込み
                     if (blackboard != null && binding.BlackboardKey != 0)
                     {
                         binding.WriteToBlackboard(blackboard);
-                    }
-
-                    // Scalar への書き込み
-                    if (scalar != null && binding.ScalarKey.Id != 0)
-                    {
-                        binding.WriteToScalar(scalar);
-                    }
-                    else if (scalar == null && binding.ScalarKey.Id != 0)
-                    {
-                        var scopeLabel = DescribeScope(_scope);
-                        Debug.LogError($"[ScopeBindingRegistryService] Scalar binding requires IBaseScalarService, but no scalar service exists in this LTS. scope={scopeLabel} profile='{profileTypeName}' scalarKey='{binding.ScalarKey.Name}'");
                     }
 
                     // SaveEntry を収集（ScopeIdentity が設定されている場合のみ）
@@ -281,13 +272,137 @@ namespace Game.Profile
                     }
                 }
 
+                if (HasScalarBindingRequests(bindings))
+                {
+                    if (scalar == null)
+                    {
+                        bindingsAppliedSuccessfully = false;
+                        var scopeLabel = DescribeScope(_scope);
+                        Debug.LogError($"[ScopeBindingRegistryService] Scalar binding requires IBaseScalarService, but no scalar service exists in this LTS. scope={scopeLabel} profile='{profileTypeName}'");
+                    }
+                    else if (!TryApplyScalarDeclarations(bindings, profileTypeName, scalar, out var failureReason))
+                    {
+                        bindingsAppliedSuccessfully = false;
+                        var scopeLabel = DescribeScope(_scope);
+                        Debug.LogError($"[ScopeBindingRegistryService] Failed to apply scalar declarations. scope={scopeLabel} profile='{profileTypeName}' reason='{failureReason}'");
+                    }
+                }
+
                 // Runtime の状態を更新
-                runtime.SetBindingsApplied(true);
+                runtime.SetBindingsApplied(bindingsAppliedSuccessfully);
             }
             finally
             {
                 ListPool<IProfileValueBinding>.Release(bindings);
             }
+        }
+
+        bool TryApplyScalarDeclarations(
+            List<IProfileValueBinding> bindings,
+            string profileTypeName,
+            IBaseScalarService scalar,
+            out string failureReason)
+        {
+            if (!TryCreateScalarOwnerIdentity(out ScalarOwnerIdentity owner, out failureReason))
+                return false;
+
+            SourceLocationIR source = CreateScalarDeclarationSource(profileTypeName);
+            if (!ProfileScalarDeclarationProjection.TryCreateScalarDeclarations(bindings, owner, profileTypeName, source, out ScalarDeclarationInput[] declarations, out failureReason))
+                return false;
+
+            if (scalar is IScalarRuntimeShell shell)
+                return ScalarDeclarationRuntimeBridge.TryApplyDeclarations(shell, declarations, out failureReason);
+
+            return ScalarDeclarationRuntimeBridge.TryApplyDeclarations(scalar, declarations, out failureReason);
+        }
+
+        bool TryCreateScalarOwnerIdentity(out ScalarOwnerIdentity owner, out string failureReason)
+        {
+            owner = default;
+
+            if (_scope == null)
+            {
+                failureReason = "ScopeBindingRegistryService requires IScopeNode to project scalar declarations.";
+                return false;
+            }
+
+            if (!TryMapScalarOwnerKind(_scope.Kind, out ScalarOwnerKind ownerKind))
+            {
+                failureReason = "ScopeBindingRegistryService cannot map scope kind '" + _scope.Kind + "' to a scalar owner kind.";
+                return false;
+            }
+
+            string ownerIdValue = _scope.Identity?.Id;
+            if (string.IsNullOrWhiteSpace(ownerIdValue))
+                ownerIdValue = _scopeIdentity;
+
+            if (string.IsNullOrWhiteSpace(ownerIdValue))
+            {
+                failureReason = "ScopeBindingRegistryService requires a non-empty scope identity to project scalar declarations.";
+                return false;
+            }
+
+            owner = new ScalarOwnerIdentity(ownerKind, new ScalarOwnerId(ownerIdValue));
+            failureReason = string.Empty;
+            return true;
+        }
+
+        static bool HasScalarBindingRequests(List<IProfileValueBinding> bindings)
+        {
+            for (int i = 0; i < bindings.Count; i++)
+            {
+                if (ProfileScalarDeclarationProjection.HasRequestedScalarBinding(bindings[i]))
+                    return true;
+            }
+
+            return false;
+        }
+
+        static bool TryMapScalarOwnerKind(LifetimeScopeKind scopeKind, out ScalarOwnerKind ownerKind)
+        {
+            switch (scopeKind)
+            {
+                case LifetimeScopeKind.Project:
+                    ownerKind = ScalarOwnerKind.Application;
+                    return true;
+                case LifetimeScopeKind.Platform:
+                    ownerKind = ScalarOwnerKind.Platform;
+                    return true;
+                case LifetimeScopeKind.Global:
+                    ownerKind = ScalarOwnerKind.Global;
+                    return true;
+                case LifetimeScopeKind.Scene:
+                    ownerKind = ScalarOwnerKind.Scene;
+                    return true;
+                case LifetimeScopeKind.Field:
+                    ownerKind = ScalarOwnerKind.Field;
+                    return true;
+                case LifetimeScopeKind.Entity:
+                    ownerKind = ScalarOwnerKind.Entity;
+                    return true;
+                case LifetimeScopeKind.UI:
+                    ownerKind = ScalarOwnerKind.UI;
+                    return true;
+                case LifetimeScopeKind.UIElement:
+                    ownerKind = ScalarOwnerKind.UIElement;
+                    return true;
+                case LifetimeScopeKind.Runtime:
+                    ownerKind = ScalarOwnerKind.Runtime;
+                    return true;
+                default:
+                    ownerKind = default;
+                    return false;
+            }
+        }
+
+        SourceLocationIR CreateScalarDeclarationSource(string profileTypeName)
+        {
+            string scopeLabel = DescribeScope(_scope);
+            return new SourceLocationIR(
+                new GeneratedSourceLocation(
+                    nameof(ScopeBindingRegistryService),
+                    profileTypeName + "@" + scopeLabel,
+                    nameof(ApplyBindingsInternal)));
         }
 
         static string DescribeScope(IScopeNode scope)

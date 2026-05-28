@@ -6,8 +6,8 @@ namespace Game.Scalar
 {
     public readonly struct ScalarBindingDebugInfo
     {
-        public readonly ScalarRef Source;
-        public readonly ScalarRef Target;
+        public readonly ScalarBindingEndpoint Source;
+        public readonly ScalarBindingEndpoint Target;
         public readonly ScalarLinkMode Mode;
         public readonly float Factor;
         public readonly ScalarLinkClamp Clamp;
@@ -17,8 +17,8 @@ namespace Game.Scalar
         public readonly float LastModValue;
 
         public ScalarBindingDebugInfo(
-            ScalarRef source,
-            ScalarRef target,
+            ScalarBindingEndpoint source,
+            ScalarBindingEndpoint target,
             ScalarLinkMode mode,
             float factor,
             ScalarLinkClamp clamp,

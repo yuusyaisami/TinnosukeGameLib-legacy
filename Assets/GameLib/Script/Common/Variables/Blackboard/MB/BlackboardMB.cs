@@ -1,7 +1,11 @@
 ﻿#nullable enable
 
 // Game.Common.BlackboardInstallerMB.cs
+using System;
+using System.Runtime.CompilerServices;
 using Sirenix.OdinInspector;
+using Game.Kernel.Abstractions;
+using Game.Kernel.IR;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -9,8 +13,10 @@ using System.Collections.Generic;
 
 namespace Game.Common
 {
-    public class BlackboardMB : MonoBehaviour, IFeatureInstaller, IScopeAcquireHandler, IScopeReleaseHandler
+    public class BlackboardMB : MonoBehaviour, IScopeAcquireHandler, IScopeReleaseHandler, ISceneKernelValueInitHost
     {
+        const string LocalBlackboardValueStoreRef = "local:blackboard";
+
         [System.Serializable]
         sealed class LocalBlackboardInitEntry
         {
@@ -142,75 +148,30 @@ namespace Game.Common
         BlackboardGridValueInitPlan? _acquireLocalGridBlackboardPlan;
         bool _debugInitialized;
         bool _valueInitPlansBuilt;
+        bool _createValueInitApplied;
+        bool _acquireValueInitApplied;
+        VarStoreBackedValueStore? _valueStore;
+        EntityRef _valueStoreEntityRef;
+        bool _valueStoreBound;
+        bool _valueInitHostBound;
+        int _sceneKernelValueInitHostId;
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode scope)
+        public bool AutoWriteTransformVars => autoWriteTransformVars;
+
+        internal void AttachOwnerScope(IScopeNode scope)
         {
-            _owner = scope;
-            LifetimeScopeKind kind = scope.Kind;
-            IRuntimeRegistrationBuilder blackboard = builder.Register<IBlackboardService, BlackboardService>(RuntimeLifetime.Singleton).WithParameter(scope);
-            switch (kind)
-            {
-                case LifetimeScopeKind.Project:
-                    blackboard.As<IProjectBlackboardService>();
-                    break;
-                case LifetimeScopeKind.Platform:
-                    blackboard.As<IPlatformBlackboardService>();
-                    break;
-                case LifetimeScopeKind.Global:
-                    blackboard.As<IGlobalBlackboardService>();
-                    break;
-                case LifetimeScopeKind.Scene:
-                    blackboard.As<ISceneBlackboardService>();
-                    break;
-                case LifetimeScopeKind.Field:
-                    blackboard.As<IFieldBlackboardService>();
-                    break;
-                case LifetimeScopeKind.Entity:
-                    blackboard.As<IEntityBlackboardService>();
-                    break;
-                case LifetimeScopeKind.UI:
-                    blackboard.As<IUIBlackboardService>();
-                    break;
-                case LifetimeScopeKind.UIElement:
-                    blackboard.As<IUIElementBlackboardService>();
-                    break;
-                case LifetimeScopeKind.Runtime:
-                    blackboard.As<IRuntimeBlackboardService>();
-                    break;
-                default:
-                    Debug.LogWarning($"Unhandled LifetimeScopeKind: {kind} in BlackboardMB.");
-                    break;
-            }
-
-            builder.Register<IGridBlackboardService, GridBlackboardService>(RuntimeLifetime.Singleton)
-                .As<IGridBlackboardService>()
-                .As<IScopeAcquireHandler>()
-                .As<IScopeReleaseHandler>();
-
-            // Register this component after the grid service so grid reset happens before local reinitialization.
-            builder.RegisterComponent(this)
-                .AsSelf()
-                .As<IScopeAcquireHandler>()
-                .As<IScopeReleaseHandler>();
-
-            // Save registration is handled by ScopeBindingRegistry. BlackboardMB only owns local blackboard initialization.
-
-            if (autoWriteTransformVars)
-            {
-                builder.Register<TransformVarAutoWriterService>(RuntimeLifetime.Singleton)
-                    .WithParameter(transform)
-                    .As<IScopeTickHandler>()
-                    .As<IScopeAcquireHandler>()
-                    .As<IScopeReleaseHandler>();
-            }
+            _owner = scope ?? throw new ArgumentNullException(nameof(scope));
         }
 
         [Inject]
         void Construct(IBlackboardService blackboard, IGridBlackboardService gridBlackboard)
         {
             EnsureValueInitPlansBuilt();
-            BlackboardValueInitRuntime.ApplyLocalPlan(blackboard, _owner, _createLocalBlackboardPlan, _valueInitRuntime);
-            BlackboardValueInitRuntime.ApplyGridPlan(blackboard, gridBlackboard, _owner, _createLocalGridBlackboardPlan, _valueInitRuntime);
+            TryBindSceneKernelValueStore(blackboard.LocalVars);
+            TryBindSceneKernelValueInitHost();
+            if (!TryApplyValueInitPhase(LifecyclePhase.Create, blackboard, gridBlackboard, out string failureReason))
+                Debug.LogError("[BlackboardMB] Failed to apply create-phase value init: " + failureReason, this);
+
             TryInitializeDebugView(blackboard, gridBlackboard);
         }
 
@@ -221,6 +182,12 @@ namespace Game.Common
                 _debugView.Dispose();
                 _debugInitialized = false;
             }
+        }
+
+        void OnDestroy()
+        {
+            UnbindSceneKernelValueInitHost();
+            UnbindSceneKernelValueStore();
         }
 
         void Start()
@@ -251,14 +218,12 @@ namespace Game.Common
                 return;
 
             EnsureValueInitPlansBuilt();
-            BlackboardValueInitRuntime.ApplyLocalPlan(blackboard, _owner, _acquireLocalBlackboardPlan, _valueInitRuntime);
-
             IGridBlackboardService? gridBlackboard = null;
             if (resolver.TryResolve<IGridBlackboardService>(out var resolvedGridBlackboard) && resolvedGridBlackboard != null)
-            {
                 gridBlackboard = resolvedGridBlackboard;
-                BlackboardValueInitRuntime.ApplyGridPlan(blackboard, resolvedGridBlackboard, _owner, _acquireLocalGridBlackboardPlan, _valueInitRuntime);
-            }
+
+            if (!TryApplyValueInitPhase(LifecyclePhase.Acquire, blackboard, gridBlackboard, out string failureReason))
+                Debug.LogError("[BlackboardMB] Failed to apply acquire-phase value init: " + failureReason, this);
 
             TryInitializeDebugView(blackboard, gridBlackboard);
         }
@@ -276,6 +241,7 @@ namespace Game.Common
                 return;
 
             blackboard.LocalVars.Clear();
+            _acquireValueInitApplied = false;
         }
 
         void TryInitializeDebugView(IBlackboardService blackboard, IGridBlackboardService? gridBlackboard)
@@ -285,6 +251,133 @@ namespace Game.Common
 
             _debugView.Initialize(blackboard, gridBlackboard, this);
             _debugInitialized = true;
+        }
+
+        void TryBindSceneKernelValueStore(IVarStore localVars)
+        {
+            if (_valueStoreBound || localVars == null || _owner == null || _owner.Kind != LifetimeScopeKind.Entity)
+                return;
+
+            if (!TryResolveValueStoreEntityRef(out EntityRef entityRef))
+                return;
+
+            _valueStore ??= new VarStoreBackedValueStore(localVars, Game.Kernel.Value.ValueStoreScopeKind.Entity);
+            if (!SceneKernelValueStoreBindingHub.TryRegister(gameObject.scene, entityRef, _valueStore, out string failureReason))
+            {
+                Debug.LogError("[BlackboardMB] Failed to bind VarStore-backed ValueStore to SceneKernel: " + failureReason, this);
+                return;
+            }
+
+            _valueStoreEntityRef = entityRef;
+            _valueStoreBound = true;
+        }
+
+        void TryBindSceneKernelValueInitHost()
+        {
+            if (_valueInitHostBound || _owner == null || _owner.Kind != LifetimeScopeKind.Entity)
+                return;
+
+            int runtimeInstanceId = GetSceneKernelValueInitHostId();
+            if (runtimeInstanceId <= 0)
+                return;
+
+            if (!SceneKernelValueStoreBindingHub.TryRegisterValueInitHost(gameObject.scene, runtimeInstanceId, this, out string failureReason))
+            {
+                Debug.LogError("[BlackboardMB] Failed to bind value-init host to SceneKernel: " + failureReason, this);
+                return;
+            }
+
+            _valueInitHostBound = true;
+        }
+
+        void UnbindSceneKernelValueStore()
+        {
+            if (!_valueStoreBound || _valueStore == null || _valueStoreEntityRef.IsEmpty)
+                return;
+
+            SceneKernelValueStoreBindingHub.TryUnregister(gameObject.scene, _valueStoreEntityRef, _valueStore);
+            _valueStoreEntityRef = default;
+            _valueStoreBound = false;
+        }
+
+        void UnbindSceneKernelValueInitHost()
+        {
+            if (!_valueInitHostBound)
+                return;
+
+            SceneKernelValueStoreBindingHub.TryUnregisterValueInitHost(gameObject.scene, GetSceneKernelValueInitHostId(), this);
+            _valueInitHostBound = false;
+        }
+
+        int GetSceneKernelValueInitHostId()
+        {
+            if (_sceneKernelValueInitHostId > 0)
+                return _sceneKernelValueInitHostId;
+
+            _sceneKernelValueInitHostId = RuntimeHelpers.GetHashCode(this) & int.MaxValue;
+            if (_sceneKernelValueInitHostId == 0)
+                _sceneKernelValueInitHostId = 1;
+
+            return _sceneKernelValueInitHostId;
+        }
+
+        public bool TryDispatchValueInit(string targetStoreRef, LifecyclePhase phase, out string failureReason)
+        {
+            if (!string.Equals(targetStoreRef, LocalBlackboardValueStoreRef, System.StringComparison.Ordinal))
+            {
+                failureReason = "BlackboardMB does not own value-store target '" + targetStoreRef + "'.";
+                return false;
+            }
+
+            var resolver = _owner?.Resolver;
+            if (resolver == null)
+            {
+                failureReason = "BlackboardMB value-init dispatch requires a live scope resolver.";
+                return false;
+            }
+
+            if (!resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
+            {
+                failureReason = "BlackboardMB value-init dispatch requires IBlackboardService.";
+                return false;
+            }
+
+            IGridBlackboardService? gridBlackboard = null;
+            if (NeedsGridBlackboard(phase))
+            {
+                if (!resolver.TryResolve<IGridBlackboardService>(out var resolvedGridBlackboard) || resolvedGridBlackboard == null)
+                {
+                    failureReason = "BlackboardMB value-init dispatch requires IGridBlackboardService for grid-backed init entries.";
+                    return false;
+                }
+
+                gridBlackboard = resolvedGridBlackboard;
+            }
+
+            if (!TryApplyValueInitPhase(phase, blackboard, gridBlackboard, out failureReason))
+                return false;
+
+            TryInitializeDebugView(blackboard, gridBlackboard);
+            return true;
+        }
+
+        bool TryResolveValueStoreEntityRef(out EntityRef entityRef)
+        {
+            if (_owner?.Kind != LifetimeScopeKind.Entity)
+            {
+                entityRef = default;
+                return false;
+            }
+
+            if (EntityRef.TryParse(_owner.Identity?.Id, out entityRef))
+                return true;
+
+            EntityIdentityMB? identityMb = GetComponent<EntityIdentityMB>();
+            if (identityMb != null && identityMb.TryGetEntityRef(out entityRef))
+                return true;
+
+            entityRef = default;
+            return false;
         }
 
         void EnsureValueInitPlansBuilt()
@@ -297,6 +390,80 @@ namespace Game.Common
             _createLocalGridBlackboardPlan = BuildLocalGridBlackboardPlan(BlackboardValueInitPhase.Create, overwriteExisting: false);
             _acquireLocalGridBlackboardPlan = BuildLocalGridBlackboardPlan(BlackboardValueInitPhase.Acquire, overwriteExisting: reinitializeLocalGridBlackboardOnAcquire);
             _valueInitPlansBuilt = true;
+        }
+
+        bool TryApplyValueInitPhase(LifecyclePhase phase, IBlackboardService blackboard, IGridBlackboardService? gridBlackboard, out string failureReason)
+        {
+            EnsureValueInitPlansBuilt();
+
+            switch (phase)
+            {
+                case LifecyclePhase.Create:
+                    if (_createValueInitApplied)
+                    {
+                        failureReason = string.Empty;
+                        return true;
+                    }
+
+                    BlackboardValueInitRuntime.ApplyLocalPlan(blackboard, _owner, _createLocalBlackboardPlan, _valueInitRuntime);
+                    if (_createLocalGridBlackboardPlan != null)
+                    {
+                        if (gridBlackboard == null)
+                        {
+                            failureReason = "Create-phase value init requires IGridBlackboardService for grid-backed entries.";
+                            return false;
+                        }
+
+                        BlackboardValueInitRuntime.ApplyGridPlan(blackboard, gridBlackboard, _owner, _createLocalGridBlackboardPlan, _valueInitRuntime);
+                    }
+
+                    _createValueInitApplied = true;
+                    failureReason = string.Empty;
+                    return true;
+
+                case LifecyclePhase.Acquire:
+                    if (_acquireValueInitApplied)
+                    {
+                        failureReason = string.Empty;
+                        return true;
+                    }
+
+                    BlackboardValueInitRuntime.ApplyLocalPlan(blackboard, _owner, _acquireLocalBlackboardPlan, _valueInitRuntime);
+                    if (_acquireLocalGridBlackboardPlan != null)
+                    {
+                        if (gridBlackboard == null)
+                        {
+                            failureReason = "Acquire-phase value init requires IGridBlackboardService for grid-backed entries.";
+                            return false;
+                        }
+
+                        BlackboardValueInitRuntime.ApplyGridPlan(blackboard, gridBlackboard, _owner, _acquireLocalGridBlackboardPlan, _valueInitRuntime);
+                    }
+
+                    _acquireValueInitApplied = true;
+                    failureReason = string.Empty;
+                    return true;
+
+                case LifecyclePhase.Reset:
+                    failureReason = string.Empty;
+                    return true;
+
+                default:
+                    failureReason = "BlackboardMB does not support lifecycle phase '" + phase + "' for value init dispatch.";
+                    return false;
+            }
+        }
+
+        bool NeedsGridBlackboard(LifecyclePhase phase)
+        {
+            EnsureValueInitPlansBuilt();
+
+            return phase switch
+            {
+                LifecyclePhase.Create => _createLocalGridBlackboardPlan != null,
+                LifecyclePhase.Acquire => _acquireLocalGridBlackboardPlan != null,
+                _ => false,
+            };
         }
 
         BlackboardLocalValueInitPlan? BuildLocalBlackboardPlan(BlackboardValueInitPhase phase, bool overwriteExisting)

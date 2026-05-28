@@ -439,7 +439,7 @@ namespace Game.Save
 
             if (reg.Blackboard == null)
             {
-                error = SaveResult.Failed(SaveError.MissingDependency, "Blackboard missing in registration.");
+                error = SaveResult.Failed(SaveError.MissingDependency, "Value store missing in registration.");
                 return false;
             }
 

@@ -13,9 +13,9 @@ namespace Game.Scalar
     {
         // 直接サービスを渡す版�E�Entity-UI など動的なも�E向け�E�E
         ScalarBindingHandle Bind(
-            BaseScalarService sourceService,
+            IBaseScalarService sourceService,
             ScalarKey sourceKey,
-            BaseScalarService targetService,
+            IBaseScalarService targetService,
             ScalarKey targetKey,
             ScalarLinkMode mode,
             float factor,
@@ -72,14 +72,12 @@ namespace Game.Scalar
         public readonly IBaseScalarService Target;
         public readonly ScalarKey SourceKey;
         public readonly ScalarKey TargetKey;
+        public readonly ScalarBindingEndpoint SourceEndpoint;
+        public readonly ScalarBindingEndpoint TargetEndpoint;
         public readonly ScalarLinkMode Mode;
         public readonly float Factor;
         public readonly ScalarLinkClamp Clamp;
         public readonly string Tag;
-
-        // チE��チE��用メタ
-        public readonly ScalarRef SourceRef;
-        public readonly ScalarRef TargetRef;
 
         public readonly ScalarMulPhase TargetMulPhase;  // ☁E追加
 
@@ -94,9 +92,11 @@ namespace Game.Scalar
         public float LastModValue => _lastModValue;
 
         public ScalarBindingRuntime(
-            BaseScalarService source,
+            IBaseScalarService source,
+            ScalarBindingEndpoint sourceEndpoint,
             ScalarKey sourceKey,
-            BaseScalarService target,
+            IBaseScalarService target,
+            ScalarBindingEndpoint targetEndpoint,
             ScalarKey targetKey,
             ScalarLinkMode mode,
             float factor,
@@ -108,14 +108,13 @@ namespace Game.Scalar
             SourceKey = sourceKey;
             Target = target ?? throw new ArgumentNullException(nameof(target));
             TargetKey = targetKey;
+            SourceEndpoint = sourceEndpoint;
+            TargetEndpoint = targetEndpoint;
             Mode = mode;
             Factor = factor;
             Clamp = clamp;
             Tag = tag;
             TargetMulPhase = targetMulPhase;
-
-            SourceRef = new ScalarRef(source.Space, sourceKey);
-            TargetRef = new ScalarRef(target.Space, targetKey);
 
             _baseSource = Source.LocalGet(SourceKey);
             float initialEffective = ComputeEffectiveSource(_baseSource);
@@ -222,9 +221,9 @@ namespace Game.Scalar
         readonly List<ScalarBindingRuntime> _bindings = new();
 
         public ScalarBindingHandle Bind(
-            BaseScalarService sourceService,
+            IBaseScalarService sourceService,
             ScalarKey sourceKey,
-            BaseScalarService targetService,
+            IBaseScalarService targetService,
             ScalarKey targetKey,
             ScalarLinkMode mode,
             float factor,
@@ -241,10 +240,18 @@ namespace Game.Scalar
                 return null;
             }
 
+            if (!TryResolveEndpoint(sourceService, sourceKey, "source", out var sourceEndpoint) ||
+                !TryResolveEndpoint(targetService, targetKey, "target", out var targetEndpoint))
+            {
+                return null;
+            }
+
             var runtime = new ScalarBindingRuntime(
                 sourceService,
+                sourceEndpoint,
                 sourceKey,
                 targetService,
+                targetEndpoint,
                 targetKey,
                 mode,
                 factor,
@@ -254,6 +261,17 @@ namespace Game.Scalar
 
             _bindings.Add(runtime);
             return new ScalarBindingHandle(this, runtime);
+        }
+
+        static bool TryResolveEndpoint(IBaseScalarService service, ScalarKey key, string role, out ScalarBindingEndpoint endpoint)
+        {
+            endpoint = default;
+
+            if (service is IScalarEndpointSource endpointSource && endpointSource.TryGetOwnedEndpoint(key, out endpoint))
+                return true;
+
+            Debug.LogError($"[ScalarBindingManager] Bind failed. {role} endpoint is unavailable for key={key} service={service?.GetType().Name ?? "(null)"}");
+            return false;
         }
 
         public ScalarBindingHandle Bind(
@@ -295,8 +313,8 @@ namespace Game.Scalar
             {
                 var b = _bindings[i];
                 list.Add(new ScalarBindingDebugInfo(
-                    b.SourceRef,
-                    b.TargetRef,
+                    b.SourceEndpoint,
+                    b.TargetEndpoint,
                     b.Mode,
                     b.Factor,
                     b.Clamp,

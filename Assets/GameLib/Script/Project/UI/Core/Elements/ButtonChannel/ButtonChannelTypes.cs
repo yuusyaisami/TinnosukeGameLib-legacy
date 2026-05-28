@@ -40,6 +40,36 @@ namespace Game.UI
         Unregister = 20,
     }
 
+    public enum ButtonChannelBindingMode
+    {
+        Auto = 0,
+        UI = 10,
+        World = 20,
+        GameRoot = 30,
+    }
+
+    internal static class ButtonChannelBindingResolver
+    {
+        public static bool TryResolveFromScope<T>(IScopeNode? scope, out T? value) where T : class
+        {
+            value = null;
+            var resolver = scope?.Resolver;
+            return resolver != null && resolver.TryResolve<T>(out value) && value != null;
+        }
+
+        public static bool TryResolveFromAnchor<T>(Component? anchor, out T? value) where T : class
+        {
+            value = null;
+            if (anchor == null)
+                return false;
+
+            if (!ScopeFeatureInstallerUtility.TryGetNearestScopeNode(anchor, includeInactive: true, out var scope) || scope == null)
+                return false;
+
+            return TryResolveFromScope(scope, out value);
+        }
+    }
+
     public readonly struct ButtonChannelOutputSnapshot
     {
         public readonly string Tag;

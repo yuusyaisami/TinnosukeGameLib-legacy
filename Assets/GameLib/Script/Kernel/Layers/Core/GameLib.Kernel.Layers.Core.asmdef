@@ -2,7 +2,9 @@
   "name": "GameLib.Kernel.Layers.Core",
   "rootNamespace": "Game.Kernel.Layers",
   "references": [
-    "GameLib.Kernel.Abstractions"
+    "GameLib.Kernel.Abstractions",
+    "GameLib.Kernel.ScopeGraph",
+    "GameLib.Kernel.Value"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

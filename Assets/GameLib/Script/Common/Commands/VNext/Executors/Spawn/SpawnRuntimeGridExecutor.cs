@@ -10,7 +10,6 @@ using Game.Spawn;
 using Game.UI;
 using Game.Vars.Generated;
 using UnityEngine;
-using VContainer;
 
 namespace Game.Commands.VNext
 {
@@ -30,20 +29,8 @@ namespace Game.Commands.VNext
             if (runtimeTemplate == null)
                 throw new CommandExecutionException(CommandRunFailureKind.InvalidArgs, "Template preset could not resolve runtime template.");
 
-            var originResolver = ctx.Scope?.Resolver;
-            if (originResolver == null || !originResolver.TryResolve<ISceneSpawnerRegistry>(out var registry) || registry == null)
-                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, "ISceneSpawnerRegistry is not available in current scope.");
-
-            var allowTagFallback = string.IsNullOrEmpty(typed.SpawnerTag);
-            var resolved = SceneSpawnerResolver.TryResolveAsyncSpawner(
-                registry,
-                typed.SpawnerKind,
-                typed.SpawnerTag,
-                allowTagFallback,
-                allowRuntimeUiFallback: true);
-            var spawner = resolved.Spawner;
-            if (spawner == null)
-                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"Spawner not found. Kind={typed.SpawnerKind} Tag={typed.SpawnerTag}");
+            if (!SceneKernelSpawnBindingHub.TryResolveSpawnRouteHandler(typed.SpawnerKind, typed.SpawnerTag, out var routeHandler) || routeHandler == null)
+                throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"SceneKernel spawn route handler not found. Kind={typed.SpawnerKind} Tag={typed.SpawnerTag}");
 
             IScopeNode? lifetimeScopeParent = null;
             if (typed.OverrideLifetimeScopeParent)
@@ -153,7 +140,11 @@ namespace Game.Commands.VNext
                     worldSpace: typed.WorldSpace,
                     allowPooling: typed.AllowPooling);
 
-                var spawnedResolver = await spawner.SpawnAsync(spawnParams, ct);
+                object? spawnedObject = await routeHandler.SpawnAsync(spawnParams, ct);
+                if (spawnedObject != null && spawnedObject is not IRuntimeResolver)
+                    throw new CommandExecutionException(CommandRunFailureKind.ResolveFailed, $"SceneKernel spawn route returned an unexpected result type. Kind={typed.SpawnerKind} Tag={typed.SpawnerTag}");
+
+                var spawnedResolver = spawnedObject as IRuntimeResolver;
                 if (spawnedResolver == null)
                     continue;
 

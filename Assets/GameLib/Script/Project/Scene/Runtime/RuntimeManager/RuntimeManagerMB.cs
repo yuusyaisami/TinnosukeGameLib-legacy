@@ -1,10 +1,13 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Game.Commands;
 using Game.Common;
 using Game.DI;
+using Game.Kernel.Layers;
 using Game.Spawn;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -13,8 +16,10 @@ namespace Game.Project.Scene.Runtime
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(RuntimeTickHub))]
-    public sealed class RuntimeManagerMB : MonoBehaviour, Game.IFeatureInstaller
+    public sealed class RuntimeManagerMB : MonoBehaviour
     {
+        bool _runtimeInstalled;
+
         [Serializable]
         sealed class WarmupEntry
         {
@@ -48,9 +53,20 @@ namespace Game.Project.Scene.Runtime
         [SerializeField, InlineProperty, HideLabel]
         RuntimeManagerPoolDebugViewer debugViewer = new();
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallRuntime(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
-            // Only register this instance if the underlying Unity object is alive. When InstallFeature
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+
+            if (owner == null)
+                throw new ArgumentNullException(nameof(owner));
+
+            if (_runtimeInstalled)
+                return;
+
+            _runtimeInstalled = true;
+
+            // Only register this instance if the underlying Unity object is alive. When runtime install
             // runs during scope build, it's possible components were destroyed or are in an invalid state.
             if (this != null)
             {
@@ -79,6 +95,7 @@ namespace Game.Project.Scene.Runtime
                 .WithParameter(resolvedRoot)
                 .WithParameter(spawnerTag)
                 .AsSelf()
+                .As<IFilteredReleaseSpawnerService>()
                 .As<IRuntimeLifetimeScopeSpawnerService>()
                 .As<IAsyncSpawnerService>();
 
@@ -629,19 +646,27 @@ namespace Game.Project.Scene.Runtime
         }
     }
 
-    public interface IRuntimeLifetimeScopeSpawnerService : IAsyncSpawnerService
+    public interface IFilteredReleaseSpawnerService
+    {
+        int ReleaseAll(RuntimeLifetimeScopeDeleteFilter filter);
+    }
+
+    public interface IRuntimeLifetimeScopeSpawnerService : IAsyncSpawnerService, IFilteredReleaseSpawnerService
     {
         int AllDelete(RuntimeLifetimeScopeDeleteFilter filter);
     }
 
-    public sealed class RuntimeLifetimeScopeSpawnerService : IAsyncSpawnerService, IRuntimeLifetimeScopeSpawnerService
+    public sealed class RuntimeLifetimeScopeSpawnerService : IAsyncSpawnerService, IRuntimeLifetimeScopeSpawnerService, IFilteredReleaseSpawnerService, ISceneKernelSpawnPool, ISceneKernelSpawnRouteHandler
     {
         readonly IRuntimeLifetimeScopePool _pool;
         readonly Transform _root;
         readonly ISceneSpawnerRegistry _registry;
+        bool _sceneKernelRegistered;
 
         public SpawnerKind Kind => SpawnerKind.RuntimeEntity;
         public string Tag { get; }
+        public SceneKernelSpawnRouteId RouteId => SceneKernelSpawnRouteId.FromParts(Kind.ToString(), Tag);
+        public SceneKernelSpawnPoolId PoolId => SceneKernelSpawnPoolId.FromParts(Kind.ToString(), Tag);
 
         public RuntimeLifetimeScopeSpawnerService(
             IRuntimeLifetimeScopePool pool,
@@ -655,10 +680,12 @@ namespace Game.Project.Scene.Runtime
             _registry = registry ?? throw new ArgumentNullException(nameof(registry));
 
             _registry.Register(this);
+            EnsureSceneKernelBinding();
         }
 
-        public async UniTask<IRuntimeResolver?> SpawnAsync(SpawnParams p, System.Threading.CancellationToken ct = default)
+        public async UniTask<IRuntimeResolver?> SpawnAsync(SpawnParams p, CancellationToken ct = default)
         {
+            EnsureSceneKernelBinding();
             ct.ThrowIfCancellationRequested();
 
             if (p.Template == null)
@@ -671,9 +698,7 @@ namespace Game.Project.Scene.Runtime
             var lifetimeScopeParent = p.LifetimeScopeParent;
 
             // Pooling is controlled solely by SpawnParams.AllowPooling and Template.UsePooling.
-            // Parent-based reuse restrictions are enforced inside RuntimeLifetimeScopePool by a
-            // (Parent Transform + Template) key, so we no longer bypass pooling for non-root parents.
-            // This allows pooling under arbitrary parents while still preventing cross-parent reuse.
+            // Pool identity is prefab-family based, so explicit attachment does not force a pool split.
             bool bypassPooling = !p.AllowPooling;
 
             RuntimeLifetimeScope scope;
@@ -783,40 +808,64 @@ namespace Game.Project.Scene.Runtime
 
         public int AllDelete(RuntimeLifetimeScopeDeleteFilter filter)
         {
-            if (_root == null)
-                return 0;
-
-            // NOTE: We intentionally target RuntimeLifetimeScopes under this spawner's configured root.
-            // This matches the intended ownership model and avoids corrupting pooled inactive instances.
-            var scopes = _root.GetComponentsInChildren<RuntimeLifetimeScope>(filter.IncludeInactive);
-            if (scopes == null || scopes.Length == 0)
-                return 0;
-
-            int deleted = 0;
-            for (int i = 0; i < scopes.Length; i++)
+            EnsureSceneKernelBinding();
+            return _pool.ReleaseMatching(scope =>
             {
-                var scope = scopes[i];
-                if (scope == null)
-                    continue;
+                if (scope == null || !scope)
+                    return false;
+
+                if (!filter.IncludeInactive && !scope.gameObject.activeInHierarchy)
+                    return false;
 
                 if (filter.UseInclude && !MatchesIdentity(scope, filter.Include))
-                    continue;
+                    return false;
 
                 if (filter.UseExclude && MatchesIdentity(scope, filter.Exclude))
-                    continue;
+                    return false;
 
-                _pool.Release(scope);
-                deleted++;
-            }
+                return true;
+            });
+        }
 
-            return deleted;
+        public int ReleaseAll(RuntimeLifetimeScopeDeleteFilter filter)
+            => AllDelete(filter);
+
+        int ISceneKernelSpawnPool.ReleaseAll(object filter)
+        {
+            if (filter is RuntimeLifetimeScopeDeleteFilter typedFilter)
+                return ReleaseAll(typedFilter);
+
+            throw new ArgumentException($"{nameof(RuntimeLifetimeScopeSpawnerService)} requires {nameof(RuntimeLifetimeScopeDeleteFilter)}.", nameof(filter));
+        }
+
+        async ValueTask<object?> ISceneKernelSpawnRouteHandler.SpawnAsync(object spawnRequest, CancellationToken cancellationToken)
+        {
+            if (spawnRequest is not SpawnParams spawnParams)
+                throw new ArgumentException($"{nameof(RuntimeLifetimeScopeSpawnerService)} requires {nameof(SpawnParams)}.", nameof(spawnRequest));
+
+            return await SpawnAsync(spawnParams, cancellationToken);
+        }
+
+        async ValueTask ISceneKernelSpawnRouteHandler.WarmupAsync(object template, int count, CancellationToken cancellationToken)
+        {
+            if (template is not BaseRuntimeTemplateSO runtimeTemplate)
+                throw new ArgumentException($"{nameof(RuntimeLifetimeScopeSpawnerService)} requires {nameof(BaseRuntimeTemplateSO)}.", nameof(template));
+
+            await _pool.WarmupAsync(runtimeTemplate, count, cancellationToken);
+        }
+
+        void EnsureSceneKernelBinding()
+        {
+            if (_sceneKernelRegistered)
+                return;
+
+            SceneKernelSpawnBindingHub.Register(this, this);
+            _sceneKernelRegistered = true;
         }
 
         static bool MatchesIdentity(RuntimeLifetimeScope scope, CommandTargetIdentityFilter filter)
         {
-            var identity = scope.Identity;
-            if (identity == null)
-                return false;
+            RuntimeScopeIdentityService identity = scope.RuntimeIdentity;
 
             if (filter.requireActive && !identity.IsActive)
                 return false;
@@ -843,7 +892,7 @@ namespace Game.Project.Scene.Runtime
             return true;
         }
 
-        public UniTask WarmupAsync<T>(T template, int count, System.Threading.CancellationToken ct = default) where T : BaseRuntimeTemplateSO
+        public UniTask WarmupAsync<T>(T template, int count, CancellationToken ct = default) where T : BaseRuntimeTemplateSO
             => _pool.WarmupAsync(template, count, ct);
     }
 }

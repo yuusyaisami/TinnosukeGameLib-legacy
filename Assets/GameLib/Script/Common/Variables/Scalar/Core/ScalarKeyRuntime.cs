@@ -622,7 +622,7 @@ namespace Game.Scalar
             }
             else
             {
-                IDynamicContext dynamicContext = service is BaseScalarService baseService ? baseService.DynamicContext : null;
+                IDynamicContext dynamicContext = service is ScalarRuntimeService runtimeService ? runtimeService.DynamicContext : null;
                 value = EvaluateRaw(includeAllLayers, layer, dynamicContext);
 
                 var ctx = new ScalarGetContext

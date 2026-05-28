@@ -150,6 +150,7 @@ namespace Game.UI
                         new EntityServiceDependencyInput(new DependencyNodeIR(new ServiceId(controlSchemeServiceId)), DependencyStrength.Required),
                         new EntityServiceDependencyInput(new DependencyNodeIR(new ServiceId(inputNavigateServiceId)), DependencyStrength.Required),
                     },
+                    System.Array.Empty<ServiceLifecycleContributionInput>(),
                     SourceKind,
                     ServiceLifetimeKind.Singleton,
                     ServiceFactoryKind.GeneratedFactory,
@@ -164,12 +165,27 @@ namespace Game.UI
                     new[]
                     {
                         typeof(IUIInputNavigateService).FullName ?? nameof(IUIInputNavigateService),
-                        typeof(IScopeAcquireHandler).FullName ?? nameof(IScopeAcquireHandler),
-                        typeof(IScopeReleaseHandler).FullName ?? nameof(IScopeReleaseHandler),
                     },
                     new[]
                     {
                         new EntityServiceDependencyInput(new DependencyNodeIR(new ServiceId(selectionServiceId)), DependencyStrength.Required),
+                    },
+                    new[]
+                    {
+                        new ServiceLifecycleContributionInput(
+                            LifecyclePhase.Acquire,
+                            10,
+                            LifecycleActionKind.ServiceMethod,
+                            CreateLifecycleStableId(declarationInput.OwnerEntityRef, inputNavigateServiceId, "acquire"),
+                            typeof(IUIInputNavigateService).Name + ".Acquire",
+                            declarationInput.Source),
+                        new ServiceLifecycleContributionInput(
+                            LifecyclePhase.Release,
+                            10,
+                            LifecycleActionKind.ServiceMethod,
+                            CreateLifecycleStableId(declarationInput.OwnerEntityRef, inputNavigateServiceId, "release"),
+                            typeof(IUIInputNavigateService).Name + ".Release",
+                            declarationInput.Source),
                     },
                     SourceKind,
                     ServiceLifetimeKind.Singleton,
@@ -205,6 +221,11 @@ namespace Game.UI
         static string CreateStableId(Game.Kernel.Abstractions.EntityRef ownerEntityRef, int serviceId, string suffix)
         {
             return "entity-service:" + ownerEntityRef.Value + ":" + suffix + ":" + serviceId.ToString("D10");
+        }
+
+        static string CreateLifecycleStableId(Game.Kernel.Abstractions.EntityRef ownerEntityRef, int serviceId, string suffix)
+        {
+            return "entity-service-lifecycle:" + ownerEntityRef.Value + ":" + suffix + ":" + serviceId.ToString("D10");
         }
     }
 }

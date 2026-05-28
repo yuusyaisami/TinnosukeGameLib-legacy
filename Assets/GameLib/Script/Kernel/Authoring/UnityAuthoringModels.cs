@@ -207,6 +207,14 @@ namespace Game.Kernel.Authoring
             return !string.IsNullOrEmpty(first) || !string.IsNullOrEmpty(second) || !string.IsNullOrEmpty(third);
         }
 
+        static bool HasAny(string? first, string? second, string? third, string? fourth)
+        {
+            return !string.IsNullOrEmpty(first)
+                || !string.IsNullOrEmpty(second)
+                || !string.IsNullOrEmpty(third)
+                || !string.IsNullOrEmpty(fourth);
+        }
+
         static string? NormalizeOptionalString(string? value)
         {
             if (value == null)

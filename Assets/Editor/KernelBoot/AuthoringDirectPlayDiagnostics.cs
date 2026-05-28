@@ -7,6 +7,7 @@ using Game.Kernel.Diagnostics;
 using Game.Kernel.Generation;
 using Game.Kernel.IR;
 using Game.Kernel.Validation;
+using TinnosukeGameLib.Editor.KernelBoot;
 
 namespace Game.Kernel.Authoring
 {

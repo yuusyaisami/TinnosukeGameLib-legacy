@@ -76,6 +76,20 @@ namespace Game.UI
         public static int ResolveShortLongLongMaxTimeId() => VarIds.GameLib.UI.ButtonChannel.ShortLong.LongMaxTime;
     }
 
+    internal readonly struct ButtonChannelRuntimeServices
+    {
+        public ButtonChannelRuntimeServices(IScopeLifecycleService? lifecycleService, IVarStore? varStore, ICommandRunner? commandRunner)
+        {
+            LifecycleService = lifecycleService;
+            VarStore = varStore;
+            CommandRunner = commandRunner;
+        }
+
+        public IScopeLifecycleService? LifecycleService { get; }
+        public IVarStore? VarStore { get; }
+        public ICommandRunner? CommandRunner { get; }
+    }
+
     internal sealed class ButtonChannelRuntime : IButtonChannelOutput, IButtonChannelControlService
     {
         readonly IScopeNode _owner;
@@ -126,13 +140,13 @@ namespace Game.UI
             _lastSnapshot = BuildSnapshot();
         }
 
-        public void OnAcquire(IScopeNode scope, bool isReset, IButtonChannelInteractionAdapter? adapter)
+        public void OnAcquire(IScopeNode scope, bool isReset, IButtonChannelInteractionAdapter? adapter, ButtonChannelRuntimeServices services)
         {
             _ = isReset;
             _adapter = adapter;
-            scope.TryResolveInAncestors<IScopeLifecycleService>(out _lifecycleService);
-            _resolvedVarStore = ResolveVarStore(scope);
-            _resolvedCommandRunner = ResolveCommandRunner(scope);
+            _lifecycleService = services.LifecycleService;
+            _resolvedVarStore = services.VarStore ?? NullVarStore.Instance;
+            _resolvedCommandRunner = services.CommandRunner;
             _stateDynamicContext = new SimpleDynamicContext(_resolvedVarStore, scope);
             ResolveSourcePresets(scope);
             ResetCommandCts();
@@ -322,7 +336,7 @@ namespace Game.UI
 
         void ResolveSourcePresets(IScopeNode scope)
         {
-            var context = _stateDynamicContext ?? new SimpleDynamicContext(ResolveVarStore(scope), scope);
+            var context = _stateDynamicContext ?? new SimpleDynamicContext(_resolvedVarStore ?? NullVarStore.Instance, scope);
             var sourcePreset = ResolvePreset(_options.PresetValue, context);
             _baseInputPreset = ResolveInputPreset(sourcePreset, context);
             _basePlayerPreset = ResolvePlayerPreset(sourcePreset, context);
@@ -441,7 +455,7 @@ namespace Game.UI
             var context = _stateDynamicContext;
             if (context == null)
             {
-                var vars = _resolvedVarStore ?? ResolveVarStore(_owner);
+                var vars = _resolvedVarStore ?? NullVarStore.Instance;
                 _resolvedVarStore = vars;
                 context = new SimpleDynamicContext(vars, _owner);
                 _stateDynamicContext = context;
@@ -489,7 +503,7 @@ namespace Game.UI
 
         void WriteStateVars(ButtonChannelOutputSnapshot snapshot)
         {
-            var vars = _resolvedVarStore ?? ResolveVarStore(_owner);
+            var vars = _resolvedVarStore ?? NullVarStore.Instance;
             _resolvedVarStore = vars;
             TrySet(vars, ButtonChannelVarKeys.ResolveChannelTagId(), DynamicVariant.FromString(snapshot.Tag));
             TrySet(vars, ButtonChannelVarKeys.ResolveIsEnabledId(), DynamicVariant.FromBool(snapshot.IsEnabled));
@@ -590,8 +604,7 @@ namespace Game.UI
 
         async UniTask ExecuteCommandsAsync(CommandListData primary, ButtonChannelPhase phase, CommandListData? secondary)
         {
-            var runner = _resolvedCommandRunner ?? ResolveCommandRunner(_owner);
-            _resolvedCommandRunner = runner;
+            var runner = _resolvedCommandRunner;
             if (runner == null)
                 return;
 
@@ -680,22 +693,6 @@ namespace Game.UI
         bool IsLifecycleInputBlocked()
         {
             return _lifecycleService != null && _lifecycleService.IsDespawning;
-        }
-
-        static IVarStore ResolveVarStore(IScopeNode scope)
-        {
-            if (scope.TryResolveInAncestors<IVarStore>(out var vars) && vars != null)
-                return vars;
-
-            return NullVarStore.Instance;
-        }
-
-        static ICommandRunner? ResolveCommandRunner(IScopeNode scope)
-        {
-            if (scope.TryResolveInAncestors<ICommandRunner>(out var runner) && runner != null)
-                return runner;
-
-            return null;
         }
 
         static ButtonChannelInteractionAction ConvertUIAction(UIInputAction action)

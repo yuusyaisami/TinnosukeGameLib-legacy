@@ -14,6 +14,7 @@ namespace Game.Kernel.Validation
         ScopeGraph = 20,
         LifecyclePlan = 30,
         CommandCatalog = 40,
+        CommandExecutorTable = 45,
         ValueSchema = 50,
         RuntimeQuery = 60,
         KernelDebugMap = 70,

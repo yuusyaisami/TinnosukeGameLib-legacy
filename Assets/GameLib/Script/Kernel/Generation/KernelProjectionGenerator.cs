@@ -13,8 +13,12 @@ namespace Game.Kernel.Generation
         {
             ArtifactKind.ServiceGraph,
             ArtifactKind.ScopeGraph,
+            ArtifactKind.EntityRegistration,
+            ArtifactKind.ServiceRegistration,
+            ArtifactKind.EntityServiceRoute,
             ArtifactKind.LifecyclePlan,
             ArtifactKind.CommandCatalog,
+            ArtifactKind.CommandExecutorTable,
             ArtifactKind.ValueSchema,
             ArtifactKind.RuntimeQuery,
             ArtifactKind.KernelDebugMap,
@@ -28,6 +32,7 @@ namespace Game.Kernel.Generation
             ProjectionArtifactKind.ScopeGraph,
             ProjectionArtifactKind.LifecyclePlan,
             ProjectionArtifactKind.CommandCatalog,
+            ProjectionArtifactKind.CommandExecutorTable,
             ProjectionArtifactKind.ValueSchema,
             ProjectionArtifactKind.RuntimeQuery,
         };
@@ -39,7 +44,11 @@ namespace Game.Kernel.Generation
             int formatVersion,
             string generatorVersion,
             string selectedProfile,
-            KernelProfileMask selectedProfileMask)
+            KernelProfileMask selectedProfileMask,
+            IReadOnlyList<EntityRegistrationPlanEntry>? entityRegistrationEntries = null,
+            IReadOnlyList<EntityServiceRouteSeed>? entityServiceRouteSeeds = null,
+            IReadOnlyList<ServiceRegistrationSeed>? serviceRegistrationSeeds = null,
+            IReadOnlyList<CommandExecutorBindingSeed>? commandExecutorBindings = null)
         {
             if (kernelIR == null)
                 throw new ArgumentNullException(nameof(kernelIR));
@@ -47,11 +56,17 @@ namespace Game.Kernel.Generation
             Hash128 sourceHash = KernelProjectionHashing.ComputeSourceHash(kernelIR);
             Hash128 registryHash = KernelProjectionHashing.ComputeRegistryHash(kernelIR);
             Hash128 profileHash = KernelProjectionHashing.ComputeProfileHash(kernelIR, selectedProfile, selectedProfileMask);
+            ReadOnlySpan<EntityRegistrationPlanEntry> entityRegistrationSpan = ToEntityRegistrationSpan(entityRegistrationEntries);
+            ReadOnlySpan<EntityServiceRouteSeed> entityServiceRouteSeedSpan = ToEntityServiceRouteSeedSpan(entityServiceRouteSeeds);
+            ReadOnlySpan<ServiceRegistrationSeed> serviceRegistrationSeedSpan = ToServiceRegistrationSeedSpan(serviceRegistrationSeeds);
+            ReadOnlySpan<CommandExecutorBindingSeed> commandExecutorBindingSpan = ToCommandExecutorBindingSeedSpan(commandExecutorBindings);
 
             Hash128 serviceGraphHash = KernelProjectionHashing.ComputeServiceGraphHash(kernelIR.Services);
             Hash128 scopeGraphHash = KernelProjectionHashing.ComputeScopeGraphHash(kernelIR.Scopes, kernelIR.ValueInitPlans);
+            Hash128 entityRegistrationHash = KernelProjectionHashing.ComputeEntityRegistrationHash(entityRegistrationSpan);
             Hash128 lifecyclePlanHash = KernelProjectionHashing.ComputeLifecyclePlanHash(kernelIR.Lifecycles);
             Hash128 commandCatalogHash = KernelProjectionHashing.ComputeCommandCatalogHash(kernelIR.Commands);
+            Hash128 commandExecutorTableHash = KernelProjectionHashing.ComputeCommandExecutorTableHash(kernelIR.Commands, commandExecutorBindingSpan);
             Hash128 valueSchemaHash = KernelProjectionHashing.ComputeValueSchemaHash(kernelIR.ValueKeys);
             Hash128 runtimeQueryHash = KernelProjectionHashing.ComputeRuntimeQueryHash(kernelIR.RuntimeQueries);
 
@@ -60,9 +75,15 @@ namespace Game.Kernel.Generation
             Hash128 debugMapHash = KernelProjectionHashing.ComputeDebugMapHash(debugMapEntries);
 
             ServiceGraphPlan serviceGraph = CreateServiceGraphPlan(planId, artifactSetId, formatVersion, generatorVersion, kernelIR, sourceHash, registryHash, profileHash, debugMapHash, serviceGraphHash);
+            ServiceRegistrationPlanEntry[] plannedServiceRegistrationEntries = ServiceRegistrationPlanEntry.BuildEntries(serviceRegistrationSeedSpan, serviceGraph);
+            Hash128 serviceRegistrationHash = KernelProjectionHashing.ComputeServiceRegistrationHash(plannedServiceRegistrationEntries);
             ScopeGraphPlan scopeGraph = CreateScopeGraphPlan(planId, artifactSetId, formatVersion, generatorVersion, kernelIR, sourceHash, registryHash, profileHash, debugMapHash, scopeGraphHash);
+            EntityRegistrationPlan entityRegistrationPlan = CreateEntityRegistrationPlan(planId, artifactSetId, formatVersion, generatorVersion, entityRegistrationSpan, sourceHash, registryHash, profileHash, debugMapHash, entityRegistrationHash);
+            ServiceRegistrationPlan serviceRegistrationPlan = CreateServiceRegistrationPlan(planId, artifactSetId, formatVersion, generatorVersion, serviceRegistrationSeedSpan, serviceGraph, sourceHash, registryHash, profileHash, debugMapHash, serviceRegistrationHash);
+            EntityServiceRoutePlan entityServiceRoutePlan = CreateEntityServiceRoutePlan(planId, artifactSetId, formatVersion, generatorVersion, entityServiceRouteSeedSpan, serviceGraph, sourceHash, registryHash, profileHash, debugMapHash);
             LifecyclePlan lifecyclePlan = CreateLifecyclePlan(planId, artifactSetId, formatVersion, generatorVersion, kernelIR, sourceHash, registryHash, profileHash, debugMapHash, lifecyclePlanHash);
             CommandCatalogPlan commandCatalog = CreateCommandCatalogPlan(planId, artifactSetId, formatVersion, generatorVersion, kernelIR, sourceHash, registryHash, profileHash, debugMapHash, commandCatalogHash);
+            CommandExecutorTablePlan commandExecutorTable = CreateCommandExecutorTablePlan(planId, artifactSetId, formatVersion, generatorVersion, kernelIR, commandExecutorBindingSpan, sourceHash, registryHash, profileHash, debugMapHash, commandExecutorTableHash);
             ValueSchemaPlan valueSchema = CreateValueSchemaPlan(planId, artifactSetId, formatVersion, generatorVersion, kernelIR, sourceHash, registryHash, profileHash, debugMapHash, valueSchemaHash);
             RuntimeQueryPlan runtimeQuery = CreateRuntimeQueryPlan(planId, artifactSetId, formatVersion, generatorVersion, kernelIR, sourceHash, registryHash, profileHash, debugMapHash, runtimeQueryHash);
             KernelDebugMap debugMap = CreateDebugMap(planId, artifactSetId, formatVersion, generatorVersion, debugMapEntries, sourceHash, registryHash, profileHash, debugMapHash);
@@ -73,6 +94,9 @@ namespace Game.Kernel.Generation
                 kernelIR,
                 serviceGraph,
                 scopeGraph,
+                entityRegistrationPlan,
+                serviceRegistrationPlan,
+                entityServiceRoutePlan,
                 lifecyclePlan,
                 commandCatalog,
                 valueSchema,
@@ -93,8 +117,12 @@ namespace Game.Kernel.Generation
                 {
                     serviceGraph.ContentHash,
                     scopeGraph.ContentHash,
+                    entityRegistrationPlan.ContentHash,
+                    serviceRegistrationPlan.ContentHash,
+                    entityServiceRoutePlan.ContentHash,
                     lifecyclePlan.ContentHash,
                     commandCatalog.ContentHash,
+                    commandExecutorTable.ContentHash,
                     valueSchema.ContentHash,
                     runtimeQuery.ContentHash,
                     debugMap.ContentHash,
@@ -121,8 +149,12 @@ namespace Game.Kernel.Generation
             KernelProjectionSet projections = new KernelProjectionSet(
                 serviceGraph,
                 scopeGraph,
+                entityRegistrationPlan,
+                serviceRegistrationPlan,
+                entityServiceRoutePlan,
                 lifecyclePlan,
                 commandCatalog,
+                commandExecutorTable,
                 valueSchema,
                 runtimeQuery,
                 debugMap,
@@ -133,8 +165,12 @@ namespace Game.Kernel.Generation
             {
                 serviceGraph.Header,
                 scopeGraph.Header,
+                entityRegistrationPlan.Header,
+                serviceRegistrationPlan.Header,
+                entityServiceRoutePlan.Header,
                 lifecyclePlan.Header,
                 commandCatalog.Header,
+                commandExecutorTable.Header,
                 valueSchema.Header,
                 runtimeQuery.Header,
                 debugMap.Header,
@@ -185,33 +221,80 @@ namespace Game.Kernel.Generation
             return new ScopeGraphPlan(header, kernelIR.Scopes, kernelIR.ValueInitPlans);
         }
 
+        static EntityRegistrationPlan CreateEntityRegistrationPlan(PlanId planId, ArtifactSetId artifactSetId, int formatVersion, string generatorVersion, ReadOnlySpan<EntityRegistrationPlanEntry> entityRegistrationEntries, Hash128 sourceHash, Hash128 registryHash, Hash128 profileHash, Hash128 debugMapHash, Hash128 generatedHash)
+        {
+            VerifiedArtifactHeader header = CreateArtifactHeader(planId, artifactSetId, 3, ArtifactKind.EntityRegistration, formatVersion, sourceHash, registryHash, profileHash, debugMapHash, generatedHash, generatorVersion);
+            return new EntityRegistrationPlan(header, entityRegistrationEntries);
+        }
+
+        static ServiceRegistrationPlan CreateServiceRegistrationPlan(
+            PlanId planId,
+            ArtifactSetId artifactSetId,
+            int formatVersion,
+            string generatorVersion,
+            ReadOnlySpan<ServiceRegistrationSeed> serviceRegistrationSeeds,
+            ServiceGraphPlan serviceGraph,
+            Hash128 sourceHash,
+            Hash128 registryHash,
+            Hash128 profileHash,
+            Hash128 debugMapHash,
+            Hash128 generatedHash)
+        {
+            VerifiedArtifactHeader header = CreateArtifactHeader(planId, artifactSetId, 4, ArtifactKind.ServiceRegistration, formatVersion, sourceHash, registryHash, profileHash, debugMapHash, generatedHash, generatorVersion);
+            return new ServiceRegistrationPlan(header, serviceRegistrationSeeds, serviceGraph);
+        }
+
+        static EntityServiceRoutePlan CreateEntityServiceRoutePlan(
+            PlanId planId,
+            ArtifactSetId artifactSetId,
+            int formatVersion,
+            string generatorVersion,
+            ReadOnlySpan<EntityServiceRouteSeed> entityServiceRouteSeeds,
+            ServiceGraphPlan serviceGraph,
+            Hash128 sourceHash,
+            Hash128 registryHash,
+            Hash128 profileHash,
+            Hash128 debugMapHash)
+        {
+            EntityServiceRoutePlanEntry[] plannedEntries = EntityServiceRoutePlanEntry.BuildEntries(entityServiceRouteSeeds, serviceGraph);
+            Hash128 generatedHash = KernelProjectionHashing.ComputeEntityServiceRouteHash(plannedEntries);
+            VerifiedArtifactHeader header = CreateArtifactHeader(planId, artifactSetId, 5, ArtifactKind.EntityServiceRoute, formatVersion, sourceHash, registryHash, profileHash, debugMapHash, generatedHash, generatorVersion);
+            return new EntityServiceRoutePlan(header, entityServiceRouteSeeds, serviceGraph);
+        }
+
         static LifecyclePlan CreateLifecyclePlan(PlanId planId, ArtifactSetId artifactSetId, int formatVersion, string generatorVersion, KernelIR kernelIR, Hash128 sourceHash, Hash128 registryHash, Hash128 profileHash, Hash128 debugMapHash, Hash128 generatedHash)
         {
-            VerifiedArtifactHeader header = CreateArtifactHeader(planId, artifactSetId, 3, ArtifactKind.LifecyclePlan, formatVersion, sourceHash, registryHash, profileHash, debugMapHash, generatedHash, generatorVersion);
+            VerifiedArtifactHeader header = CreateArtifactHeader(planId, artifactSetId, 6, ArtifactKind.LifecyclePlan, formatVersion, sourceHash, registryHash, profileHash, debugMapHash, generatedHash, generatorVersion);
             return new LifecyclePlan(header, kernelIR.Lifecycles);
         }
 
         static CommandCatalogPlan CreateCommandCatalogPlan(PlanId planId, ArtifactSetId artifactSetId, int formatVersion, string generatorVersion, KernelIR kernelIR, Hash128 sourceHash, Hash128 registryHash, Hash128 profileHash, Hash128 debugMapHash, Hash128 generatedHash)
         {
-            VerifiedArtifactHeader header = CreateArtifactHeader(planId, artifactSetId, 4, ArtifactKind.CommandCatalog, formatVersion, sourceHash, registryHash, profileHash, debugMapHash, generatedHash, generatorVersion);
+            VerifiedArtifactHeader header = CreateArtifactHeader(planId, artifactSetId, 7, ArtifactKind.CommandCatalog, formatVersion, sourceHash, registryHash, profileHash, debugMapHash, generatedHash, generatorVersion);
             return new CommandCatalogPlan(header, kernelIR.Commands);
+        }
+
+        static CommandExecutorTablePlan CreateCommandExecutorTablePlan(PlanId planId, ArtifactSetId artifactSetId, int formatVersion, string generatorVersion, KernelIR kernelIR, ReadOnlySpan<CommandExecutorBindingSeed> commandExecutorBindings, Hash128 sourceHash, Hash128 registryHash, Hash128 profileHash, Hash128 debugMapHash, Hash128 generatedHash)
+        {
+            VerifiedArtifactHeader header = CreateArtifactHeader(planId, artifactSetId, 8, ArtifactKind.CommandExecutorTable, formatVersion, sourceHash, registryHash, profileHash, debugMapHash, generatedHash, generatorVersion);
+            return new CommandExecutorTablePlan(header, kernelIR.Commands, commandExecutorBindings);
         }
 
         static ValueSchemaPlan CreateValueSchemaPlan(PlanId planId, ArtifactSetId artifactSetId, int formatVersion, string generatorVersion, KernelIR kernelIR, Hash128 sourceHash, Hash128 registryHash, Hash128 profileHash, Hash128 debugMapHash, Hash128 generatedHash)
         {
-            VerifiedArtifactHeader header = CreateArtifactHeader(planId, artifactSetId, 5, ArtifactKind.ValueSchema, formatVersion, sourceHash, registryHash, profileHash, debugMapHash, generatedHash, generatorVersion);
+            VerifiedArtifactHeader header = CreateArtifactHeader(planId, artifactSetId, 9, ArtifactKind.ValueSchema, formatVersion, sourceHash, registryHash, profileHash, debugMapHash, generatedHash, generatorVersion);
             return new ValueSchemaPlan(header, kernelIR.ValueKeys);
         }
 
         static RuntimeQueryPlan CreateRuntimeQueryPlan(PlanId planId, ArtifactSetId artifactSetId, int formatVersion, string generatorVersion, KernelIR kernelIR, Hash128 sourceHash, Hash128 registryHash, Hash128 profileHash, Hash128 debugMapHash, Hash128 generatedHash)
         {
-            VerifiedArtifactHeader header = CreateArtifactHeader(planId, artifactSetId, 6, ArtifactKind.RuntimeQuery, formatVersion, sourceHash, registryHash, profileHash, debugMapHash, generatedHash, generatorVersion);
+            VerifiedArtifactHeader header = CreateArtifactHeader(planId, artifactSetId, 10, ArtifactKind.RuntimeQuery, formatVersion, sourceHash, registryHash, profileHash, debugMapHash, generatedHash, generatorVersion);
             return new RuntimeQueryPlan(header, kernelIR.RuntimeQueries);
         }
 
         static KernelDebugMap CreateDebugMap(PlanId planId, ArtifactSetId artifactSetId, int formatVersion, string generatorVersion, ReadOnlySpan<KernelDebugMapEntry> entries, Hash128 sourceHash, Hash128 registryHash, Hash128 profileHash, Hash128 debugMapHash)
         {
-            VerifiedArtifactHeader header = CreateArtifactHeader(planId, artifactSetId, 7, ArtifactKind.KernelDebugMap, formatVersion, sourceHash, registryHash, profileHash, debugMapHash, debugMapHash, generatorVersion);
+            VerifiedArtifactHeader header = CreateArtifactHeader(planId, artifactSetId, 11, ArtifactKind.KernelDebugMap, formatVersion, sourceHash, registryHash, profileHash, debugMapHash, debugMapHash, generatorVersion);
             return new KernelDebugMap(header, entries);
         }
 
@@ -232,7 +315,7 @@ namespace Game.Kernel.Generation
             int debugMapEntryCount,
             ValidationResultStatus validationStatus)
         {
-            VerifiedArtifactHeader header = CreateArtifactHeader(planId, artifactSetId, 8, ArtifactKind.GenerationReport, formatVersion, sourceHash, registryHash, profileHash, debugMapHash, generatedHash, generatorVersion);
+            VerifiedArtifactHeader header = CreateArtifactHeader(planId, artifactSetId, 12, ArtifactKind.GenerationReport, formatVersion, sourceHash, registryHash, profileHash, debugMapHash, generatedHash, generatorVersion);
             return new GenerationReport(header, selectedProfile, selectedProfileMask, artifactCount, mappingCount, debugMapEntryCount, validationStatus, generatedHash);
         }
 
@@ -248,8 +331,68 @@ namespace Game.Kernel.Generation
             Hash128 generatedHash,
             ProjectionValidationReport report)
         {
-            VerifiedArtifactHeader header = CreateArtifactHeader(planId, artifactSetId, 9, ArtifactKind.ValidationReport, formatVersion, sourceHash, registryHash, profileHash, debugMapHash, generatedHash, generatorVersion);
+            VerifiedArtifactHeader header = CreateArtifactHeader(planId, artifactSetId, 13, ArtifactKind.ValidationReport, formatVersion, sourceHash, registryHash, profileHash, debugMapHash, generatedHash, generatorVersion);
             return new ValidationReport(header, report, generatedHash);
+        }
+
+        static ReadOnlySpan<EntityRegistrationPlanEntry> ToEntityRegistrationSpan(IReadOnlyList<EntityRegistrationPlanEntry>? entityRegistrationEntries)
+        {
+            if (entityRegistrationEntries == null || entityRegistrationEntries.Count == 0)
+                return ReadOnlySpan<EntityRegistrationPlanEntry>.Empty;
+
+            if (entityRegistrationEntries is EntityRegistrationPlanEntry[] array)
+                return array;
+
+            EntityRegistrationPlanEntry[] copy = new EntityRegistrationPlanEntry[entityRegistrationEntries.Count];
+            for (int index = 0; index < entityRegistrationEntries.Count; index++)
+                copy[index] = entityRegistrationEntries[index];
+
+            return copy;
+        }
+
+        static ReadOnlySpan<EntityServiceRouteSeed> ToEntityServiceRouteSeedSpan(IReadOnlyList<EntityServiceRouteSeed>? entityServiceRouteSeeds)
+        {
+            if (entityServiceRouteSeeds == null || entityServiceRouteSeeds.Count == 0)
+                return ReadOnlySpan<EntityServiceRouteSeed>.Empty;
+
+            if (entityServiceRouteSeeds is EntityServiceRouteSeed[] array)
+                return array;
+
+            EntityServiceRouteSeed[] copy = new EntityServiceRouteSeed[entityServiceRouteSeeds.Count];
+            for (int index = 0; index < entityServiceRouteSeeds.Count; index++)
+                copy[index] = entityServiceRouteSeeds[index];
+
+            return copy;
+        }
+
+        static ReadOnlySpan<ServiceRegistrationSeed> ToServiceRegistrationSeedSpan(IReadOnlyList<ServiceRegistrationSeed>? serviceRegistrationSeeds)
+        {
+            if (serviceRegistrationSeeds == null || serviceRegistrationSeeds.Count == 0)
+                return ReadOnlySpan<ServiceRegistrationSeed>.Empty;
+
+            if (serviceRegistrationSeeds is ServiceRegistrationSeed[] array)
+                return array;
+
+            ServiceRegistrationSeed[] copy = new ServiceRegistrationSeed[serviceRegistrationSeeds.Count];
+            for (int index = 0; index < serviceRegistrationSeeds.Count; index++)
+                copy[index] = serviceRegistrationSeeds[index];
+
+            return copy;
+        }
+
+        static ReadOnlySpan<CommandExecutorBindingSeed> ToCommandExecutorBindingSeedSpan(IReadOnlyList<CommandExecutorBindingSeed>? commandExecutorBindings)
+        {
+            if (commandExecutorBindings == null || commandExecutorBindings.Count == 0)
+                return ReadOnlySpan<CommandExecutorBindingSeed>.Empty;
+
+            if (commandExecutorBindings is CommandExecutorBindingSeed[] array)
+                return array;
+
+            CommandExecutorBindingSeed[] copy = new CommandExecutorBindingSeed[commandExecutorBindings.Count];
+            for (int index = 0; index < commandExecutorBindings.Count; index++)
+                copy[index] = commandExecutorBindings[index];
+
+            return copy;
         }
 
         static VerifiedArtifactHeader CreateArtifactHeader(
@@ -285,12 +428,18 @@ namespace Game.Kernel.Generation
             KernelIR kernelIR,
             ServiceGraphPlan serviceGraph,
             ScopeGraphPlan scopeGraph,
+            EntityRegistrationPlan entityRegistrationPlan,
+            ServiceRegistrationPlan serviceRegistrationPlan,
+            EntityServiceRoutePlan entityServiceRoutePlan,
             LifecyclePlan lifecyclePlan,
             CommandCatalogPlan commandCatalog,
             ValueSchemaPlan valueSchema,
             RuntimeQueryPlan runtimeQuery,
             KernelDebugMap debugMap)
         {
+            _ = entityRegistrationPlan;
+            _ = serviceRegistrationPlan;
+            _ = entityServiceRoutePlan;
             ProjectionMappingIR[] mappings = BuildMappings(kernelIR, serviceGraph, scopeGraph, lifecyclePlan, commandCatalog, valueSchema, runtimeQuery);
             RuntimeIdentityRef[] coverage = BuildCoverage(kernelIR, serviceGraph, scopeGraph, lifecyclePlan, commandCatalog, valueSchema, runtimeQuery, debugMap);
 
@@ -352,7 +501,7 @@ namespace Game.Kernel.Generation
                 AddMapping(mappings, new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, command.TypeId.Value), new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, command.TypeId.Value), command.OwnerModule, command.Source);
                 AddMapping(mappings, new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, command.AuthoringKey.Id.Value), new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, command.AuthoringKey.Id.Value), command.OwnerModule, command.AuthoringKey.Source);
                 AddMapping(mappings, new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, command.Executor.Id.Value), new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, command.Executor.Id.Value), command.OwnerModule, command.Executor.Source);
-                AddMapping(mappings, new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, command.PayloadSchema.Id.Value), new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, command.PayloadSchema.Id.Value), command.OwnerModule, command.PayloadSchema.Source);
+                AddMapping(mappings, new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, command.PayloadSchema.SchemaId.Value), new RuntimeIdentityRef(RuntimeIdentityKind.CommandPayloadSchema, command.PayloadSchema.SchemaId.Value), command.OwnerModule, command.PayloadSchema.Source);
             }
 
             ReadOnlySpan<ValueKeyIR> valueKeys = valueSchema.ValueKeys;
@@ -526,10 +675,10 @@ namespace Game.Kernel.Generation
                 }
             }
 
-            ReadOnlySpan<CommandEntryPlan> commands = commandCatalog.Entries;
+            ReadOnlySpan<CommandIR> commands = kernelIR.Commands;
             for (int index = 0; index < commands.Length; index++)
             {
-                CommandEntryPlan command = commands[index];
+                CommandIR command = commands[index];
                 entries.Add(new KernelDebugMapEntry(new RuntimeIdentityRef(RuntimeIdentityKind.CommandType, command.TypeId.Value), command.RuntimeName, command.OwnerModule, command.Source, selectedProfileMask, commandCatalogHash));
                 entries.Add(new KernelDebugMapEntry(new RuntimeIdentityRef(RuntimeIdentityKind.CommandAuthoringKey, command.AuthoringKey.Id.Value), command.RuntimeName + "/AuthoringKey", command.OwnerModule, command.AuthoringKey.Source, selectedProfileMask, commandCatalogHash));
                 entries.Add(new KernelDebugMapEntry(new RuntimeIdentityRef(RuntimeIdentityKind.CommandExecutor, command.Executor.Id.Value), command.RuntimeName + "/Executor", command.OwnerModule, command.Executor.Source, selectedProfileMask, commandCatalogHash));

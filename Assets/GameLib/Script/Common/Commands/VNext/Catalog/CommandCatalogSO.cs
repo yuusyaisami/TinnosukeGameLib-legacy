@@ -2,6 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Game.Kernel.Authoring;
+using Game.Kernel.Contributions;
+using Game.Kernel.IR;
 using UnityEngine;
 
 namespace Game.Commands.VNext
@@ -333,6 +336,512 @@ namespace Game.Commands.VNext
         public CommandPayloadFieldSchema ToRuntimeSchema()
         {
             return new CommandPayloadFieldSchema(fieldPath, kind, requirement, referenceKind, allowNull, sourceLocationId);
+        }
+    }
+
+    [DisallowMultipleComponent]
+    public sealed class CommandCatalogDeclarationAuthoringMB : MonoBehaviour, ICommandDeclarationAuthoring
+    {
+        [SerializeField] List<CommandCatalogSO> commandCatalogs = new();
+
+        public IReadOnlyList<CommandCatalogSO> CommandCatalogs => commandCatalogs;
+
+        public bool TryCreateCommandDeclarations(ModuleId ownerModule, out CommandDeclarationInput[] declarations, out string failureReason)
+        {
+            declarations = Array.Empty<CommandDeclarationInput>();
+            failureReason = string.Empty;
+
+#if !UNITY_EDITOR
+            failureReason = "Command catalog declaration authoring requires editor-only asset database access.";
+            return false;
+#else
+            if (ownerModule.Value == 0)
+            {
+                failureReason = "Command catalog declaration authoring requires a non-zero owner module.";
+                return false;
+            }
+
+            if (commandCatalogs == null || commandCatalogs.Count == 0)
+                return true;
+
+            List<CommandDeclarationInput> declarationBuffer = new List<CommandDeclarationInput>();
+            HashSet<int> seenCommandTypeIds = new HashSet<int>();
+            HashSet<string> seenStableIds = new HashSet<string>(StringComparer.Ordinal);
+            for (int index = 0; index < commandCatalogs.Count; index++)
+            {
+                CommandCatalogSO catalog = commandCatalogs[index];
+                if (catalog == null)
+                {
+                    failureReason = "Command catalog declaration authoring encountered a null catalog reference at index " + index + ".";
+                    return false;
+                }
+
+                if (!TryCreateCatalogSourceLocation(index, catalog, out UnitySourceLocation source, out failureReason))
+                    return false;
+
+                if (!CommandCatalogDeclarationBridge.TryCreateCommandDeclarations(catalog, ownerModule, source, out CommandDeclarationInput[] catalogDeclarations, out _, out failureReason))
+                    return false;
+
+                for (int declarationIndex = 0; declarationIndex < catalogDeclarations.Length; declarationIndex++)
+                {
+                    CommandDeclarationInput declaration = catalogDeclarations[declarationIndex];
+                    if (!seenCommandTypeIds.Add(declaration.TypeId.Value))
+                    {
+                        failureReason = "Command catalog declaration authoring requires command type ids to be unique across referenced catalogs. CommandTypeId=" + declaration.TypeId.Value + ".";
+                        return false;
+                    }
+
+                    if (!seenStableIds.Add(declaration.StableId))
+                    {
+                        failureReason = "Command catalog declaration authoring requires stable keys to be unique across referenced catalogs. StableKey=" + declaration.StableId + ".";
+                        return false;
+                    }
+
+                    declarationBuffer.Add(declaration);
+                }
+            }
+
+            declarations = declarationBuffer.ToArray();
+            return true;
+#endif
+        }
+
+#if UNITY_EDITOR
+        static bool TryCreateCatalogSourceLocation(int index, CommandCatalogSO catalog, out UnitySourceLocation source, out string failureReason)
+        {
+            string assetPath = UnityEditor.AssetDatabase.GetAssetPath(catalog);
+            if (string.IsNullOrWhiteSpace(assetPath))
+            {
+                source = default;
+                failureReason = "Command catalog declaration authoring requires referenced catalogs to be saved assets. Index=" + index + ".";
+                return false;
+            }
+
+            if (!UnityEditor.AssetDatabase.TryGetGUIDAndLocalFileIdentifier(catalog, out string guid, out long localFileId))
+            {
+                source = default;
+                failureReason = "Command catalog declaration authoring could not resolve asset traceability for catalog '" + assetPath + "'.";
+                return false;
+            }
+
+            source = new UnitySourceLocation(
+                UnityAuthoringSourceKind.ScriptableObjectAsset,
+                guid,
+                assetPath,
+                localFileId,
+                null,
+                null,
+                nameof(CommandCatalogDeclarationAuthoringMB),
+                "commandCatalogs[" + index + "]");
+            failureReason = string.Empty;
+            return true;
+        }
+#endif
+    }
+
+    public static class CommandCatalogDeclarationBridge
+    {
+        readonly struct PayloadSchemaRecord
+        {
+            public PayloadSchemaRecord(CommandPayloadSchemaAsset asset, int index)
+            {
+                Asset = asset ?? throw new ArgumentNullException(nameof(asset));
+                Index = index;
+            }
+
+            public CommandPayloadSchemaAsset Asset { get; }
+
+            public int Index { get; }
+        }
+
+        public static bool TryCreateCommandDeclarations(
+            CommandCatalogSO catalog,
+            ModuleId ownerModule,
+            in UnitySourceLocation catalogSource,
+            out CommandDeclarationInput[] declarations,
+            out ContributionItem[] contributions,
+            out string failureReason)
+        {
+            declarations = Array.Empty<CommandDeclarationInput>();
+            contributions = Array.Empty<ContributionItem>();
+            failureReason = string.Empty;
+
+            if (catalog == null)
+            {
+                failureReason = "Command catalog declaration bridge requires a catalog asset.";
+                return false;
+            }
+
+            if (ownerModule.Value == 0)
+            {
+                failureReason = "Command catalog declaration bridge requires a non-zero owner module.";
+                return false;
+            }
+
+            if (!catalogSource.IsSpecified)
+            {
+                failureReason = "Command catalog declaration bridge requires a specified Unity source location for the catalog asset.";
+                return false;
+            }
+
+            IReadOnlyList<CommandCatalogEntry> entries = catalog.Entries;
+            if (entries == null || entries.Count == 0)
+            {
+                failureReason = "Command catalog declaration bridge requires at least one command entry.";
+                return false;
+            }
+
+            if (!TryBuildPayloadSchemaLookup(catalog.PayloadSchemas, out Dictionary<int, PayloadSchemaRecord> schemasByCommandId, out failureReason))
+                return false;
+
+            List<CommandDeclarationInput> declarationBuffer = new List<CommandDeclarationInput>(entries.Count);
+            List<ContributionItem> contributionBuffer = new List<ContributionItem>(entries.Count);
+            HashSet<int> seenCommandIds = new HashSet<int>();
+            HashSet<string> seenStableIds = new HashSet<string>(StringComparer.Ordinal);
+            Dictionary<int, string> authoringKeyIds = new Dictionary<int, string>();
+            Dictionary<int, string> categoryIds = new Dictionary<int, string>();
+            ContributionSource contributionSource = ToContributionSource(catalogSource.Kind);
+            ContributionAvailability availability = new ContributionAvailability(null, null, null);
+
+            for (int index = 0; index < entries.Count; index++)
+            {
+                CommandCatalogEntry entry = entries[index];
+                if (entry == null)
+                {
+                    failureReason = "Command catalog declaration bridge encountered a null entry at index " + index + ".";
+                    return false;
+                }
+
+                ICommandData data = entry.Data;
+                if (data == null)
+                {
+                    failureReason = "Command catalog declaration bridge requires every entry to provide ICommandData. Index=" + index + ".";
+                    return false;
+                }
+
+                string stableId = entry.Key.StableKey == null ? string.Empty : entry.Key.StableKey.Trim();
+                if (stableId.Length == 0)
+                {
+                    failureReason = "Command catalog declaration bridge requires every entry to provide a stable key. Index=" + index + ".";
+                    return false;
+                }
+
+                if (!seenStableIds.Add(stableId))
+                {
+                    failureReason = "Command catalog declaration bridge requires stable keys to be unique. StableKey=" + stableId + ".";
+                    return false;
+                }
+
+                int commandIdValue = data.CommandId;
+                if (commandIdValue <= 0)
+                {
+                    failureReason = "Command catalog declaration bridge requires every entry to provide a positive CommandId. StableKey=" + stableId + ".";
+                    return false;
+                }
+
+                if (!seenCommandIds.Add(commandIdValue))
+                {
+                    failureReason = "Command catalog declaration bridge requires CommandId values to be unique. CommandId=" + commandIdValue + ".";
+                    return false;
+                }
+
+                if (!schemasByCommandId.TryGetValue(commandIdValue, out PayloadSchemaRecord schemaRecord))
+                {
+                    failureReason = "Command catalog declaration bridge requires an explicit payload schema asset for CommandId=" + commandIdValue + " (StableKey=" + stableId + ").";
+                    return false;
+                }
+
+                string category = entry.Meta?.Category == null ? string.Empty : entry.Meta.Category.Trim();
+                if (category.Length == 0)
+                {
+                    failureReason = "Command catalog declaration bridge requires every entry to provide a non-empty category. StableKey=" + stableId + ".";
+                    return false;
+                }
+
+                int authoringKeyIdValue = ComputeDeterministicId("CommandAuthoringKey", stableId);
+                if (!TryRegisterDeterministicId(authoringKeyIds, authoringKeyIdValue, stableId, "authoring key", out failureReason))
+                    return false;
+
+                int categoryIdValue = ComputeDeterministicId("CommandCategory", category);
+                if (!TryRegisterDeterministicId(categoryIds, categoryIdValue, category, "command category", out failureReason))
+                    return false;
+
+                UnitySourceLocation commandUnitySource = CreatePropertySource(catalogSource, "entries[" + index + "]");
+                UnitySourceLocation keyUnitySource = CreatePropertySource(catalogSource, "entries[" + index + "].key");
+                UnitySourceLocation executorUnitySource = CreatePropertySource(catalogSource, "entries[" + index + "].data");
+
+                if (!TryCreatePayloadSchemaDeclaration(schemaRecord, catalogSource, out CommandPayloadSchemaDeclarationInput payloadSchema, out failureReason))
+                    return false;
+
+                SourceLocationIR commandSource = UnityAuthoringBridge.ToKernelSourceLocation(commandUnitySource);
+                declarationBuffer.Add(new CommandDeclarationInput(
+                    ownerModule,
+                    new CommandTypeId(commandIdValue),
+                    data.GetType().Name,
+                    new CommandAuthoringKeyId(authoringKeyIdValue),
+                    stableId,
+                    UnityAuthoringBridge.ToKernelSourceLocation(keyUnitySource),
+                    new CommandCategoryId(categoryIdValue),
+                    payloadSchema,
+                    new CommandExecutorId(commandIdValue),
+                    UnityAuthoringBridge.ToKernelSourceLocation(executorUnitySource),
+                    commandSource));
+
+                contributionBuffer.Add(new ContributionItem(
+                    ContributionKind.CommandContribution,
+                    ownerModule,
+                    contributionSource,
+                    commandSource,
+                    stableId,
+                    availability,
+                    debugName: data.GetType().Name));
+            }
+
+            declarations = declarationBuffer.ToArray();
+            contributions = contributionBuffer.ToArray();
+            return true;
+        }
+
+        public static bool TryBuildVerifiedCommands(
+            CommandCatalogSO catalog,
+            ModuleId ownerModule,
+            in UnitySourceLocation catalogSource,
+            out CommandDeclarationBuildResult buildResult,
+            out ContributionItem[] contributions,
+            out string failureReason)
+        {
+            buildResult = null!;
+
+            if (!TryCreateCommandDeclarations(catalog, ownerModule, catalogSource, out CommandDeclarationInput[] declarations, out contributions, out failureReason))
+                return false;
+
+            buildResult = CommandDeclarationInputProjector.Build(declarations);
+            return true;
+        }
+
+        static bool TryBuildPayloadSchemaLookup(
+            IReadOnlyList<CommandPayloadSchemaAsset> payloadSchemas,
+            out Dictionary<int, PayloadSchemaRecord> schemasByCommandId,
+            out string failureReason)
+        {
+            schemasByCommandId = new Dictionary<int, PayloadSchemaRecord>();
+            failureReason = string.Empty;
+
+            if (payloadSchemas == null)
+            {
+                failureReason = "Command catalog declaration bridge requires a payload schema collection.";
+                return false;
+            }
+
+            for (int index = 0; index < payloadSchemas.Count; index++)
+            {
+                CommandPayloadSchemaAsset schema = payloadSchemas[index];
+                if (schema == null)
+                {
+                    failureReason = "Command catalog declaration bridge encountered a null payload schema at index " + index + ".";
+                    return false;
+                }
+
+                if (schema.CommandId <= 0)
+                {
+                    failureReason = "Command catalog declaration bridge requires payload schema CommandId values to be positive. Index=" + index + ".";
+                    return false;
+                }
+
+                if (schema.SchemaId <= 0)
+                {
+                    failureReason = "Command catalog declaration bridge requires payload schema SchemaId values to be positive. CommandId=" + schema.CommandId + ".";
+                    return false;
+                }
+
+                if (schemasByCommandId.ContainsKey(schema.CommandId))
+                {
+                    failureReason = "Command catalog declaration bridge requires payload schema CommandId values to be unique. CommandId=" + schema.CommandId + ".";
+                    return false;
+                }
+
+                schemasByCommandId.Add(schema.CommandId, new PayloadSchemaRecord(schema, index));
+            }
+
+            return true;
+        }
+
+        static bool TryCreatePayloadSchemaDeclaration(
+            in PayloadSchemaRecord schemaRecord,
+            in UnitySourceLocation catalogSource,
+            out CommandPayloadSchemaDeclarationInput declaration,
+            out string failureReason)
+        {
+            failureReason = string.Empty;
+
+            IReadOnlyList<CommandPayloadFieldSchemaAsset> fields = schemaRecord.Asset.Fields;
+            CommandPayloadFieldDeclarationInput[] fieldDeclarations = new CommandPayloadFieldDeclarationInput[fields.Count];
+            for (int index = 0; index < fields.Count; index++)
+            {
+                CommandPayloadFieldSchemaAsset field = fields[index];
+                if (field == null)
+                {
+                    declaration = default;
+                    failureReason = "Command catalog declaration bridge encountered a null payload field at payloadSchemas[" + schemaRecord.Index + "].fields[" + index + "].";
+                    return false;
+                }
+
+                try
+                {
+                    fieldDeclarations[index] = new CommandPayloadFieldDeclarationInput(
+                        field.FieldPath,
+                        ToFieldKind(field.Kind),
+                        ToFieldRequirement(field.Requirement),
+                        UnityAuthoringBridge.ToKernelSourceLocation(CreatePropertySource(catalogSource, "payloadSchemas[" + schemaRecord.Index + "].fields[" + index + "]")),
+                        ToReferenceKind(field.ReferenceKind),
+                        field.AllowNull);
+                }
+                catch (Exception exception)
+                {
+                    declaration = default;
+                    failureReason = "Command catalog declaration bridge failed to convert payload field schema for CommandId=" + schemaRecord.Asset.CommandId + ": " + exception.Message;
+                    return false;
+                }
+            }
+
+            declaration = new CommandPayloadSchemaDeclarationInput(
+                new CommandPayloadSchemaId(schemaRecord.Asset.SchemaId),
+                UnityAuthoringBridge.ToKernelSourceLocation(CreatePropertySource(catalogSource, "payloadSchemas[" + schemaRecord.Index + "]")),
+                ToUnknownFieldPolicy(schemaRecord.Asset.UnknownFieldPolicy),
+                fieldDeclarations);
+            return true;
+        }
+
+        static UnitySourceLocation CreatePropertySource(in UnitySourceLocation catalogSource, string propertyPath)
+        {
+            string? combinedPropertyPath = string.IsNullOrEmpty(catalogSource.PropertyPath)
+                ? propertyPath
+                : catalogSource.PropertyPath + "." + propertyPath;
+
+            return new UnitySourceLocation(
+                catalogSource.Kind,
+                catalogSource.AssetGuid,
+                catalogSource.AssetPath,
+                catalogSource.LocalFileId,
+                catalogSource.ScenePath,
+                catalogSource.GameObjectPath,
+                catalogSource.ComponentType,
+                combinedPropertyPath);
+        }
+
+        static bool TryRegisterDeterministicId(
+            IDictionary<int, string> tokensById,
+            int id,
+            string token,
+            string label,
+            out string failureReason)
+        {
+            if (tokensById.TryGetValue(id, out string existingToken))
+            {
+                if (!string.Equals(existingToken, token, StringComparison.Ordinal))
+                {
+                    failureReason = "Command catalog declaration bridge detected a deterministic " + label + " identity collision between '" + existingToken + "' and '" + token + "'.";
+                    return false;
+                }
+
+                failureReason = string.Empty;
+                return true;
+            }
+
+            tokensById.Add(id, token);
+            failureReason = string.Empty;
+            return true;
+        }
+
+        static int ComputeDeterministicId(string scope, string token)
+        {
+            unchecked
+            {
+                uint hash = 2166136261u;
+                for (int index = 0; index < scope.Length; index++)
+                {
+                    hash ^= scope[index];
+                    hash *= 16777619u;
+                }
+
+                hash ^= (uint)':';
+                hash *= 16777619u;
+
+                for (int index = 0; index < token.Length; index++)
+                {
+                    hash ^= token[index];
+                    hash *= 16777619u;
+                }
+
+                int value = (int)(hash & 0x7fffffff);
+                return value == 0 ? 1 : value;
+            }
+        }
+
+        static ContributionSource ToContributionSource(UnityAuthoringSourceKind kind)
+        {
+            return kind switch
+            {
+                UnityAuthoringSourceKind.SceneObject => ContributionSource.SceneObject,
+                UnityAuthoringSourceKind.PrefabAsset => ContributionSource.PrefabAsset,
+                UnityAuthoringSourceKind.PrefabInstance => ContributionSource.PrefabInstance,
+                UnityAuthoringSourceKind.PrefabVariant => ContributionSource.PrefabVariant,
+                UnityAuthoringSourceKind.ScriptableObjectAsset => ContributionSource.ScriptableObjectAsset,
+                UnityAuthoringSourceKind.GeneratedAsset => ContributionSource.GeneratedAsset,
+                UnityAuthoringSourceKind.CodeDefinedModule => ContributionSource.CodeDefinedModule,
+                UnityAuthoringSourceKind.LegacyBridge => ContributionSource.LegacyBridge,
+                _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unsupported Unity authoring source kind for command catalog declaration bridge."),
+            };
+        }
+
+        static CommandPayloadFieldKindIR ToFieldKind(CommandPayloadFieldKind kind)
+        {
+            return kind switch
+            {
+                CommandPayloadFieldKind.Bool => CommandPayloadFieldKindIR.Bool,
+                CommandPayloadFieldKind.Int => CommandPayloadFieldKindIR.Int,
+                CommandPayloadFieldKind.Float => CommandPayloadFieldKindIR.Float,
+                CommandPayloadFieldKind.String => CommandPayloadFieldKindIR.String,
+                CommandPayloadFieldKind.Object => CommandPayloadFieldKindIR.Object,
+                CommandPayloadFieldKind.ValueKeyId => CommandPayloadFieldKindIR.ValueKeyId,
+                CommandPayloadFieldKind.RuntimeQueryId => CommandPayloadFieldKindIR.RuntimeQueryId,
+                CommandPayloadFieldKind.TargetReference => CommandPayloadFieldKindIR.TargetReference,
+                CommandPayloadFieldKind.CommandList => CommandPayloadFieldKindIR.CommandList,
+                CommandPayloadFieldKind.VarStorePayload => CommandPayloadFieldKindIR.VarStorePayload,
+                _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unsupported command payload field kind."),
+            };
+        }
+
+        static CommandPayloadFieldRequirementIR ToFieldRequirement(CommandPayloadFieldRequirement requirement)
+        {
+            return requirement switch
+            {
+                CommandPayloadFieldRequirement.Optional => CommandPayloadFieldRequirementIR.Optional,
+                CommandPayloadFieldRequirement.Required => CommandPayloadFieldRequirementIR.Required,
+                _ => throw new ArgumentOutOfRangeException(nameof(requirement), requirement, "Unsupported command payload field requirement."),
+            };
+        }
+
+        static CommandPayloadReferenceKindIR ToReferenceKind(CommandPayloadReferenceKind referenceKind)
+        {
+            return referenceKind switch
+            {
+                CommandPayloadReferenceKind.None => CommandPayloadReferenceKindIR.None,
+                CommandPayloadReferenceKind.ValueKeyId => CommandPayloadReferenceKindIR.ValueKeyId,
+                CommandPayloadReferenceKind.RuntimeQueryId => CommandPayloadReferenceKindIR.RuntimeQueryId,
+                CommandPayloadReferenceKind.TargetReference => CommandPayloadReferenceKindIR.TargetReference,
+                _ => throw new ArgumentOutOfRangeException(nameof(referenceKind), referenceKind, "Unsupported command payload reference kind."),
+            };
+        }
+
+        static CommandPayloadUnknownFieldPolicyIR ToUnknownFieldPolicy(CommandPayloadUnknownFieldPolicy policy)
+        {
+            return policy switch
+            {
+                CommandPayloadUnknownFieldPolicy.Reject => CommandPayloadUnknownFieldPolicyIR.Reject,
+                CommandPayloadUnknownFieldPolicy.Ignore => CommandPayloadUnknownFieldPolicyIR.Ignore,
+                _ => throw new ArgumentOutOfRangeException(nameof(policy), policy, "Unsupported command payload unknown-field policy."),
+            };
         }
     }
 }

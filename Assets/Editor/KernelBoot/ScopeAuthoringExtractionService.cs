@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using Game;
 using Game.Kernel.Authoring;
 using Game.Kernel.Boot;
 using Game.Kernel.Contributions;
@@ -10,32 +11,42 @@ using Game.Kernel.IR;
 using Game.Kernel.Validation;
 using UnityEngine;
 
+using AuthoringUnitySourceKind = Game.Kernel.Authoring.UnityAuthoringSourceKind;
+using ContributionItemModel = Game.Kernel.Contributions.ContributionItem;
+using ContributionKindModel = Game.Kernel.Contributions.ContributionKind;
+using ContributionSourceModel = Game.Kernel.Contributions.ContributionSource;
+using ModuleContributionDataModel = Game.Kernel.Contributions.ModuleContributionData;
+
 namespace TinnosukeGameLib.Editor.KernelBoot
 {
     public sealed class ScopeAuthoringExtractionReport
     {
-        readonly ModuleContributionData[] contributions;
+        readonly ModuleContributionDataModel[] contributions;
         readonly EntityAuthoringInput[] entityInputs;
         readonly EntityDeclarationPlanInput[] declarationInputs;
         readonly EntityServiceDeclarationInput[] serviceDeclarations;
+        readonly CommandDeclarationInput[] commandDeclarations;
         readonly AuthoringValidationIssue[] issues;
 
-        public ScopeAuthoringExtractionReport(ModuleContributionData[] contributions, EntityAuthoringInput[] entityInputs, EntityDeclarationPlanInput[] declarationInputs, EntityServiceDeclarationInput[] serviceDeclarations, AuthoringValidationIssue[] issues)
+        public ScopeAuthoringExtractionReport(ModuleContributionDataModel[] contributions, EntityAuthoringInput[] entityInputs, EntityDeclarationPlanInput[] declarationInputs, EntityServiceDeclarationInput[] serviceDeclarations, CommandDeclarationInput[] commandDeclarations, AuthoringValidationIssue[] issues)
         {
-            this.contributions = contributions ?? Array.Empty<ModuleContributionData>();
+            this.contributions = contributions ?? Array.Empty<ModuleContributionDataModel>();
             this.entityInputs = entityInputs ?? Array.Empty<EntityAuthoringInput>();
             this.declarationInputs = declarationInputs ?? Array.Empty<EntityDeclarationPlanInput>();
             this.serviceDeclarations = serviceDeclarations ?? Array.Empty<EntityServiceDeclarationInput>();
+            this.commandDeclarations = commandDeclarations ?? Array.Empty<CommandDeclarationInput>();
             this.issues = issues ?? Array.Empty<AuthoringValidationIssue>();
         }
 
-        public IReadOnlyList<ModuleContributionData> Contributions => contributions;
+        public IReadOnlyList<ModuleContributionDataModel> Contributions => contributions;
 
         public IReadOnlyList<EntityAuthoringInput> EntityInputs => entityInputs;
 
         public IReadOnlyList<EntityDeclarationPlanInput> DeclarationInputs => declarationInputs;
 
         public IReadOnlyList<EntityServiceDeclarationInput> ServiceDeclarations => serviceDeclarations;
+
+        public IReadOnlyList<CommandDeclarationInput> CommandDeclarations => commandDeclarations;
 
         public IReadOnlyList<AuthoringValidationIssue> Issues => issues;
 
@@ -72,7 +83,7 @@ namespace TinnosukeGameLib.Editor.KernelBoot
 
             AuthoringValidationReport validationReport = ScopeAuthoringValidationService.Validate(roots);
             if (!validationReport.IsValid)
-                return new ScopeAuthoringExtractionReport(Array.Empty<ModuleContributionData>(), Array.Empty<EntityAuthoringInput>(), Array.Empty<EntityDeclarationPlanInput>(), Array.Empty<EntityServiceDeclarationInput>(), CopyIssues(validationReport.Issues));
+                return new ScopeAuthoringExtractionReport(Array.Empty<ModuleContributionDataModel>(), Array.Empty<EntityAuthoringInput>(), Array.Empty<EntityDeclarationPlanInput>(), Array.Empty<EntityServiceDeclarationInput>(), Array.Empty<CommandDeclarationInput>(), CopyIssues(validationReport.Issues));
 
             List<ScopeAuthoringRoot> orderedRoots = new List<ScopeAuthoringRoot>(roots.Count);
             for (int index = 0; index < roots.Count; index++)
@@ -84,25 +95,30 @@ namespace TinnosukeGameLib.Editor.KernelBoot
 
             orderedRoots.Sort(CompareRoots);
 
-            List<ModuleContributionData> contributions = new List<ModuleContributionData>(orderedRoots.Count);
+            List<ModuleContributionDataModel> contributions = new List<ModuleContributionDataModel>(orderedRoots.Count);
             List<EntityAuthoringInput> entityInputs = new List<EntityAuthoringInput>();
             List<EntityDeclarationPlanInput> declarationInputs = new List<EntityDeclarationPlanInput>();
             List<EntityServiceDeclarationInput> serviceDeclarations = new List<EntityServiceDeclarationInput>();
+            List<CommandDeclarationInput> commandDeclarations = new List<CommandDeclarationInput>();
             List<AuthoringValidationIssue> entityIssues = new List<AuthoringValidationIssue>();
             HashSet<string> seenEntityRefs = new HashSet<string>(StringComparer.Ordinal);
             HashSet<int> seenDeclaredServiceIds = new HashSet<int>();
+            HashSet<int> seenDeclaredCommandTypeIds = new HashSet<int>();
+            HashSet<string> seenDeclaredCommandStableIds = new HashSet<string>(StringComparer.Ordinal);
             for (int index = 0; index < orderedRoots.Count; index++)
             {
                 ScopeAuthoringRoot root = orderedRoots[index];
                 List<EntityServiceDeclarationInput> rootServiceDeclarations = new List<EntityServiceDeclarationInput>();
+                List<CommandDeclarationInput> rootCommandDeclarations = new List<CommandDeclarationInput>();
                 ExtractEntityAuthoring(root, entityInputs, declarationInputs, rootServiceDeclarations, entityIssues, seenEntityRefs, seenDeclaredServiceIds);
+                ExtractCommandDeclarations(root, rootCommandDeclarations, entityIssues, seenDeclaredCommandTypeIds, seenDeclaredCommandStableIds);
 
                 ScopeAuthoringLink[] links = root.GetComponentsInChildren<ScopeAuthoringLink>(true);
                 Array.Sort(links, CompareLinks);
 
-                ContributionItem[] items = BuildContributionItems(root, links, rootServiceDeclarations);
+                ContributionItemModel[] items = BuildContributionItems(root, links, rootServiceDeclarations, rootCommandDeclarations);
                 if (items.Length == 0)
-                    return new ScopeAuthoringExtractionReport(Array.Empty<ModuleContributionData>(), Array.Empty<EntityAuthoringInput>(), Array.Empty<EntityDeclarationPlanInput>(), Array.Empty<EntityServiceDeclarationInput>(), new[]
+                    return new ScopeAuthoringExtractionReport(Array.Empty<ModuleContributionDataModel>(), Array.Empty<EntityAuthoringInput>(), Array.Empty<EntityDeclarationPlanInput>(), Array.Empty<EntityServiceDeclarationInput>(), Array.Empty<CommandDeclarationInput>(), new[]
                     {
                         new AuthoringValidationIssue(
                             ScopeAuthoringValidationCodes.ContributionInvalid,
@@ -117,17 +133,16 @@ namespace TinnosukeGameLib.Editor.KernelBoot
 
                 try
                 {
-                    ContributionKind[] ownedContributionKinds = rootServiceDeclarations.Count == 0
-                        ? new[] { ContributionKind.ScopeContribution }
-                        : new[] { ContributionKind.ScopeContribution, ContributionKind.ServiceContribution };
+                    bool hasLifecycleContributions = HasLifecycleContributions(rootServiceDeclarations);
+                    ContributionKindModel[] ownedContributionKinds = BuildOwnedContributionKinds(rootServiceDeclarations.Count, rootCommandDeclarations.Count, hasLifecycleContributions);
 
-                    ModuleContributionData contribution = new ModuleContributionData(
+                    ModuleContributionDataModel contribution = new ModuleContributionDataModel(
                         root.ModuleId,
                         root.ModuleName,
                         root.ModuleKind,
                         root.ModuleVersion,
                         root.Availability,
-                        new SourceLocationIR(root.CreateSourceLocation()),
+                        UnityAuthoringBridge.ToKernelSourceLocation(root.CreateSourceLocation()),
                         ownedContributionKinds,
                         Array.Empty<ModuleId>(),
                         Array.Empty<ModuleId>(),
@@ -135,14 +150,16 @@ namespace TinnosukeGameLib.Editor.KernelBoot
 
                     contributions.Add(contribution);
                     serviceDeclarations.AddRange(rootServiceDeclarations);
+                    commandDeclarations.AddRange(rootCommandDeclarations);
                 }
                 catch (ArgumentException exception)
                 {
                     return new ScopeAuthoringExtractionReport(
-                        Array.Empty<ModuleContributionData>(),
+                        Array.Empty<ModuleContributionDataModel>(),
                         Array.Empty<EntityAuthoringInput>(),
                         Array.Empty<EntityDeclarationPlanInput>(),
                         Array.Empty<EntityServiceDeclarationInput>(),
+                        Array.Empty<CommandDeclarationInput>(),
                         new[]
                         {
                             new AuthoringValidationIssue(
@@ -159,9 +176,9 @@ namespace TinnosukeGameLib.Editor.KernelBoot
             }
 
             if (entityIssues.Count > 0)
-                return new ScopeAuthoringExtractionReport(Array.Empty<ModuleContributionData>(), Array.Empty<EntityAuthoringInput>(), Array.Empty<EntityDeclarationPlanInput>(), Array.Empty<EntityServiceDeclarationInput>(), entityIssues.ToArray());
+                return new ScopeAuthoringExtractionReport(Array.Empty<ModuleContributionDataModel>(), Array.Empty<EntityAuthoringInput>(), Array.Empty<EntityDeclarationPlanInput>(), Array.Empty<EntityServiceDeclarationInput>(), Array.Empty<CommandDeclarationInput>(), entityIssues.ToArray());
 
-            return new ScopeAuthoringExtractionReport(contributions.ToArray(), entityInputs.ToArray(), declarationInputs.ToArray(), serviceDeclarations.ToArray(), Array.Empty<AuthoringValidationIssue>());
+            return new ScopeAuthoringExtractionReport(contributions.ToArray(), entityInputs.ToArray(), declarationInputs.ToArray(), serviceDeclarations.ToArray(), commandDeclarations.ToArray(), Array.Empty<AuthoringValidationIssue>());
         }
 
         static void ExtractEntityAuthoring(
@@ -253,27 +270,69 @@ namespace TinnosukeGameLib.Editor.KernelBoot
             }
         }
 
-        static ContributionItem[] BuildContributionItems(ScopeAuthoringRoot root, ScopeAuthoringLink[] links, IReadOnlyList<EntityServiceDeclarationInput> serviceDeclarations)
+        static void ExtractCommandDeclarations(
+            ScopeAuthoringRoot root,
+            List<CommandDeclarationInput> commandDeclarations,
+            List<AuthoringValidationIssue> issues,
+            HashSet<int> seenDeclaredCommandTypeIds,
+            HashSet<string> seenDeclaredCommandStableIds)
+        {
+            MonoBehaviour[] components = root.GetComponents<MonoBehaviour>();
+            for (int index = 0; index < components.Length; index++)
+            {
+                MonoBehaviour component = components[index];
+                if (component == null || component is not ICommandDeclarationAuthoring commandDeclarationAuthoring)
+                    continue;
+
+                if (!commandDeclarationAuthoring.TryCreateCommandDeclarations(root.ModuleId, out CommandDeclarationInput[] declarations, out string failureReason))
+                {
+                    issues.Add(CreateComponentIssue(root, component, ScopeAuthoringValidationCodes.CommandDeclarationInvalid, failureReason));
+                    continue;
+                }
+
+                for (int declarationIndex = 0; declarationIndex < declarations.Length; declarationIndex++)
+                {
+                    CommandDeclarationInput declaration = declarations[declarationIndex];
+                    if (!seenDeclaredCommandTypeIds.Add(declaration.TypeId.Value))
+                    {
+                        issues.Add(CreateComponentIssue(root, component, ScopeAuthoringValidationCodes.DuplicateCommandDeclaration, "Duplicate command declaration id detected across explicit authoring roots."));
+                        continue;
+                    }
+
+                    if (!seenDeclaredCommandStableIds.Add(declaration.StableId))
+                    {
+                        issues.Add(CreateComponentIssue(root, component, ScopeAuthoringValidationCodes.DuplicateCommandDeclaration, "Duplicate command declaration stable key detected across explicit authoring roots."));
+                        continue;
+                    }
+
+                    commandDeclarations.Add(declaration);
+                }
+            }
+        }
+
+        static ContributionItemModel[] BuildContributionItems(ScopeAuthoringRoot root, ScopeAuthoringLink[] links, IReadOnlyList<EntityServiceDeclarationInput> serviceDeclarations, IReadOnlyList<CommandDeclarationInput> commandDeclarations)
         {
             int linkCount = links.Length;
             int serviceCount = serviceDeclarations == null ? 0 : serviceDeclarations.Count;
-            ContributionItem[] items = new ContributionItem[linkCount + serviceCount];
+            int commandCount = commandDeclarations == null ? 0 : commandDeclarations.Count;
+            int lifecycleCount = CountLifecycleContributions(serviceDeclarations);
+            ContributionItemModel[] items = new ContributionItemModel[linkCount + serviceCount + commandCount + lifecycleCount];
             for (int index = 0; index < linkCount; index++)
             {
                 ScopeAuthoringLink link = links[index];
-                if (!TryMapContributionSource(link.SourceKind, out ContributionSource source))
-                    return Array.Empty<ContributionItem>();
+                if (!TryMapContributionSource(link.SourceKind, out ContributionSourceModel source))
+                    return Array.Empty<ContributionItemModel>();
 
                 string stableId = CreateStableId(link.ScopeAuthoringId);
                 string? debugName = string.IsNullOrWhiteSpace(link.name) ? null : link.name;
 
                 try
                 {
-                    items[index] = new ContributionItem(
-                        ContributionKind.ScopeContribution,
+                    items[index] = new ContributionItemModel(
+                        ContributionKindModel.ScopeContribution,
                         root.ModuleId,
                         source,
-                        new SourceLocationIR(link.CreateSourceLocation()),
+                        UnityAuthoringBridge.ToKernelSourceLocation(link.CreateSourceLocation()),
                         stableId,
                         root.Availability,
                         null,
@@ -282,20 +341,20 @@ namespace TinnosukeGameLib.Editor.KernelBoot
                 }
                 catch (ArgumentException)
                 {
-                    return Array.Empty<ContributionItem>();
+                    return Array.Empty<ContributionItemModel>();
                 }
             }
 
             for (int index = 0; index < serviceCount; index++)
             {
                 EntityServiceDeclarationInput serviceDeclaration = serviceDeclarations[index];
-                if (!TryMapContributionSource(serviceDeclaration.SourceKind, out ContributionSource source))
-                    return Array.Empty<ContributionItem>();
+                if (!TryMapContributionSource(serviceDeclaration.SourceKind, out ContributionSourceModel source))
+                    return Array.Empty<ContributionItemModel>();
 
                 try
                 {
-                    items[linkCount + index] = new ContributionItem(
-                        ContributionKind.ServiceContribution,
+                    items[linkCount + index] = new ContributionItemModel(
+                        ContributionKindModel.ServiceContribution,
                         root.ModuleId,
                         source,
                         serviceDeclaration.Source,
@@ -307,70 +366,171 @@ namespace TinnosukeGameLib.Editor.KernelBoot
                 }
                 catch (ArgumentException)
                 {
-                    return Array.Empty<ContributionItem>();
+                    return Array.Empty<ContributionItemModel>();
+                }
+            }
+
+            for (int index = 0; index < commandCount; index++)
+            {
+                CommandDeclarationInput commandDeclaration = commandDeclarations[index];
+                if (!TryMapContributionSource(commandDeclaration.Source, out ContributionSourceModel source))
+                    return Array.Empty<ContributionItemModel>();
+
+                try
+                {
+                    items[linkCount + serviceCount + index] = new ContributionItemModel(
+                        ContributionKindModel.CommandContribution,
+                        root.ModuleId,
+                        source,
+                        commandDeclaration.Source,
+                        commandDeclaration.StableId,
+                        root.Availability,
+                        null,
+                        ContributionConflictPolicy.ValidationError,
+                        commandDeclaration.RuntimeName);
+                }
+                catch (ArgumentException)
+                {
+                    return Array.Empty<ContributionItemModel>();
+                }
+            }
+
+            int lifecycleItemIndex = linkCount + serviceCount + commandCount;
+            for (int serviceIndex = 0; serviceIndex < serviceCount; serviceIndex++)
+            {
+                EntityServiceDeclarationInput serviceDeclaration = serviceDeclarations[serviceIndex];
+                ReadOnlySpan<ServiceLifecycleContributionInput> lifecycleContributions = serviceDeclaration.LifecycleContributions;
+                for (int contributionIndex = 0; contributionIndex < lifecycleContributions.Length; contributionIndex++)
+                {
+                    ServiceLifecycleContributionInput lifecycleContribution = lifecycleContributions[contributionIndex];
+                    if (!TryMapContributionSource(lifecycleContribution.Source, out ContributionSourceModel source))
+                        return Array.Empty<ContributionItemModel>();
+
+                    try
+                    {
+                        items[lifecycleItemIndex++] = new ContributionItemModel(
+                            ContributionKindModel.LifecycleContribution,
+                            root.ModuleId,
+                            source,
+                            lifecycleContribution.Source,
+                            lifecycleContribution.StableId,
+                            root.Availability,
+                            null,
+                            ContributionConflictPolicy.ValidationError,
+                            lifecycleContribution.DebugName);
+                    }
+                    catch (ArgumentException)
+                    {
+                        return Array.Empty<ContributionItemModel>();
+                    }
                 }
             }
 
             return items;
         }
 
-        static bool TryMapContributionSource(SourceLocationIR sourceLocation, out ContributionSource source)
+        static bool HasLifecycleContributions(IReadOnlyList<EntityServiceDeclarationInput> serviceDeclarations)
+        {
+            if (serviceDeclarations == null)
+                return false;
+
+            for (int index = 0; index < serviceDeclarations.Count; index++)
+            {
+                if (serviceDeclarations[index].LifecycleContributions.Length > 0)
+                    return true;
+            }
+
+            return false;
+        }
+
+        static int CountLifecycleContributions(IReadOnlyList<EntityServiceDeclarationInput> serviceDeclarations)
+        {
+            if (serviceDeclarations == null || serviceDeclarations.Count == 0)
+                return 0;
+
+            int count = 0;
+            for (int index = 0; index < serviceDeclarations.Count; index++)
+                count += serviceDeclarations[index].LifecycleContributions.Length;
+
+            return count;
+        }
+
+        static ContributionKindModel[] BuildOwnedContributionKinds(int serviceDeclarationCount, int commandDeclarationCount, bool hasLifecycleContributions)
+        {
+            if (serviceDeclarationCount == 0 && commandDeclarationCount == 0)
+                return new[] { ContributionKindModel.ScopeContribution };
+
+            if (serviceDeclarationCount == 0)
+                return new[] { ContributionKindModel.ScopeContribution, ContributionKindModel.CommandContribution };
+
+            if (commandDeclarationCount == 0)
+                return hasLifecycleContributions
+                    ? new[] { ContributionKindModel.ScopeContribution, ContributionKindModel.ServiceContribution, ContributionKindModel.LifecycleContribution }
+                    : new[] { ContributionKindModel.ScopeContribution, ContributionKindModel.ServiceContribution };
+
+            if (hasLifecycleContributions)
+                return new[] { ContributionKindModel.ScopeContribution, ContributionKindModel.ServiceContribution, ContributionKindModel.CommandContribution, ContributionKindModel.LifecycleContribution };
+
+            return new[] { ContributionKindModel.ScopeContribution, ContributionKindModel.ServiceContribution, ContributionKindModel.CommandContribution };
+        }
+
+        static bool TryMapContributionSource(SourceLocationIR sourceLocation, out ContributionSourceModel source)
         {
             if (sourceLocation.Kind == SourceLocationKind.Unity && sourceLocation.UnitySource.HasValue)
             {
-                UnitySourceLocation unitySource = sourceLocation.UnitySource.Value;
+                Game.Kernel.IR.UnitySourceLocation unitySource = sourceLocation.UnitySource.Value;
                 if (!string.IsNullOrEmpty(unitySource.ScenePath))
                 {
                     source = !string.IsNullOrEmpty(unitySource.AssetPath)
                         && unitySource.AssetPath.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase)
-                        ? ContributionSource.PrefabInstance
-                        : ContributionSource.SceneObject;
+                        ? ContributionSourceModel.PrefabInstance
+                        : ContributionSourceModel.SceneObject;
                     return true;
                 }
 
                 if (!string.IsNullOrEmpty(unitySource.AssetPath))
                 {
                     source = unitySource.AssetPath.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase)
-                        ? ContributionSource.PrefabAsset
-                        : ContributionSource.ScriptableObjectAsset;
+                        ? ContributionSourceModel.PrefabAsset
+                        : ContributionSourceModel.ScriptableObjectAsset;
                     return true;
                 }
             }
 
             if (sourceLocation.Kind == SourceLocationKind.Generated)
             {
-                source = ContributionSource.GeneratedAsset;
+                source = ContributionSourceModel.GeneratedAsset;
                 return true;
             }
 
-            source = ContributionSource.Unknown;
+            source = ContributionSourceModel.Unknown;
             return false;
         }
 
-        static bool TryMapContributionSource(UnityAuthoringSourceKind kind, out ContributionSource source)
+        static bool TryMapContributionSource(AuthoringUnitySourceKind kind, out ContributionSourceModel source)
         {
             switch (kind)
             {
-                case UnityAuthoringSourceKind.SceneObject:
-                    source = ContributionSource.SceneObject;
+                case AuthoringUnitySourceKind.SceneObject:
+                    source = ContributionSourceModel.SceneObject;
                     return true;
-                case UnityAuthoringSourceKind.PrefabAsset:
-                    source = ContributionSource.PrefabAsset;
+                case AuthoringUnitySourceKind.PrefabAsset:
+                    source = ContributionSourceModel.PrefabAsset;
                     return true;
-                case UnityAuthoringSourceKind.PrefabInstance:
-                    source = ContributionSource.PrefabInstance;
+                case AuthoringUnitySourceKind.PrefabInstance:
+                    source = ContributionSourceModel.PrefabInstance;
                     return true;
-                case UnityAuthoringSourceKind.PrefabVariant:
-                    source = ContributionSource.PrefabVariant;
+                case AuthoringUnitySourceKind.PrefabVariant:
+                    source = ContributionSourceModel.PrefabVariant;
                     return true;
-                case UnityAuthoringSourceKind.ScriptableObjectAsset:
-                    source = ContributionSource.ScriptableObjectAsset;
+                case AuthoringUnitySourceKind.ScriptableObjectAsset:
+                    source = ContributionSourceModel.ScriptableObjectAsset;
                     return true;
-                case UnityAuthoringSourceKind.GeneratedAsset:
-                    source = ContributionSource.GeneratedAsset;
+                case AuthoringUnitySourceKind.GeneratedAsset:
+                    source = ContributionSourceModel.GeneratedAsset;
                     return true;
                 default:
-                    source = ContributionSource.Unknown;
+                    source = ContributionSourceModel.Unknown;
                     return false;
             }
         }
@@ -461,6 +621,19 @@ namespace TinnosukeGameLib.Editor.KernelBoot
                 declaration.HasSourceLocation ? declaration.CreateSourceLocation() : null,
                 subjectName: declaration.name,
                 runtimeIdentities: new[] { new RuntimeIdentityRef(RuntimeIdentityKind.Module, root.ModuleId.Value) });
+        }
+
+        static AuthoringValidationIssue CreateComponentIssue(ScopeAuthoringRoot root, Component component, string code, string message)
+        {
+            return new AuthoringValidationIssue(
+            code,
+            ValidationSeverity.Error,
+            ValidationIssueCategory.LocalNode,
+            root.ModuleId,
+            message,
+            root.HasSourceLocation ? root.CreateSourceLocation() : null,
+            subjectName: component == null ? root.name : component.name,
+            runtimeIdentities: new[] { new RuntimeIdentityRef(RuntimeIdentityKind.Module, root.ModuleId.Value) });
         }
 
         static AuthoringValidationIssue[] CopyIssues(IReadOnlyList<AuthoringValidationIssue> issues)

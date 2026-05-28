@@ -168,9 +168,10 @@ namespace Game.UI
             builder.Register<ISelectCandidateProvider>(c =>
             {
                 var cs = c.Resolve<IUICanvasService>();
+                c.TryResolve<IUINodeGraphTelemetry>(out var nodeGraph);
                 return CanvasType == UICanvasType.World
-                    ? new SelectCandidateProviderWorld(cs)
-                    : new SelectCandidateProviderScreen(cs);
+                    ? new SelectCandidateProviderWorld(cs, nodeGraph)
+                    : new SelectCandidateProviderScreen(cs, nodeGraph);
             }, RuntimeLifetime.Singleton)
             .As<ISelectCandidateProvider>();
 

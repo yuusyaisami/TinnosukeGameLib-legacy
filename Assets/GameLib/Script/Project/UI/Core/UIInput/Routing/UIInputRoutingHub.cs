@@ -28,49 +28,22 @@ namespace Game.UI
 
     public sealed class UIInputRoutingHub : IUIInputRoutingHub
     {
-        readonly struct PreviewEntry
-        {
-            public PreviewEntry(IScopeNode owner, IUIInputPreviewObserver observer)
-            {
-                Owner = owner;
-                Observer = observer;
-            }
-
-            public IScopeNode Owner { get; }
-            public IUIInputPreviewObserver Observer { get; }
-        }
-
-        readonly struct BubbleEntry
-        {
-            public BubbleEntry(IScopeNode owner, IUIInputBubbleConsumer consumer)
-            {
-                Owner = owner;
-                Consumer = consumer;
-            }
-
-            public IScopeNode Owner { get; }
-            public IUIInputBubbleConsumer Consumer { get; }
-        }
-
-        readonly List<PreviewEntry> _previewEntries = new();
-        readonly List<BubbleEntry> _bubbleEntries = new();
-        bool _previewSortDirty;
-        bool _bubbleSortDirty;
+        readonly Dictionary<IScopeNode, List<IUIInputPreviewObserver>> _previewEntriesByOwner =
+            new(global::Game.ReferenceEqualityComparer<IScopeNode>.Instance);
+        readonly Dictionary<IScopeNode, List<IUIInputBubbleConsumer>> _bubbleEntriesByOwner =
+            new(global::Game.ReferenceEqualityComparer<IScopeNode>.Instance);
+        readonly HashSet<IUIInputPreviewObserver> _previewDispatchDedup =
+            new(global::Game.ReferenceEqualityComparer<IUIInputPreviewObserver>.Instance);
+        readonly HashSet<IUIInputBubbleConsumer> _bubbleDispatchDedup =
+            new(global::Game.ReferenceEqualityComparer<IUIInputBubbleConsumer>.Instance);
 
         public void RegisterPreview(IScopeNode owner, IUIInputPreviewObserver observer)
         {
             if (owner == null || observer == null)
                 return;
 
-            for (var i = 0; i < _previewEntries.Count; i++)
-            {
-                var entry = _previewEntries[i];
-                if (ReferenceEquals(entry.Owner, owner) && ReferenceEquals(entry.Observer, observer))
-                    return;
-            }
-
-            _previewEntries.Add(new PreviewEntry(owner, observer));
-            _previewSortDirty = true;
+            var entries = GetOrCreatePreviewEntries(owner);
+            InsertPreview(entries, observer);
         }
 
         public void UnregisterPreview(IScopeNode owner, IUIInputPreviewObserver observer)
@@ -78,12 +51,7 @@ namespace Game.UI
             if (owner == null || observer == null)
                 return;
 
-            for (var i = _previewEntries.Count - 1; i >= 0; i--)
-            {
-                var entry = _previewEntries[i];
-                if (ReferenceEquals(entry.Owner, owner) && ReferenceEquals(entry.Observer, observer))
-                    _previewEntries.RemoveAt(i);
-            }
+            RemovePreview(owner, observer);
         }
 
         public void RegisterBubble(IScopeNode owner, IUIInputBubbleConsumer consumer)
@@ -91,15 +59,8 @@ namespace Game.UI
             if (owner == null || consumer == null)
                 return;
 
-            for (var i = 0; i < _bubbleEntries.Count; i++)
-            {
-                var entry = _bubbleEntries[i];
-                if (ReferenceEquals(entry.Owner, owner) && ReferenceEquals(entry.Consumer, consumer))
-                    return;
-            }
-
-            _bubbleEntries.Add(new BubbleEntry(owner, consumer));
-            _bubbleSortDirty = true;
+            var entries = GetOrCreateBubbleEntries(owner);
+            InsertBubble(entries, consumer);
         }
 
         public void UnregisterBubble(IScopeNode owner, IUIInputBubbleConsumer consumer)
@@ -107,75 +68,133 @@ namespace Game.UI
             if (owner == null || consumer == null)
                 return;
 
-            for (var i = _bubbleEntries.Count - 1; i >= 0; i--)
-            {
-                var entry = _bubbleEntries[i];
-                if (ReferenceEquals(entry.Owner, owner) && ReferenceEquals(entry.Consumer, consumer))
-                    _bubbleEntries.RemoveAt(i);
-            }
+            RemoveBubble(owner, consumer);
         }
 
         public void NotifyPreview(IScopeNode? currentElement, IScopeNode? hoveredElement, in UIInputEvent inputEvent)
         {
-            _ = currentElement;
-            _ = hoveredElement;
-            EnsurePreviewSorted();
-            for (var i = 0; i < _previewEntries.Count; i++)
-                _previewEntries[i].Observer.Observe(in inputEvent);
+            _previewDispatchDedup.Clear();
+            DispatchPreviewPath(currentElement, in inputEvent);
+            DispatchPreviewPath(hoveredElement, in inputEvent);
         }
 
         public bool DispatchBubble(IScopeNode? currentElement, IScopeNode? hoveredElement, in UIInputEvent inputEvent)
         {
-            _ = currentElement;
-            _ = hoveredElement;
-            EnsureBubbleSorted();
-            for (var i = 0; i < _bubbleEntries.Count; i++)
+            _bubbleDispatchDedup.Clear();
+            return DispatchBubblePath(currentElement, in inputEvent) || DispatchBubblePath(hoveredElement, in inputEvent);
+        }
+
+        List<IUIInputPreviewObserver> GetOrCreatePreviewEntries(IScopeNode owner)
+        {
+            if (_previewEntriesByOwner.TryGetValue(owner, out var entries))
+                return entries;
+
+            entries = new List<IUIInputPreviewObserver>();
+            _previewEntriesByOwner.Add(owner, entries);
+            return entries;
+        }
+
+        List<IUIInputBubbleConsumer> GetOrCreateBubbleEntries(IScopeNode owner)
+        {
+            if (_bubbleEntriesByOwner.TryGetValue(owner, out var entries))
+                return entries;
+
+            entries = new List<IUIInputBubbleConsumer>();
+            _bubbleEntriesByOwner.Add(owner, entries);
+            return entries;
+        }
+
+        static void InsertPreview(List<IUIInputPreviewObserver> entries, IUIInputPreviewObserver observer)
+        {
+            for (var i = 0; i < entries.Count; i++)
             {
-                if (_bubbleEntries[i].Consumer.Consume(in inputEvent))
-                    return true;
+                if (ReferenceEquals(entries[i], observer))
+                    return;
+            }
+
+            entries.Add(observer);
+            entries.Sort(static (x, y) => y.Priority.CompareTo(x.Priority));
+        }
+
+        static void InsertBubble(List<IUIInputBubbleConsumer> entries, IUIInputBubbleConsumer consumer)
+        {
+            for (var i = 0; i < entries.Count; i++)
+            {
+                if (ReferenceEquals(entries[i], consumer))
+                    return;
+            }
+
+            entries.Add(consumer);
+            entries.Sort(static (x, y) => y.Priority.CompareTo(x.Priority));
+        }
+
+        void RemovePreview(IScopeNode owner, IUIInputPreviewObserver observer)
+        {
+            if (!_previewEntriesByOwner.TryGetValue(owner, out var entries))
+                return;
+
+            for (var i = entries.Count - 1; i >= 0; i--)
+            {
+                if (ReferenceEquals(entries[i], observer))
+                    entries.RemoveAt(i);
+            }
+
+            if (entries.Count == 0)
+                _previewEntriesByOwner.Remove(owner);
+        }
+
+        void RemoveBubble(IScopeNode owner, IUIInputBubbleConsumer consumer)
+        {
+            if (!_bubbleEntriesByOwner.TryGetValue(owner, out var entries))
+                return;
+
+            for (var i = entries.Count - 1; i >= 0; i--)
+            {
+                if (ReferenceEquals(entries[i], consumer))
+                    entries.RemoveAt(i);
+            }
+
+            if (entries.Count == 0)
+                _bubbleEntriesByOwner.Remove(owner);
+        }
+
+        void DispatchPreviewPath(IScopeNode? start, in UIInputEvent inputEvent)
+        {
+            for (var current = start; current != null; current = current.Parent)
+            {
+                if (!_previewEntriesByOwner.TryGetValue(current, out var entries))
+                    continue;
+
+                for (var i = 0; i < entries.Count; i++)
+                {
+                    var observer = entries[i];
+                    if (!_previewDispatchDedup.Add(observer))
+                        continue;
+
+                    observer.Observe(in inputEvent);
+                }
+            }
+        }
+
+        bool DispatchBubblePath(IScopeNode? start, in UIInputEvent inputEvent)
+        {
+            for (var current = start; current != null; current = current.Parent)
+            {
+                if (!_bubbleEntriesByOwner.TryGetValue(current, out var entries))
+                    continue;
+
+                for (var i = 0; i < entries.Count; i++)
+                {
+                    var consumer = entries[i];
+                    if (!_bubbleDispatchDedup.Add(consumer))
+                        continue;
+
+                    if (consumer.Consume(in inputEvent))
+                        return true;
+                }
             }
 
             return false;
-        }
-
-        void EnsurePreviewSorted()
-        {
-            if (!_previewSortDirty)
-                return;
-
-            _previewEntries.Sort(static (x, y) =>
-            {
-                var depthCompare = GetScopeDepth(y.Owner).CompareTo(GetScopeDepth(x.Owner));
-                if (depthCompare != 0)
-                    return depthCompare;
-
-                return y.Observer.Priority.CompareTo(x.Observer.Priority);
-            });
-            _previewSortDirty = false;
-        }
-
-        void EnsureBubbleSorted()
-        {
-            if (!_bubbleSortDirty)
-                return;
-
-            _bubbleEntries.Sort(static (x, y) =>
-            {
-                var depthCompare = GetScopeDepth(y.Owner).CompareTo(GetScopeDepth(x.Owner));
-                if (depthCompare != 0)
-                    return depthCompare;
-
-                return y.Consumer.Priority.CompareTo(x.Consumer.Priority);
-            });
-            _bubbleSortDirty = false;
-        }
-
-        static int GetScopeDepth(IScopeNode scope)
-        {
-            var depth = 0;
-            for (var current = scope; current != null; current = current.Parent)
-                depth++;
-            return depth;
         }
     }
 }

@@ -354,7 +354,9 @@ namespace Game.Kernel.IR
                 writer.WriteString(module.LegacyCompat?.TrackingIssueOrBlockingCondition);
                 writer.WriteInt(module.LegacyCompat != null ? (int)module.LegacyCompat.Surface : 0);
                 writer.WriteString(module.LegacyCompat?.LegacySourceType);
-                ReadOnlySpan<DependencyNodeIR> explicitTargets = module.LegacyCompat?.ExplicitTargets ?? ReadOnlySpan<DependencyNodeIR>.Empty;
+                ReadOnlySpan<DependencyNodeIR> explicitTargets = module.LegacyCompat == null
+                    ? ReadOnlySpan<DependencyNodeIR>.Empty
+                    : module.LegacyCompat.ExplicitTargets;
                 writer.WriteInt(explicitTargets.Length);
                 for (int explicitTargetIndex = 0; explicitTargetIndex < explicitTargets.Length; explicitTargetIndex++)
                     WriteDependencyNode(writer, explicitTargets[explicitTargetIndex]);
@@ -1094,6 +1096,26 @@ namespace Game.Kernel.IR
                 builder.Append(sortedDependencies[index].Strength);
                 builder.Append('@');
                 builder.Append(FormatSourceId(sortedDependencies[index].Source));
+            }
+
+            builder.Append(']');
+            return builder.ToString();
+        }
+
+        static string FormatDependencyNodes(ReadOnlySpan<DependencyNodeIR> nodes)
+        {
+            if (nodes.Length == 0)
+                return "[]";
+
+            DependencyNodeIR[] sortedNodes = CopyAndSort(nodes, CompareDependencyNode);
+            StringBuilder builder = new StringBuilder();
+            builder.Append('[');
+            for (int index = 0; index < sortedNodes.Length; index++)
+            {
+                if (index > 0)
+                    builder.Append(", ");
+
+                builder.Append(FormatDependencyNode(sortedNodes[index]));
             }
 
             builder.Append(']');

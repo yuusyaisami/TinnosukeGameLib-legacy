@@ -17,7 +17,7 @@ namespace Game.Save
 
             if (bb == null || scalar == null)
             {
-                Debug.LogWarning($"[SaveBinderV2] Collect failed: Blackboard or Scalar is null for {ctx.ScopeKey}");
+                Debug.LogWarning($"[SaveBinderV2] Collect failed: value store or Scalar is null for {ctx.ScopeKey}");
                 return;
             }
 
@@ -40,7 +40,7 @@ namespace Game.Save
                     if (e.VarId == 0)
                         continue;
 
-                    if (!bb.TryLocalGetVariant(e.VarId, out var v))
+                    if (!bb.TryGetVariant(e.VarId, out var v))
                         continue;
 
                     if (v.Kind == ValueKind.ManagedRef || v.Kind == ValueKind.UnityObject)
@@ -91,7 +91,7 @@ namespace Game.Save
             var scalar = reg.Scalars;
             if (bb == null || scalar == null)
             {
-                Debug.LogWarning($"[SaveBinderV2] Apply failed: Blackboard or Scalar is null for {ctx.ScopeKey}");
+                Debug.LogWarning($"[SaveBinderV2] Apply failed: value store or Scalar is null for {ctx.ScopeKey}");
                 return;
             }
 
@@ -154,14 +154,14 @@ namespace Game.Save
                     if (bbMap.TryGetValue(e.VarId, out var p))
                     {
                         var v = FromPayload(p);
-                        bb.TryLocalSetVariant(e.VarId, in v);
+                        bb.TrySetVariant(e.VarId, in v);
                     }
                     else
                     {
                         if (bbMissing == MissingPolicy.Clear)
                         {
                             var v = DynamicVariant.Null;
-                            bb.TryLocalSetVariant(e.VarId, in v);
+                            bb.TrySetVariant(e.VarId, in v);
                         }
                     }
 

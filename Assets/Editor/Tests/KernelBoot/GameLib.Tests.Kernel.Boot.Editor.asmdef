@@ -3,6 +3,7 @@
   "rootNamespace": "TinnosukeGameLib.Tests.Editor",
   "references": [
     "GameLib.Kernel.Boot",
+    "GameLib.Kernel.ScopeGraph",
     "GameLib.Kernel.Diagnostics",
     "GameLib.Kernel.Abstractions",
     "GameLib.Kernel.Generation",

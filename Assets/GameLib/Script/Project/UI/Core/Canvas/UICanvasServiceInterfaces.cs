@@ -253,12 +253,21 @@ namespace Game.UI
     /// </summary>
     public class SelectCandidateProviderScreen : ISelectCandidateProvider
     {
+        sealed class SelectableRootCache
+        {
+            public readonly List<Game.IScopeNode> Candidates = new();
+            public readonly List<IUIElementState> ObservedStates = new();
+            public int GraphVersion = -1;
+            public int StateVersion = -1;
+        }
+
         // ----------------------------------------------------------------
         // フィールド
         // ----------------------------------------------------------------
 
         /// <summary>座標変換に使用するCanvasService</summary>
         readonly IUICanvasService _canvasService;
+        readonly IUINodeGraphTelemetry? _nodeGraph;
 
         /// <summary>方向判定の最小閾値（0.0〜1.0）</summary>
         public float DirectionThreshold { get; set; } = 0.3f;
@@ -310,6 +319,10 @@ namespace Game.UI
         /// <summary>UIElementStateキャッシュ（GC/解決コスト対策）</summary>
         readonly Dictionary<Game.IScopeNode, IUIElementState?> _elementStateCache =
             new(Game.ReferenceEqualityComparer<Game.IScopeNode>.Instance);
+        readonly Dictionary<Game.IScopeNode, SelectableRootCache> _selectableRootCaches =
+            new(Game.ReferenceEqualityComparer<Game.IScopeNode>.Instance);
+        readonly Dictionary<IUIElementState, int> _observedStateRefCounts =
+            new(Game.ReferenceEqualityComparer<IUIElementState>.Instance);
 
         /// <summary>ポインターソート用の Comparer（GC対策でキャッシュ）</summary>
         readonly PointerCandidateComparer _pointerComparer;
@@ -322,6 +335,8 @@ namespace Game.UI
         Vector2 _lastPointerQueryScreenPosition;
         Game.IScopeNode? _lastPointerQueryRootScope;
         readonly List<SelectCandidate> _lastPointerQueryResults = new();
+        int _candidateStateVersion;
+        int _rootCacheBuildCount;
 
         readonly struct PointerSortKey
         {
@@ -397,9 +412,10 @@ namespace Game.UI
         /// コンストラクタ。
         /// </summary>
         /// <param name="canvasService">座標変換に使用するCanvasService</param>
-        public SelectCandidateProviderScreen(IUICanvasService canvasService)
+        public SelectCandidateProviderScreen(IUICanvasService canvasService, IUINodeGraphTelemetry? nodeGraph = null)
         {
             _canvasService = canvasService;
+            _nodeGraph = nodeGraph;
             _pointerFrontHitComparer = new PointerGraphicFrontHitComparer();
             _pointerComparer = new PointerCandidateComparer(this, _pointerSortKeyCache);
             _navigationComparer = new NavigationCandidateComparer(_navigationSelectionOrderCache);
@@ -421,8 +437,7 @@ namespace Game.UI
             _navigationSelectionOrderCache.Clear();
 
             // 全候補を収集
-            _allCandidatesBuffer.Clear();
-            CollectAllSelectableCandidates(rootScope, _allCandidatesBuffer);
+            PopulateSelectableCandidates(rootScope, _allCandidatesBuffer);
 
             if (_allCandidatesBuffer.Count == 0)
             {
@@ -439,11 +454,20 @@ namespace Game.UI
             var directionVector = DirectionToVector(direction);
             var camera = GetCamera();
             Game.IScopeNode? explicitTarget = null;
+            UINodeHandle explicitTargetHandle = UINodeHandle.Invalid;
 
             if (current != null)
             {
+                if (_nodeGraph != null &&
+                    _nodeGraph.TryGetHandle(current, out var currentHandle) &&
+                    _nodeGraph.TryGetNavigationTarget(currentHandle, direction, out explicitTargetHandle) &&
+                    _nodeGraph.TryGetOwner(explicitTargetHandle, out var graphExplicitTarget))
+                {
+                    explicitTarget = graphExplicitTarget;
+                }
+
                 TryGetElementState(current, out var currentState);
-                explicitTarget = currentState?.NavigationOverride?.GetOverride(direction);
+                explicitTarget ??= currentState?.NavigationOverride?.GetOverride(direction);
                 if (explicitTarget != null && !ReferenceEquals(explicitTarget, current))
                 {
                     TryGetElementState(explicitTarget, out var explicitState);
@@ -451,12 +475,15 @@ namespace Game.UI
                         (explicitState == null || explicitState.EvaluateIsNavigationSelectable()) &&
                         TestElementVisibilityAgainstParentMasks(explicitTarget, explicitState, rootScope, camera))
                     {
-                        results.Add(SelectCandidate.FromExplicitLink(explicitTarget));
+                        results.Add(explicitTargetHandle.IsValid
+                            ? SelectCandidate.FromExplicitLink(explicitTargetHandle, explicitTarget)
+                            : SelectCandidate.FromExplicitLink(explicitTarget));
                         _navigationSelectionOrderCache[explicitTarget] = explicitState?.NavigationSelectionOrder ?? 0;
                     }
                     else
                     {
                         explicitTarget = null;
+                        explicitTargetHandle = UINodeHandle.Invalid;
                     }
                 }
             }
@@ -545,8 +572,7 @@ namespace Game.UI
             _elementStateCache.Clear();
 
             // 全候補を収集
-            _allCandidatesBuffer.Clear();
-            CollectAllSelectableCandidates(rootScope, _allCandidatesBuffer);
+            PopulateSelectableCandidates(rootScope, _allCandidatesBuffer);
 
             var camera = GetCamera();
             PopulatePointerFrontGraphicCache(screenPosition, rootScope, camera);
@@ -677,9 +703,8 @@ namespace Game.UI
             Game.IScopeNode rootScope,
             List<Game.IScopeNode> results)
         {
-            results.Clear();
             _elementStateCache.Clear();
-            CollectAllSelectableCandidates(rootScope, results);
+            PopulateSelectableCandidates(rootScope, results);
         }
 
         // ----------------------------------------------------------------
@@ -913,6 +938,106 @@ namespace Game.UI
                     }
                 }
             }
+        }
+
+        void PopulateSelectableCandidates(Game.IScopeNode rootScope, List<Game.IScopeNode> results)
+        {
+            results.Clear();
+            if (rootScope == null)
+                return;
+
+            var cache = GetOrCreateRootCache(rootScope);
+            EnsureRootCache(rootScope, cache);
+
+            for (int i = 0; i < cache.Candidates.Count; i++)
+                results.Add(cache.Candidates[i]);
+        }
+
+        SelectableRootCache GetOrCreateRootCache(Game.IScopeNode rootScope)
+        {
+            if (_selectableRootCaches.TryGetValue(rootScope, out var cache))
+                return cache;
+
+            cache = new SelectableRootCache();
+            _selectableRootCaches.Add(rootScope, cache);
+            return cache;
+        }
+
+        void EnsureRootCache(Game.IScopeNode rootScope, SelectableRootCache cache)
+        {
+            var graphVersion = _nodeGraph?.Version ?? 0;
+            if (cache.GraphVersion == graphVersion && cache.StateVersion == _candidateStateVersion)
+                return;
+
+            ReleaseRootCacheSubscriptions(cache);
+            cache.Candidates.Clear();
+            _elementStateCache.Clear();
+
+            CollectAllSelectableCandidates(rootScope, cache.Candidates);
+
+            for (int i = 0; i < cache.Candidates.Count; i++)
+            {
+                var candidate = cache.Candidates[i];
+                if (!_elementStateCache.TryGetValue(candidate, out var state) || state == null)
+                    continue;
+
+                cache.ObservedStates.Add(state);
+                TrackObservedState(state);
+            }
+
+            _rootCacheBuildCount++;
+            cache.GraphVersion = graphVersion;
+            cache.StateVersion = _candidateStateVersion;
+            InvalidatePointerQueryCache();
+        }
+
+        void ReleaseRootCacheSubscriptions(SelectableRootCache cache)
+        {
+            for (int i = 0; i < cache.ObservedStates.Count; i++)
+                UntrackObservedState(cache.ObservedStates[i]);
+
+            cache.ObservedStates.Clear();
+        }
+
+        void TrackObservedState(IUIElementState state)
+        {
+            if (_observedStateRefCounts.TryGetValue(state, out var count))
+            {
+                _observedStateRefCounts[state] = count + 1;
+                return;
+            }
+
+            _observedStateRefCounts.Add(state, 1);
+            state.OnStateChanged += HandleObservedStateChanged;
+        }
+
+        void UntrackObservedState(IUIElementState state)
+        {
+            if (!_observedStateRefCounts.TryGetValue(state, out var count))
+                return;
+
+            if (count > 1)
+            {
+                _observedStateRefCounts[state] = count - 1;
+                return;
+            }
+
+            _observedStateRefCounts.Remove(state);
+            state.OnStateChanged -= HandleObservedStateChanged;
+        }
+
+        void HandleObservedStateChanged(UIElementStateChangedArgs args)
+        {
+            _ = args;
+            _candidateStateVersion++;
+            InvalidatePointerQueryCache();
+        }
+
+        void InvalidatePointerQueryCache()
+        {
+            _lastPointerQueryFrame = -1;
+            _lastPointerQueryRootScope = null;
+            _lastPointerQueryResults.Clear();
         }
 
         // ----------------------------------------------------------------
@@ -1400,6 +1525,16 @@ namespace Game.UI
 
         int GetUiElementDepth(Game.IScopeNode e, Game.IScopeNode rootScope)
         {
+            if (_nodeGraph != null &&
+                _nodeGraph.TryGetHandle(e, out var handle) &&
+                _nodeGraph.TryGetDepth(handle, out var depth))
+            {
+                if (_nodeGraph.TryGetHandle(rootScope, out var rootHandle) && _nodeGraph.TryGetDepth(rootHandle, out var rootDepth))
+                    return Mathf.Max(0, depth - rootDepth);
+
+                return depth;
+            }
+
             int d = 0;
             Game.IScopeNode? cur = e;
             while (cur != null && !ReferenceEquals(cur, rootScope))
@@ -1425,10 +1560,21 @@ namespace Game.UI
             }
         }
 
-        static int CompareScopeAncestorFrontToBack(Game.IScopeNode a, Game.IScopeNode b)
+        int CompareScopeAncestorFrontToBack(Game.IScopeNode a, Game.IScopeNode b)
         {
             if (ReferenceEquals(a, b))
                 return 0;
+
+            if (_nodeGraph != null &&
+                _nodeGraph.TryGetHandle(a, out var aHandle) &&
+                _nodeGraph.TryGetHandle(b, out var bHandle))
+            {
+                if (_nodeGraph.IsSameOrDescendant(bHandle, aHandle))
+                    return 1;
+
+                if (_nodeGraph.IsSameOrDescendant(aHandle, bHandle))
+                    return -1;
+            }
 
             for (var current = b.Parent; current != null; current = current.Parent)
             {
@@ -1603,7 +1749,7 @@ namespace Game.UI
                     return ancestorCmp;
 
                 // Scope 親子関係も補助的に見る（Transform だけで判定できないケースの安定化）。
-                ancestorCmp = CompareScopeAncestorFrontToBack(ae, be);
+                ancestorCmp = _owner.CompareScopeAncestorFrontToBack(ae, be);
                 if (ancestorCmp != 0)
                     return ancestorCmp;
 
@@ -1699,6 +1845,11 @@ namespace Game.UI
     {
         readonly SelectCandidateProviderScreen _inner;
 
+        public SelectCandidateProviderWorld(IUICanvasService canvasService, IUINodeGraphTelemetry? nodeGraph = null)
+        {
+            _inner = new SelectCandidateProviderScreen(canvasService, nodeGraph);
+        }
+
         public float DirectionThreshold
         {
             get => _inner.DirectionThreshold;
@@ -1709,11 +1860,6 @@ namespace Game.UI
         {
             get => _inner.DistanceWeight;
             set => _inner.DistanceWeight = value;
-        }
-
-        public SelectCandidateProviderWorld(IUICanvasService canvasService)
-        {
-            _inner = new SelectCandidateProviderScreen(canvasService);
         }
 
         public void GetNavigationCandidates(

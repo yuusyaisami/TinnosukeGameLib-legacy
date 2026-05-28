@@ -16,7 +16,6 @@ namespace Game
     [RequireComponent(typeof(Game.Project.SceneFlowInstallerMB))] // Scene Flow Management
     [RequireComponent(typeof(Game.Scalar.ProjectScalarMB))] // Essential Scalar Features - Scalar for the Library
     [RequireComponent(typeof(Game.Commands.CommandRunnerMB))] // Runner
-    [RequireComponent(typeof(Game.Common.BlackboardMB))] // Project Blackboard
     [RequireComponent(typeof(Game.Common.EventMB))] // Project Event Service
     [RequireComponent(typeof(Game.Flow.FlowHostMB))] // Flow syscall host
     [RequireComponent(typeof(MaterialFx.MaterialFxMB))]
@@ -69,6 +68,18 @@ namespace Game
             // Project 繧ｹ繧ｳ繝ｼ繝怜崋譛峨・蛻晄悄蛹悶ｒ縺薙％縺ｫ譖ｸ縺・
             builder.Register<BaseLifetimeScopeRegistry>(RuntimeLifetime.Singleton)
                 .As<IBaseLifetimeScopeRegistry>();
+
+            var applicationShutdown = GetComponent<Game.Project.ApplicationShutdownMB>();
+            if (applicationShutdown == null)
+                throw new InvalidOperationException($"{nameof(ProjectLifetimeScope)} requires {nameof(Game.Project.ApplicationShutdownMB)}.");
+
+            applicationShutdown.InstallRuntime(builder);
+
+            var commandRunner = GetComponent<CommandRunnerMB>();
+            if (commandRunner == null)
+                throw new InvalidOperationException($"{nameof(ProjectLifetimeScope)} requires {nameof(CommandRunnerMB)}.");
+
+            commandRunner.InstallRuntime(builder, this);
         }
 
         protected override void ConfigureBase(IRuntimeContainerBuilder builder)

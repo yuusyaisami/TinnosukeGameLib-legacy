@@ -1,0 +1,16 @@
+{
+  "name": "GameLib.Kernel.Value",
+  "rootNamespace": "Game.Kernel.Value",
+  "references": [
+    "GameLib.Kernel.IR"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}

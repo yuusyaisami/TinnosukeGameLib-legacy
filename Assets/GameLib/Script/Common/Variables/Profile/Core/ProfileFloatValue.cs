@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using Game.Common;
+using Game.Kernel.IR;
 using Game.Save;
 using Game.Scalar;
 
@@ -17,7 +18,7 @@ namespace Game.Profile
     /// MovementProfile 縺ｮ DefaultSpeed 縺ｪ縺ｩ縲ヾcalar System 縺ｧ邂｡逅・☆繧句､縺ｫ菴ｿ逕ｨ縲・
     /// </summary>
     [Serializable]
-    public sealed class ProfileFloatValue : IProfileValueBinding
+    public sealed class ProfileFloatValue : IProfileValueBinding, IScalarDeclarationAuthoring
     {
         [BoxGroup("Value")]
         [LabelText("Default Value")]
@@ -183,12 +184,12 @@ namespace Game.Profile
         // IProfileValueBinding - Write
         // ================================================================
 
-        void IProfileValueBinding.WriteToBlackboard(IBlackboardService blackboard)
+        void IProfileValueBinding.WriteToBlackboard(IVarStore blackboard)
         {
             if (!HasBlackboardKey || blackboard == null)
                 return;
 
-            var vars = blackboard.LocalVars;
+            var vars = blackboard;
             var varId = BlackboardVarId;
             if (varId == 0)
                 return;
@@ -255,6 +256,41 @@ namespace Game.Profile
                         runtimeSkip.SetLocalBase(LocalBaseValue);
                     break;
             }
+        }
+
+        bool IScalarDeclarationAuthoring.TryCreateScalarDeclaration(
+            ScalarOwnerIdentity owner,
+            string profileTypeName,
+            SourceLocationIR source,
+            out ScalarDeclarationInput declaration,
+            out string failureReason)
+        {
+            if (!HasScalarKey)
+            {
+                declaration = default;
+                failureReason = "ProfileFloatValue requires a verified scalar key to create a scalar declaration.";
+                return false;
+            }
+
+            return ProfileScalarDeclarationProjection.TryCreateScalarDeclaration(
+                owner,
+                ScalarKeyValue,
+                ScalarPolicyValue,
+                Value,
+                UseEffectMod,
+                UseRoundMod,
+                RoundDigits,
+                UseClampMod,
+                Clamp,
+                UseLocalBase,
+                LocalBaseValue,
+                ScalarSaveEnabledValue && HasScalarKey,
+                ScalarSaveLayerValue,
+                profileTypeName,
+                nameof(ProfileFloatValue),
+                source,
+                out declaration,
+                out failureReason);
         }
 
         ScalarRuntimeConfig CreateRuntimeConfig()

@@ -103,7 +103,7 @@ namespace Game.UI
         readonly IUIInputRoutingHub? _inputRoutingHub;
         readonly UINavigationOptions? _options;
 
-        IScopeNode? _currentElement;
+        UINodeHandle _currentHandle = UINodeHandle.Invalid;
 
         // ナビゲーションの入力閾値とリピート設定
         // オプションから取得、なければデフォルト値
@@ -160,9 +160,12 @@ namespace Game.UI
 
         void HandleSelectionChanged(IScopeNode? newSelection)
         {
-            if (!ReferenceEquals(_currentElement, newSelection))
+            _ = newSelection;
+
+            var currentHandle = _selectionService.CurrentHandle;
+            if (_currentHandle != currentHandle)
             {
-                _currentElement = newSelection;
+                _currentHandle = currentHandle;
                 // IUIInputConsumerベースのイベントも発火（互換性のため）
                 OnTargetChanged?.Invoke(CurrentTarget);
             }

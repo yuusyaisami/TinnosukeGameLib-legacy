@@ -8,6 +8,7 @@ using Game.Kernel.Abstractions;
 using Game.Kernel.Diagnostics;
 using Game.Kernel.Generation;
 using Game.Kernel.IR;
+using Game.Kernel.ScopeGraph;
 
 namespace Game.Kernel.Boot
 {
@@ -38,6 +39,11 @@ namespace Game.Kernel.Boot
 
             Manifest = context.Manifest;
             SelectedProfile = context.SelectedProfile;
+            EntityRegistrationPlan = context.EntityRegistrationPlan;
+            ServiceRegistrationPlan = context.ServiceRegistrationPlan;
+            EntityServiceRoutePlan = context.EntityServiceRoutePlan;
+            CommandCatalogPlan = context.CommandCatalogPlan;
+            CommandExecutorTablePlan = context.CommandExecutorTablePlan;
             DebugMap = CreateDebugMap(context);
             Diagnostics = new KernelRuntimeDiagnostics(context.ValidationReport, DebugMap);
             ServiceGraph = CreateServiceGraph(context);
@@ -51,6 +57,16 @@ namespace Game.Kernel.Boot
         public KernelBootManifest Manifest { get; }
 
         public KernelProfile SelectedProfile { get; }
+
+        public EntityRegistrationPlan? EntityRegistrationPlan { get; }
+
+        public ServiceRegistrationPlan? ServiceRegistrationPlan { get; }
+
+        public EntityServiceRoutePlan? EntityServiceRoutePlan { get; }
+
+        public CommandCatalogPlan? CommandCatalogPlan { get; }
+
+        public CommandExecutorTablePlan? CommandExecutorTablePlan { get; }
 
         public KernelRuntimeDiagnostics Diagnostics { get; }
 
@@ -381,6 +397,7 @@ namespace Game.Kernel.Boot
 
     public sealed class KernelRuntimeDiagnostics
     {
+        readonly ReadOnlyCollection<KernelDiagnostic> diagnostics;
 
         public KernelRuntimeDiagnostics(BootValidationReport validationReport, KernelDebugMap debugMap)
         {
@@ -390,7 +407,7 @@ namespace Game.Kernel.Boot
 
             KernelDiagnostic[] snapshot = validationReport.Issues.Count == 0
                 ? Array.Empty<KernelDiagnostic>()
-                : CloneDiagnostics(validationReport.Issues);
+                : CloneDiagnostics(validationReport);
 
             diagnostics = Array.AsReadOnly(snapshot);
         }
@@ -405,12 +422,14 @@ namespace Game.Kernel.Boot
 
         public bool HasDiagnostics => diagnostics.Count > 0;
 
-        static KernelDiagnostic[] CloneDiagnostics(IReadOnlyList<KernelDiagnostic> source)
+        static KernelDiagnostic[] CloneDiagnostics(BootValidationReport validationReport)
         {
+            IReadOnlyList<BootValidationIssue> source = validationReport.Issues;
             KernelDiagnostic[] clone = new KernelDiagnostic[source.Count];
             for (int index = 0; index < source.Count; index++)
             {
-                clone[index] = source[index] ?? throw new ArgumentException("Kernel runtime diagnostics must not contain null items.", nameof(source));
+                BootValidationIssue issue = source[index] ?? throw new ArgumentException("Kernel runtime diagnostics must not contain null items.", nameof(validationReport));
+                clone[index] = issue.ToKernelDiagnostic(validationReport.Manifest, validationReport.SelectedProfile);
             }
 
             return clone;
@@ -431,7 +450,7 @@ namespace Game.Kernel.Boot
 
             ValidateSelectedProfileKind(selectedProfileKind);
 
-            ServiceSlotPlan[] snapshot = KernelProjectionArrayHelpers.CloneAndSort(serviceGraphPlan.Slots, static (left, right) => left.SlotIndex.CompareTo(right.SlotIndex));
+            ServiceSlotPlan[] snapshot = CloneAndSortServiceSlots(serviceGraphPlan.Slots);
             serviceSlots = BuildServiceSlots(snapshot);
             RuntimeIdentityRef[] rootSnapshot = BuildRootServiceIdentities(serviceSlots);
             ValidateRootServiceIdentities(rootSnapshot);
@@ -490,6 +509,18 @@ namespace Game.Kernel.Boot
             return false;
         }
 
+        public bool TryGetServiceSlot(int slotIndex, out KernelRuntimeServiceSlot slot)
+        {
+            if ((uint)slotIndex >= (uint)serviceSlots.Length)
+            {
+                slot = default;
+                return false;
+            }
+
+            slot = serviceSlots[slotIndex];
+            return true;
+        }
+
         public bool TryGetServiceSlotIndex(RuntimeIdentityRef serviceIdentity, out int slotIndex)
         {
             if (TryGetServiceSlot(serviceIdentity, out KernelRuntimeServiceSlot slot))
@@ -500,6 +531,32 @@ namespace Game.Kernel.Boot
 
             slotIndex = -1;
             return false;
+        }
+
+        static ServiceSlotPlan[] CloneAndSortServiceSlots(ReadOnlySpan<ServiceSlotPlan> source)
+        {
+            if (source.Length == 0)
+                return Array.Empty<ServiceSlotPlan>();
+
+            ServiceSlotPlan[] clone = new ServiceSlotPlan[source.Length];
+            for (int index = 0; index < source.Length; index++)
+                clone[index] = source[index] ?? throw new ArgumentException("Service slot plans must not contain null items.", nameof(source));
+
+            Array.Sort(clone, static (left, right) => left.SlotIndex.CompareTo(right.SlotIndex));
+            return clone;
+        }
+
+        static int CompareServiceIdentities(RuntimeIdentityRef left, RuntimeIdentityRef right)
+        {
+            int comparison = ((int)left.Kind).CompareTo((int)right.Kind);
+            if (comparison != 0)
+                return comparison;
+
+            comparison = left.Value.CompareTo(right.Value);
+            if (comparison != 0)
+                return comparison;
+
+            return left.Generation.CompareTo(right.Generation);
         }
 
         public KernelDiagnostic CreateMissingServiceSlotDiagnostic(RuntimeIdentityRef serviceIdentity)
@@ -639,7 +696,7 @@ namespace Game.Kernel.Boot
                             profileSpecificErrorProfiles);
                     }
 
-                    if (IsProfileInBoundary(selectedProfileKind, profileSpecificErrorProfiles))
+                    if (selectedProfileKind.HasValue && IsProfileInBoundary(selectedProfileKind.Value, profileSpecificErrorProfiles))
                     {
                         return KernelRuntimeServiceResolutionResult.Rejected(
                             serviceIdentity,
@@ -724,7 +781,7 @@ namespace Game.Kernel.Boot
         KernelDiagnostic CreateRequiredServiceMissingDiagnostic(KernelRuntimeServiceSlot? requestingSlot, RuntimeIdentityRef serviceIdentity)
         {
             List<RuntimeIdentityRef> runtimeIdentities = BuildResolutionRuntimeIdentities(requestingSlot, serviceIdentity, null);
-            List<DiagnosticPayloadEntry> payloadEntries = BuildResolutionPayloadEntries(requestingSlot, serviceIdentity, null, null, null, null);
+            List<DiagnosticPayloadEntry> payloadEntries = BuildResolutionPayloadEntries(requestingSlot, serviceIdentity, null, null, KernelProfileMask.None, null);
             payloadEntries.Add(new DiagnosticPayloadEntry("ResolutionKind", DiagnosticPayloadValue.FromString(KernelRuntimeServiceResolutionKind.MissingRequired.ToString())));
 
             return new KernelDiagnostic(
@@ -1084,6 +1141,11 @@ namespace Game.Kernel.Boot
             return runtime.TryGetLifecycleTransitionRequests(handle, out requests);
         }
 
+        public bool TryGetScopeHandle(ScopePlanId planId, out ScopeHandle handle)
+        {
+            return runtime.TryGetScopeHandle(planId, out handle);
+        }
+
         public bool TryGetScopeBoundary(
             ScopeHandle handle,
             out ScopeBoundarySnapshot snapshot,
@@ -1146,6 +1208,15 @@ namespace Game.Kernel.Boot
         {
             return runtime.TrySetState(handle, nextState, out failureKind, out diagnostic);
         }
+
+        public bool TryCommitState(
+            ScopeHandle handle,
+            ScopeRuntimeState nextState,
+            out ScopeStateTransitionFailureKind failureKind,
+            out KernelDiagnostic? diagnostic)
+        {
+            return runtime.TryCommitState(handle, nextState, out failureKind, out diagnostic);
+        }
     }
 
     public sealed class KernelBootRuntimeSurface : IKernelBootRuntimeSurface
@@ -1156,6 +1227,20 @@ namespace Game.Kernel.Boot
         }
 
         public KernelRuntime Runtime { get; }
+
+        public EntityRegistrationPlan? EntityRegistrationPlan => Runtime.EntityRegistrationPlan;
+
+        public ServiceRegistrationPlan? ServiceRegistrationPlan => Runtime.ServiceRegistrationPlan;
+
+        public EntityServiceRoutePlan? EntityServiceRoutePlan => Runtime.EntityServiceRoutePlan;
+
+        public CommandCatalogPlan? CommandCatalogPlan => Runtime.CommandCatalogPlan;
+
+        public CommandExecutorTablePlan? CommandExecutorTablePlan => Runtime.CommandExecutorTablePlan;
+
+        public KernelRuntimeDiagnostics Diagnostics => Runtime.Diagnostics;
+
+        public KernelDebugMap DebugMap => Runtime.DebugMap;
 
         public KernelLifecycleDispatcher? LifecycleDispatcher => Runtime.LifecycleDispatcher;
 

@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using Game.Kernel.IR;
+using Game.Kernel.ScopeGraph;
 using UnityEngine;
 
 namespace Game.Kernel.Boot

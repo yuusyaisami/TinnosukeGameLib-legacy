@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using Game.Commands.VNext;
 using Game.Common;
 using Game.Input;
 using Game.SelectRuntime;
@@ -23,9 +24,19 @@ namespace Game.UI
         }
 
         readonly IScopeNode _owner;
-        readonly ButtonChannelHubMB _mb;
+        readonly ButtonChannelHubDeclarationMB _mb;
         readonly Dictionary<string, ChannelEntry> _channels = new(StringComparer.Ordinal);
         readonly List<ChannelEntry> _orderedChannels = new();
+        readonly IUIElementState? _localElementState;
+        readonly IUIInputConsumerHub? _localConsumerHub;
+        readonly IUIHandleNode? _localHandleNode;
+        readonly IUISelectionState? _localSelectionState;
+        readonly IUISelectionBlockService? _localSelectionBlockService;
+        readonly IInputRouter? _localInputRouter;
+        readonly IVarStore? _localVarStore;
+        readonly ICommandRunner? _localCommandRunner;
+        readonly IScopeLifecycleService? _localLifecycleService;
+        readonly IBlackboardService? _localBlackboard;
 
         IButtonChannelInteractionAdapter? _adapter;
         IScopeNode? _acquiredScope;
@@ -34,10 +45,32 @@ namespace Game.UI
 
         public int ChannelCount => _orderedChannels.Count;
 
-        public ButtonChannelHubService(IScopeNode owner, ButtonChannelHubMB mb)
+        public ButtonChannelHubService(
+            IScopeNode owner,
+            ButtonChannelHubDeclarationMB mb,
+            IUIElementState? localElementState = null,
+            IUIInputConsumerHub? localConsumerHub = null,
+            IUIHandleNode? localHandleNode = null,
+            IUISelectionState? localSelectionState = null,
+            IUISelectionBlockService? localSelectionBlockService = null,
+            IInputRouter? localInputRouter = null,
+            IVarStore? localVarStore = null,
+            ICommandRunner? localCommandRunner = null,
+            IScopeLifecycleService? localLifecycleService = null,
+            IBlackboardService? localBlackboard = null)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
             _mb = mb ?? throw new ArgumentNullException(nameof(mb));
+            _localElementState = localElementState;
+            _localConsumerHub = localConsumerHub;
+            _localHandleNode = localHandleNode;
+            _localSelectionState = localSelectionState;
+            _localSelectionBlockService = localSelectionBlockService;
+            _localInputRouter = localInputRouter;
+            _localVarStore = localVarStore;
+            _localCommandRunner = localCommandRunner;
+            _localLifecycleService = localLifecycleService;
+            _localBlackboard = localBlackboard;
         }
 
         public void OnAcquire(IScopeNode scope, bool isReset)
@@ -127,7 +160,7 @@ namespace Game.UI
                 existing.Options = options;
                 existing.Runtime = new ButtonChannelRuntime(_owner, normalizedTag, options);
                 if (_isAcquired && _acquiredScope != null)
-                    existing.Runtime.OnAcquire(_acquiredScope, false, _adapter);
+                    existing.Runtime.OnAcquire(_acquiredScope, false, _adapter, ResolveRuntimeServices(_acquiredScope));
                 return true;
             }
 
@@ -141,7 +174,7 @@ namespace Game.UI
             _channels.Add(normalizedTag, entry);
             _orderedChannels.Add(entry);
             if (_isAcquired && _acquiredScope != null)
-                entry.Runtime.OnAcquire(_acquiredScope, false, _adapter);
+                entry.Runtime.OnAcquire(_acquiredScope, false, _adapter, ResolveRuntimeServices(_acquiredScope));
             return true;
         }
 
@@ -172,6 +205,7 @@ namespace Game.UI
         void RebuildChannels(IScopeNode scope, bool isReset)
         {
             ReleaseChannels(scope, isReset);
+            var runtimeServices = ResolveRuntimeServices(scope);
 
             var definitions = _mb.Channels;
             for (var i = 0; i < definitions.Count; i++)
@@ -189,7 +223,7 @@ namespace Game.UI
 
                 var options = definition.CreateOptions(_mb.transform);
                 var runtime = new ButtonChannelRuntime(_owner, tag, options);
-                runtime.OnAcquire(scope, isReset, _adapter);
+                runtime.OnAcquire(scope, isReset, _adapter, runtimeServices);
 
                 var entry = new ChannelEntry
                 {
@@ -215,7 +249,7 @@ namespace Game.UI
         void RebuildAdapter(IScopeNode scope, bool isReset)
         {
             ReleaseAdapter(scope, isReset);
-            _adapter = CreateAdapter();
+            _adapter = CreateAdapter(scope);
             _adapter?.OnAcquire(scope, isReset);
         }
 
@@ -229,37 +263,50 @@ namespace Game.UI
             _adapter = null;
         }
 
-        IButtonChannelInteractionAdapter? CreateAdapter()
+        IButtonChannelInteractionAdapter? CreateAdapter(IScopeNode scope)
         {
-            if (TryCreateUIAdapter(out var uiAdapter) && uiAdapter != null)
-                return uiAdapter;
-
-            if (TryCreateWorldAdapter(out var worldAdapter) && worldAdapter != null)
-                return worldAdapter;
-
-            if (TryCreateGameRootAdapter(out var gameRootAdapter) && gameRootAdapter != null)
-                return gameRootAdapter;
-
-            return null;
+            return _mb.BindingMode switch
+            {
+                ButtonChannelBindingMode.UI when TryCreateUIAdapter(scope, out var uiAdapter) => uiAdapter,
+                ButtonChannelBindingMode.World when TryCreateWorldAdapter(out var worldAdapter) => worldAdapter,
+                ButtonChannelBindingMode.GameRoot when TryCreateGameRootAdapter(scope, out var gameRootAdapter) => gameRootAdapter,
+                _ => null,
+            };
         }
 
-        bool TryCreateUIAdapter(out IButtonChannelInteractionAdapter? adapter)
+        bool TryCreateUIAdapter(IScopeNode scope, out IButtonChannelInteractionAdapter? adapter)
         {
             adapter = null;
-            if (!_owner.TryResolveInAncestors<IUIInputConsumerHub>(out var consumerHub) || consumerHub == null)
+
+            var consumerHub = _localConsumerHub;
+            if (consumerHub == null && !ButtonChannelBindingResolver.TryResolveFromScope(scope, out consumerHub))
                 return false;
 
-            if (!_owner.TryResolveInAncestors<IUISelectionState>(out var selectionState) || selectionState == null)
+            var elementState = _localElementState;
+            if (elementState == null && !ButtonChannelBindingResolver.TryResolveFromScope(scope, out elementState))
                 return false;
 
-            var elementState = _owner.GetUIElementState();
-            if (elementState == null)
+            var handleNode = _localHandleNode;
+            if (handleNode == null && !ButtonChannelBindingResolver.TryResolveFromScope(scope, out handleNode))
+                handleNode = elementState as IUIHandleNode;
+
+            if (handleNode == null || !handleNode.NodeHandle.IsValid)
                 return false;
 
-            _owner.TryResolveInAncestors<IUISelectionBlockService>(out var selectionBlockService);
+            var selectionState = _localSelectionState;
+            if (selectionState == null && !ButtonChannelBindingResolver.TryResolveFromAnchor(_mb.UISelectionSource, out selectionState))
+                ButtonChannelBindingResolver.TryResolveFromScope(scope, out selectionState);
+
+            if (selectionState == null)
+                return false;
+
+            var selectionBlockService = _localSelectionBlockService;
+            if (selectionBlockService == null && !ButtonChannelBindingResolver.TryResolveFromAnchor(_mb.UISelectionSource, out selectionBlockService))
+                ButtonChannelBindingResolver.TryResolveFromScope(scope, out selectionBlockService);
+
             adapter = new UIButtonChannelInteractionAdapter(
-                _owner,
                 consumerHub,
+                handleNode.NodeHandle,
                 elementState,
                 selectionState,
                 selectionBlockService,
@@ -271,32 +318,54 @@ namespace Game.UI
         {
             adapter = null;
 
-            var selectable = _mb.GetComponent<SelectableRuntimeMB>();
-            if (selectable == null)
-                selectable = _mb.GetComponentInChildren<SelectableRuntimeMB>(true);
-
-            var pointerTarget = selectable != null
-                ? selectable.ResolveTarget()
-                : _mb.GetComponent<WorldPointerTargetMB>();
-
-            if (pointerTarget == null)
-                pointerTarget = _mb.GetComponentInChildren<WorldPointerTargetMB>(true);
-
-            if (pointerTarget == null)
+            var pointerTarget = _mb.WorldPointerTarget;
+            var managerSource = _mb.WorldManagerSource;
+            if (pointerTarget == null || managerSource == null)
                 return false;
 
-            adapter = new WorldButtonChannelInteractionAdapter(_mb.transform, pointerTarget, selectable, DispatchSignal);
+            if (!SelectRuntimeBridgeResolver.TryResolvePointerService(managerSource, out var pointerService) || pointerService == null)
+                return false;
+
+            SelectRuntimeBridgeResolver.TryResolveManagerService(managerSource, out var selectService);
+            adapter = new WorldButtonChannelInteractionAdapter(pointerTarget, _mb.WorldSelectable, pointerService, selectService, DispatchSignal);
             return true;
         }
 
-        bool TryCreateGameRootAdapter(out IButtonChannelInteractionAdapter? adapter)
+        bool TryCreateGameRootAdapter(IScopeNode scope, out IButtonChannelInteractionAdapter? adapter)
         {
             adapter = null;
-            if (!_owner.TryResolveInAncestors<IInputRouter>(out var inputRouter) || inputRouter == null)
+
+            var inputRouter = _localInputRouter;
+            if (inputRouter == null && !ButtonChannelBindingResolver.TryResolveFromAnchor(_mb.GameRootInputSource, out inputRouter))
+                ButtonChannelBindingResolver.TryResolveFromScope(scope, out inputRouter);
+
+            if (inputRouter == null)
                 return false;
 
             adapter = new GameRootButtonChannelInteractionAdapter(inputRouter, DispatchSignal);
             return true;
+        }
+
+        ButtonChannelRuntimeServices ResolveRuntimeServices(IScopeNode scope)
+        {
+            var lifecycleService = _localLifecycleService;
+            if (lifecycleService == null)
+                ButtonChannelBindingResolver.TryResolveFromScope(scope, out lifecycleService);
+
+            var vars = _localVarStore;
+            if (vars == null && _localBlackboard != null)
+                vars = _localBlackboard.LocalVars;
+            if (vars == null && !ButtonChannelBindingResolver.TryResolveFromScope(scope, out vars))
+            {
+                if (ButtonChannelBindingResolver.TryResolveFromScope(scope, out IBlackboardService? blackboard) && blackboard != null)
+                    vars = blackboard.LocalVars;
+            }
+
+            var commandRunner = _localCommandRunner;
+            if (commandRunner == null)
+                ButtonChannelBindingResolver.TryResolveFromScope(scope, out commandRunner);
+
+            return new ButtonChannelRuntimeServices(lifecycleService, vars ?? NullVarStore.Instance, commandRunner);
         }
 
         bool DispatchSignal(ButtonChannelInteractionSignal signal)

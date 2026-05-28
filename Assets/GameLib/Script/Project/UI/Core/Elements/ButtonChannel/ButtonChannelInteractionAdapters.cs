@@ -23,8 +23,8 @@ namespace Game.UI
 
     internal sealed class UIButtonChannelInteractionAdapter : IButtonChannelInteractionAdapter, IUIInputConsumer
     {
-        readonly IScopeNode _owner;
         readonly IUIInputConsumerHub _consumerHub;
+        readonly UINodeHandle _ownerHandle;
         readonly IUIElementState _elementState;
         readonly IUISelectionState _selectionState;
         readonly IUISelectionBlockService? _selectionBlockService;
@@ -34,15 +34,15 @@ namespace Game.UI
         UISelectionBlockMask _currentBlockMask;
 
         public UIButtonChannelInteractionAdapter(
-            IScopeNode owner,
             IUIInputConsumerHub consumerHub,
+            UINodeHandle ownerHandle,
             IUIElementState elementState,
             IUISelectionState selectionState,
             IUISelectionBlockService? selectionBlockService,
             Func<ButtonChannelInteractionSignal, bool> dispatch)
         {
-            _owner = owner ?? throw new ArgumentNullException(nameof(owner));
             _consumerHub = consumerHub ?? throw new ArgumentNullException(nameof(consumerHub));
+            _ownerHandle = ownerHandle;
             _elementState = elementState ?? throw new ArgumentNullException(nameof(elementState));
             _selectionState = selectionState ?? throw new ArgumentNullException(nameof(selectionState));
             _selectionBlockService = selectionBlockService;
@@ -50,9 +50,9 @@ namespace Game.UI
         }
 
         public ButtonChannelAdapterKind AdapterKind => ButtonChannelAdapterKind.UI;
-        public bool IsAvailable => _consumerHub != null && _selectionState != null && _elementState != null;
-        public bool IsSelected => ReferenceEquals(_selectionState.CurrentElement, _owner);
-        public bool IsHovered => ReferenceEquals(_selectionState.HoveredElement, _owner);
+        public bool IsAvailable => _ownerHandle.IsValid;
+        public bool IsSelected => _ownerHandle.IsValid && _selectionState.CurrentHandle == _ownerHandle;
+        public bool IsHovered => _ownerHandle.IsValid && _selectionState.HoveredHandle == _ownerHandle;
         public bool AllowsDirectPointerPressWithoutSelection => false;
         public IUIElementState? ElementState => _elementState;
         public int Priority => 100;
@@ -213,33 +213,33 @@ namespace Game.UI
 
     internal sealed class WorldButtonChannelInteractionAdapter : IButtonChannelInteractionAdapter
     {
-        readonly Transform _ownerTransform;
         readonly WorldPointerTargetMB _pointerTarget;
         readonly SelectableRuntimeMB? _selectable;
+        readonly IWorldPointerRuntimeService _pointerService;
+        readonly ISelectRuntimeManagerService? _selectService;
         readonly Func<ButtonChannelInteractionSignal, bool> _dispatch;
 
-        SelectRuntimeManagerMB? _manager;
-        IWorldPointerRuntimeService? _pointerService;
-        ISelectRuntimeManagerService? _selectService;
-        Transform? _lastParent;
+        bool _isBound;
         bool _isHovered;
         bool _leftCaptured;
         bool _rightCaptured;
 
         public WorldButtonChannelInteractionAdapter(
-            Transform ownerTransform,
             WorldPointerTargetMB pointerTarget,
             SelectableRuntimeMB? selectable,
+            IWorldPointerRuntimeService pointerService,
+            ISelectRuntimeManagerService? selectService,
             Func<ButtonChannelInteractionSignal, bool> dispatch)
         {
-            _ownerTransform = ownerTransform ?? throw new ArgumentNullException(nameof(ownerTransform));
             _pointerTarget = pointerTarget ?? throw new ArgumentNullException(nameof(pointerTarget));
             _selectable = selectable;
+            _pointerService = pointerService ?? throw new ArgumentNullException(nameof(pointerService));
+            _selectService = selectService;
             _dispatch = dispatch ?? throw new ArgumentNullException(nameof(dispatch));
         }
 
         public ButtonChannelAdapterKind AdapterKind => ButtonChannelAdapterKind.World;
-        public bool IsAvailable => _pointerService != null && _pointerTarget != null;
+        public bool IsAvailable => true;
         public bool IsSelected => _selectService != null && _selectable != null && ReferenceEquals(_selectService.Current, _selectable);
         public bool IsHovered => _isHovered;
         public bool AllowsDirectPointerPressWithoutSelection => true;
@@ -249,20 +249,25 @@ namespace Game.UI
         {
             _ = scope;
             _ = isReset;
-            Rebind();
+
+            if (_isBound)
+                return;
+
+            _pointerService.OnHoveredChanged += HandleHoveredChanged;
+            _pointerService.OnFrameUpdated += HandleFrameUpdated;
+            _isBound = true;
         }
 
         public void OnRelease(IScopeNode scope, bool isReset)
         {
             _ = scope;
             _ = isReset;
-            Unbind();
+
+            Unsubscribe();
         }
 
         public void Tick()
         {
-            if (_lastParent != _ownerTransform.parent)
-                Rebind();
         }
 
         public void SetBlockMask(UISelectionBlockMask mask)
@@ -272,59 +277,17 @@ namespace Game.UI
 
         public void Dispose()
         {
-            Unbind();
+            Unsubscribe();
         }
 
-        void Rebind()
+        void Unsubscribe()
         {
-            var nextManager = SelectRuntimeBridgeResolver.FindNearestManager(_ownerTransform);
-            if (ReferenceEquals(nextManager, _manager))
-            {
-                _lastParent = _ownerTransform.parent;
-                return;
-            }
-
-            Unbind();
-
-            _manager = nextManager;
-            _lastParent = _ownerTransform.parent;
-            if (_manager == null)
+            if (!_isBound)
                 return;
 
-            SelectRuntimeBridgeResolver.TryResolvePointerService(_manager, out _pointerService);
-            SelectRuntimeBridgeResolver.TryResolveManagerService(_manager, out _selectService);
-
-            if (_pointerService != null)
-            {
-                _pointerService.OnHoveredChanged += HandleHoveredChanged;
-                _pointerService.OnFrameUpdated += HandleFrameUpdated;
-            }
-
-            if (_selectService != null)
-            {
-                _selectService.OnSelectionChanged += HandleSelectionChanged;
-                _selectService.OnHoveredChanged += HandleManagerHoveredChanged;
-            }
-        }
-
-        void Unbind()
-        {
-            if (_pointerService != null)
-            {
-                _pointerService.OnHoveredChanged -= HandleHoveredChanged;
-                _pointerService.OnFrameUpdated -= HandleFrameUpdated;
-            }
-
-            if (_selectService != null)
-            {
-                _selectService.OnSelectionChanged -= HandleSelectionChanged;
-                _selectService.OnHoveredChanged -= HandleManagerHoveredChanged;
-            }
-
-            _pointerService = null;
-            _selectService = null;
-            _manager = null;
-            _lastParent = null;
+            _pointerService.OnHoveredChanged -= HandleHoveredChanged;
+            _pointerService.OnFrameUpdated -= HandleFrameUpdated;
+            _isBound = false;
             _isHovered = false;
             _leftCaptured = false;
             _rightCaptured = false;
@@ -333,16 +296,6 @@ namespace Game.UI
         void HandleHoveredChanged(WorldPointerHoverChangedEventData eventData)
         {
             _isHovered = IsSelfOrDescendant(eventData.CurrentTarget);
-        }
-
-        void HandleSelectionChanged(SelectRuntimeSelectionChangedEvent eventData)
-        {
-            _ = eventData;
-        }
-
-        void HandleManagerHoveredChanged(SelectRuntimeHoveredChangedEvent eventData)
-        {
-            _ = eventData;
         }
 
         void HandleFrameUpdated(InputFrame frame)

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Game.Kernel.Abstractions;
 using Game.Kernel.Boot;
 using Game.Kernel.Contributions;
@@ -361,6 +362,7 @@ namespace Game.Kernel.Authoring
             KernelProfileKind profileKind = input.Profile.Kind;
             KernelProfileMask selectedProfileMask = ToProfileMask(profileKind);
             string selectedProfile = profileKind.ToString();
+            CommandExecutorBindingSeed[] commandExecutorBindings = ExtractCommandExecutorBindings(input.Roots);
 
             KernelProjectionGenerationResult generationResult = KernelProjectionGenerator.Generate(
                 effectiveKernelIR,
@@ -369,7 +371,11 @@ namespace Game.Kernel.Authoring
                 input.FormatVersion,
                 input.GeneratorVersion,
                 selectedProfile,
-                selectedProfileMask);
+                selectedProfileMask,
+                CreateEntityRegistrationEntries(extractionReport.EntityInputs),
+                CreateEntityServiceRouteSeeds(extractionReport.ServiceDeclarations),
+                CreateServiceRegistrationSeeds(extractionReport.ServiceDeclarations),
+                commandExecutorBindings);
 
             if (!generationResult.IsVerified)
             {
@@ -502,13 +508,14 @@ namespace Game.Kernel.Authoring
 
             if (extractionReport.EntityInputs.Count == 0
                 && extractionReport.DeclarationInputs.Count == 0
-                && extractionReport.ServiceDeclarations.Count == 0)
+                && extractionReport.ServiceDeclarations.Count == 0
+                && extractionReport.CommandDeclarations.Count == 0)
                 return kernelIR;
 
-            List<SourceLocationIR> sources = new List<SourceLocationIR>(kernelIR.Sources.Count + extractionReport.EntityInputs.Count + extractionReport.DeclarationInputs.Count + extractionReport.ServiceDeclarations.Count);
+            List<SourceLocationIR> sources = new List<SourceLocationIR>(kernelIR.Sources.Count + extractionReport.EntityInputs.Count + extractionReport.DeclarationInputs.Count + extractionReport.ServiceDeclarations.Count + (extractionReport.CommandDeclarations.Count * 5));
             AppendRange(kernelIR.Sources.Sources, sources);
 
-            List<DiagnosticSeedIR> diagnosticSeeds = new List<DiagnosticSeedIR>(kernelIR.DiagnosticSeeds.Length + extractionReport.EntityInputs.Count + extractionReport.DeclarationInputs.Count + extractionReport.ServiceDeclarations.Count);
+            List<DiagnosticSeedIR> diagnosticSeeds = new List<DiagnosticSeedIR>(kernelIR.DiagnosticSeeds.Length + extractionReport.EntityInputs.Count + extractionReport.DeclarationInputs.Count + extractionReport.ServiceDeclarations.Count + extractionReport.CommandDeclarations.Count);
             AppendRange(kernelIR.DiagnosticSeeds, diagnosticSeeds);
 
             HashSet<string> seenSeedKeys = new HashSet<string>(StringComparer.Ordinal);
@@ -529,12 +536,13 @@ namespace Game.Kernel.Authoring
             }
 
             ServiceIR[] services = CreateEffectiveServices(kernelIR.Services, extractionReport.ServiceDeclarations, sources);
-            return RebuildKernelIR(kernelIR, new SourceLocationTable(sources.ToArray()), diagnosticSeeds.ToArray(), services);
+            CommandIR[] commands = CreateEffectiveCommands(kernelIR.Commands, extractionReport.CommandDeclarations, sources);
+            return RebuildKernelIR(kernelIR, new SourceLocationTable(sources.ToArray()), diagnosticSeeds.ToArray(), services, commands);
         }
 
         static List<AuthoringProvenanceSeedRecord> BuildAuthoringProvenanceSeeds(ScopeAuthoringExtractionReport extractionReport)
         {
-            List<AuthoringProvenanceSeedRecord> seeds = new List<AuthoringProvenanceSeedRecord>(extractionReport.EntityInputs.Count + extractionReport.DeclarationInputs.Count + extractionReport.ServiceDeclarations.Count);
+            List<AuthoringProvenanceSeedRecord> seeds = new List<AuthoringProvenanceSeedRecord>(extractionReport.EntityInputs.Count + extractionReport.DeclarationInputs.Count + extractionReport.ServiceDeclarations.Count + extractionReport.CommandDeclarations.Count);
 
             for (int index = 0; index < extractionReport.EntityInputs.Count; index++)
             {
@@ -568,6 +576,98 @@ namespace Game.Kernel.Authoring
                     input.DebugName.Length == 0 ? input.ServiceName : input.DebugName,
                     input.OwnerModule,
                     input.Source));
+            }
+
+            for (int index = 0; index < extractionReport.CommandDeclarations.Count; index++)
+            {
+                CommandDeclarationInput input = extractionReport.CommandDeclarations[index];
+                seeds.Add(new AuthoringProvenanceSeedRecord(
+                    "authoring.command." + input.TypeId.Value.ToString("D10"),
+                    input.RuntimeName,
+                    input.OwnerModule,
+                    input.Source));
+            }
+
+            return seeds;
+        }
+
+        static EntityRegistrationPlanEntry[] CreateEntityRegistrationEntries(IReadOnlyList<EntityAuthoringInput> entityInputs)
+        {
+            if (entityInputs == null || entityInputs.Count == 0)
+                return Array.Empty<EntityRegistrationPlanEntry>();
+
+            EntityRegistrationPlanEntry[] entries = new EntityRegistrationPlanEntry[entityInputs.Count];
+            for (int index = 0; index < entityInputs.Count; index++)
+            {
+                EntityAuthoringInput input = entityInputs[index];
+                entries[index] = new EntityRegistrationPlanEntry(
+                    input.OwnerModule,
+                    input.EntityRef,
+                    input.DisplayName,
+                    input.DebugName,
+                    input.Metadata,
+                    input.ClassificationTags,
+                    input.Source);
+            }
+
+            return entries;
+        }
+
+        static EntityServiceRouteSeed[] CreateEntityServiceRouteSeeds(IReadOnlyList<EntityServiceDeclarationInput> serviceDeclarations)
+        {
+            if (serviceDeclarations == null || serviceDeclarations.Count == 0)
+                return Array.Empty<EntityServiceRouteSeed>();
+
+            EntityServiceRouteSeed[] seeds = new EntityServiceRouteSeed[serviceDeclarations.Count];
+            for (int index = 0; index < serviceDeclarations.Count; index++)
+            {
+                EntityServiceDeclarationInput declaration = serviceDeclarations[index];
+                seeds[index] = new EntityServiceRouteSeed(
+                    declaration.OwnerModule,
+                    declaration.OwnerEntityRef,
+                    declaration.ServiceId,
+                    declaration.ServiceName,
+                    declaration.DebugName,
+                    declaration.Source);
+            }
+
+            return seeds;
+        }
+
+        static ServiceRegistrationSeed[] CreateServiceRegistrationSeeds(IReadOnlyList<EntityServiceDeclarationInput> serviceDeclarations)
+        {
+            if (serviceDeclarations == null || serviceDeclarations.Count == 0)
+                return Array.Empty<ServiceRegistrationSeed>();
+
+            ServiceRegistrationSeed[] seeds = new ServiceRegistrationSeed[serviceDeclarations.Count];
+            for (int index = 0; index < serviceDeclarations.Count; index++)
+            {
+                EntityServiceDeclarationInput declaration = serviceDeclarations[index];
+                ReadOnlySpan<string> declaredContracts = declaration.ContractNames;
+                string[] contracts = new string[declaredContracts.Length];
+                for (int contractIndex = 0; contractIndex < declaredContracts.Length; contractIndex++)
+                    contracts[contractIndex] = declaredContracts[contractIndex];
+
+                ReadOnlySpan<EntityServiceDependencyInput> declaredDependencies = declaration.Dependencies;
+                ServiceRegistrationDependencyPlan[] dependencies = new ServiceRegistrationDependencyPlan[declaredDependencies.Length];
+                for (int dependencyIndex = 0; dependencyIndex < declaredDependencies.Length; dependencyIndex++)
+                {
+                    EntityServiceDependencyInput dependency = declaredDependencies[dependencyIndex];
+                    dependencies[dependencyIndex] = new ServiceRegistrationDependencyPlan(dependency.Target, dependency.Strength);
+                }
+
+                seeds[index] = new ServiceRegistrationSeed(
+                    declaration.OwnerModule,
+                    declaration.OwnerEntityRef,
+                    declaration.ServiceId,
+                    declaration.StableId,
+                    declaration.ServiceName,
+                    declaration.DebugName,
+                    contracts,
+                    dependencies,
+                    declaration.Lifetime,
+                    declaration.FactoryKind,
+                    declaration.Source);
             }
 
             return seeds;
@@ -604,6 +704,24 @@ namespace Game.Kernel.Authoring
             return services;
         }
 
+        static CommandIR[] CreateEffectiveCommands(
+            ReadOnlySpan<CommandIR> existingCommands,
+            IReadOnlyList<CommandDeclarationInput> commandDeclarations,
+            List<SourceLocationIR> sources)
+        {
+            CommandIR[] commands = new CommandIR[existingCommands.Length + commandDeclarations.Count];
+            for (int index = 0; index < existingCommands.Length; index++)
+                commands[index] = existingCommands[index];
+
+            for (int index = 0; index < commandDeclarations.Count; index++)
+            {
+                CommandDeclarationInput declaration = commandDeclarations[index];
+                commands[existingCommands.Length + index] = CreateCommandIR(declaration, sources);
+            }
+
+            return commands;
+        }
+
         static ServiceIR CreateServiceIR(EntityServiceDeclarationInput declaration, SourceLocationId sourceId)
         {
             ReadOnlySpan<string> contractNames = declaration.ContractNames;
@@ -630,15 +748,59 @@ namespace Game.Kernel.Authoring
                 sourceId);
         }
 
-        static KernelIR RebuildKernelIR(KernelIR source, SourceLocationTable sources, DiagnosticSeedIR[] diagnosticSeeds, ServiceIR[] services)
+        static CommandIR CreateCommandIR(CommandDeclarationInput declaration, List<SourceLocationIR> sources)
         {
-            KernelIR provisional = CreateKernelIRCopy(source, sources, diagnosticSeeds, services, source.Header.SourceHash, source.Header.NormalizedHash);
-            Hash128 computedSourceHash = VerifiedArtifactHeaderHashing.ComputeSourceHash(provisional);
-            Hash128 computedNormalizedHash = KernelIRHashing.ComputeNormalizedHash(provisional);
-            return CreateKernelIRCopy(source, sources, diagnosticSeeds, services, computedSourceHash, computedNormalizedHash);
+            SourceLocationId commandSourceId = FindOrAddSource(declaration.Source, sources);
+            SourceLocationId authoringKeySourceId = FindOrAddSource(declaration.AuthoringKeySource, sources);
+            SourceLocationId executorSourceId = FindOrAddSource(declaration.ExecutorSource, sources);
+            SourceLocationId payloadSchemaSourceId = FindOrAddSource(declaration.PayloadSchema.Source, sources);
+
+            ReadOnlySpan<CommandPayloadFieldDeclarationInput> fieldDeclarations = declaration.PayloadSchema.Fields;
+            CommandPayloadFieldIR[] payloadFields = new CommandPayloadFieldIR[fieldDeclarations.Length];
+            for (int index = 0; index < fieldDeclarations.Length; index++)
+            {
+                CommandPayloadFieldDeclarationInput field = fieldDeclarations[index];
+                payloadFields[index] = new CommandPayloadFieldIR(
+                    field.FieldPath,
+                    field.Kind,
+                    field.Requirement,
+                    FindOrAddSource(field.Source, sources),
+                    field.ReferenceKind,
+                    field.AllowNull);
+            }
+
+            ReadOnlySpan<CommandDependencyDeclarationInput> dependencyDeclarations = declaration.Dependencies;
+            CommandDependencyIR[] dependencies = new CommandDependencyIR[dependencyDeclarations.Length];
+            for (int index = 0; index < dependencyDeclarations.Length; index++)
+            {
+                CommandDependencyDeclarationInput dependency = dependencyDeclarations[index];
+                dependencies[index] = new CommandDependencyIR(
+                    dependency.Target,
+                    dependency.Strength,
+                    FindOrAddSource(dependency.Source, sources));
+            }
+
+            return new CommandIR(
+                declaration.TypeId,
+                declaration.RuntimeName,
+                new CommandAuthoringKeyRefIR(declaration.AuthoringKeyId, declaration.StableId, authoringKeySourceId),
+                declaration.CategoryId,
+                declaration.OwnerModule,
+                new CommandPayloadSchemaRefIR(declaration.PayloadSchema.SchemaId, payloadSchemaSourceId, payloadFields, declaration.PayloadSchema.UnknownFieldPolicy),
+                new CommandExecutorRefIR(declaration.ExecutorId, executorSourceId),
+                dependencies,
+                commandSourceId);
         }
 
-        static KernelIR CreateKernelIRCopy(KernelIR source, SourceLocationTable sources, DiagnosticSeedIR[] diagnosticSeeds, ServiceIR[] services, Hash128 sourceHash, Hash128 normalizedHash)
+        static KernelIR RebuildKernelIR(KernelIR source, SourceLocationTable sources, DiagnosticSeedIR[] diagnosticSeeds, ServiceIR[] services, CommandIR[] commands)
+        {
+            KernelIR provisional = CreateKernelIRCopy(source, sources, diagnosticSeeds, services, commands, source.Header.SourceHash, source.Header.NormalizedHash);
+            Hash128 computedSourceHash = VerifiedArtifactHeaderHashing.ComputeSourceHash(provisional);
+            Hash128 computedNormalizedHash = KernelIRHashing.ComputeNormalizedHash(provisional);
+            return CreateKernelIRCopy(source, sources, diagnosticSeeds, services, commands, computedSourceHash, computedNormalizedHash);
+        }
+
+        static KernelIR CreateKernelIRCopy(KernelIR source, SourceLocationTable sources, DiagnosticSeedIR[] diagnosticSeeds, ServiceIR[] services, CommandIR[] commands, Hash128 sourceHash, Hash128 normalizedHash)
         {
             KernelIRHeader header = new KernelIRHeader(
                 source.Header.DocumentId,
@@ -655,7 +817,7 @@ namespace Game.Kernel.Authoring
                 CopySpan(source.Modules),
                 CopySpan(source.Scopes),
                 services,
-                CopySpan(source.Commands),
+                commands,
                 CopySpan(source.ValueKeys),
                 CopySpan(source.Lifecycles),
                 CopySpan(source.RuntimeQueries),
@@ -704,6 +866,38 @@ namespace Game.Kernel.Authoring
             Hash128 computedSourceHash = VerifiedArtifactHeaderHashing.ComputeSourceHash(kernelIR);
             Hash128 computedNormalizedHash = KernelIRHashing.ComputeNormalizedHash(kernelIR);
             return new KernelIRNormalizationReport(kernelIR.Header.SourceHash, computedSourceHash, kernelIR.Header.NormalizedHash, computedNormalizedHash);
+        }
+
+        static CommandExecutorBindingSeed[] ExtractCommandExecutorBindings(IReadOnlyList<ScopeAuthoringRoot> roots)
+        {
+            const string bridgeTypeName = "Game.EditorSupport.CommandExecutorBindingExtractionBridge, Assembly-CSharp-Editor";
+
+            Type? bridgeType = Type.GetType(bridgeTypeName, throwOnError: false);
+            if (bridgeType == null)
+            {
+                throw new InvalidOperationException(
+                    "Command executor binding extraction bridge is unavailable. Expected type '" + bridgeTypeName + "'.");
+            }
+
+            MethodInfo? extractMethod = bridgeType.GetMethod(
+                "Extract",
+                BindingFlags.Public | BindingFlags.Static,
+                binder: null,
+                types: new[] { typeof(IReadOnlyList<ScopeAuthoringRoot>) },
+                modifiers: null);
+
+            if (extractMethod == null)
+            {
+                throw new InvalidOperationException(
+                    "Command executor binding extraction bridge does not expose the expected Extract(IReadOnlyList<ScopeAuthoringRoot>) method.");
+            }
+
+            object? result = extractMethod.Invoke(null, new object[] { roots });
+            if (result is CommandExecutorBindingSeed[] bindings)
+                return bindings;
+
+            throw new InvalidOperationException(
+                "Command executor binding extraction bridge returned an unexpected result type.");
         }
 
         static KernelBootManifest CreateBootManifest(AuthoringDirectPlayInput input, VerifiedKernelPlan candidate)
@@ -759,13 +953,18 @@ namespace Game.Kernel.Authoring
                 input.Profile,
                 artifactSetReferencePresent: true,
                 dependencyValidationStatus: dependencyValidationReport.Status,
-                artifactState,
-                rootState,
-                fallbackState,
-                generationResult.Projections.ServiceGraph,
-                generationResult.Projections.ScopeGraph,
-                generationResult.Projections.LifecyclePlan,
-                generationResult.Projections.DebugMap);
+                artifactState: artifactState,
+                rootState: rootState,
+                fallbackState: fallbackState,
+                scopeGraphPlan: generationResult.Projections.ScopeGraph,
+                serviceGraphPlan: generationResult.Projections.ServiceGraph,
+                entityRegistrationPlan: generationResult.Projections.EntityRegistrationPlan,
+                serviceRegistrationPlan: generationResult.Projections.ServiceRegistrationPlan,
+                entityServiceRoutePlan: generationResult.Projections.EntityServiceRoutePlan,
+                lifecyclePlan: generationResult.Projections.LifecyclePlan,
+                debugMap: generationResult.Projections.DebugMap,
+                commandCatalogPlan: generationResult.Projections.CommandCatalog,
+                commandExecutorTablePlan: generationResult.Projections.CommandExecutorTable);
         }
 
         static BootRootValidationState CreateBootRootValidationState(ServiceGraphPlan serviceGraph, ScopeGraphPlan scopeGraph)

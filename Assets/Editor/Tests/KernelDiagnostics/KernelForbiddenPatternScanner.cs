@@ -157,6 +157,48 @@ namespace TinnosukeGameLib.Tests.Editor
             };
         }
 
+        public static ForbiddenPatternRule[] CreateM12_1Rules()
+        {
+            ForbiddenPatternRule[] legacyAuthorityRules = CreateM12_1LegacyAuthorityRules();
+            ForbiddenPatternRule[] forbiddenApiRules = CreateForbiddenApiRules();
+            ForbiddenPatternRule[] allRules = new ForbiddenPatternRule[legacyAuthorityRules.Length + forbiddenApiRules.Length];
+            Array.Copy(legacyAuthorityRules, 0, allRules, 0, legacyAuthorityRules.Length);
+            Array.Copy(forbiddenApiRules, 0, allRules, legacyAuthorityRules.Length, forbiddenApiRules.Length);
+            return allRules;
+        }
+
+        public static ForbiddenPatternRule[] CreateM12_1LegacyAuthorityRules()
+        {
+            return new[]
+            {
+                new ForbiddenPatternRule(
+                    "M12_1_RULE_RUNTIME_TRYRESOLVE_USAGE",
+                    "TryResolve must not participate in M12.1 runtime authority.",
+                    "TryResolve",
+                    new Regex(@"\b[A-Za-z_][A-Za-z0-9_]*\s*\.\s*TryResolve(?:<[^>]+>)?\s*\(", RegexOptions.Compiled | RegexOptions.CultureInvariant)),
+                new ForbiddenPatternRule(
+                    "M12_1_RULE_FEATURE_INSTALLER_USAGE",
+                    "IFeatureInstaller must not participate in M12.1 runtime authority.",
+                    "IFeatureInstaller",
+                    new Regex(@"\bIFeatureInstaller\b", RegexOptions.Compiled | RegexOptions.CultureInvariant)),
+                new ForbiddenPatternRule(
+                    "M12_1_RULE_INSTALL_FEATURE_USAGE",
+                    "InstallFeature must not participate in M12.1 runtime authority.",
+                    "InstallFeature",
+                    new Regex(@"\bInstallFeature\s*\(", RegexOptions.Compiled | RegexOptions.CultureInvariant)),
+                new ForbiddenPatternRule(
+                    "M12_1_RULE_PARENT_WALK_USAGE",
+                    "Parent-based ownership repair must not participate in M12.1 runtime authority.",
+                    "Parent",
+                    new Regex(@"\b[A-Za-z_][A-Za-z0-9_]*\s*\.\s*Parent\b", RegexOptions.Compiled | RegexOptions.CultureInvariant)),
+                new ForbiddenPatternRule(
+                    "M12_1_RULE_SCOPE_LOOKUP_HELPER_USAGE",
+                    "TryGetNearestScopeNode must not participate in M12.1 runtime authority.",
+                    "TryGetNearestScopeNode",
+                    new Regex(@"\bTryGetNearestScopeNode\s*\(", RegexOptions.Compiled | RegexOptions.CultureInvariant)),
+            };
+        }
+
         public static ForbiddenPatternViolation[] ScanKernelSources(ForbiddenPatternRule rule)
         {
             if (rule == null)
@@ -166,6 +208,11 @@ namespace TinnosukeGameLib.Tests.Editor
         }
 
         public static ForbiddenPatternViolation[] ScanTargetRuntimeRoots(IEnumerable<string> rootPaths, ForbiddenPatternRule rule)
+        {
+            return ScanTargetRoots(rootPaths, rule, includeEditorFiles: false, includeTestFiles: false);
+        }
+
+        public static ForbiddenPatternViolation[] ScanTargetRoots(IEnumerable<string> rootPaths, ForbiddenPatternRule rule, bool includeEditorFiles, bool includeTestFiles)
         {
             if (rootPaths == null)
                 throw new ArgumentNullException(nameof(rootPaths));
@@ -184,15 +231,20 @@ namespace TinnosukeGameLib.Tests.Editor
                 filePaths.AddRange(Directory.GetFiles(rootPath, "*.cs", SearchOption.AllDirectories));
             }
 
-            return ScanFiles(filePaths, rule, rootPaths);
+            return ScanFiles(filePaths, rule, rootPaths, includeEditorFiles, includeTestFiles);
         }
 
         public static ForbiddenPatternViolation[] ScanFiles(IEnumerable<string> filePaths, ForbiddenPatternRule rule)
         {
-            return ScanFiles(filePaths, rule, DefaultTargetRuntimeRoots);
+            return ScanFiles(filePaths, rule, DefaultTargetRuntimeRoots, includeEditorFiles: false, includeTestFiles: false);
         }
 
         public static ForbiddenPatternViolation[] ScanFiles(IEnumerable<string> filePaths, ForbiddenPatternRule rule, IEnumerable<string> allowedRoots)
+        {
+            return ScanFiles(filePaths, rule, allowedRoots, includeEditorFiles: false, includeTestFiles: false);
+        }
+
+        public static ForbiddenPatternViolation[] ScanFiles(IEnumerable<string> filePaths, ForbiddenPatternRule rule, IEnumerable<string> allowedRoots, bool includeEditorFiles, bool includeTestFiles)
         {
             if (filePaths == null)
                 throw new ArgumentNullException(nameof(filePaths));
@@ -204,7 +256,7 @@ namespace TinnosukeGameLib.Tests.Editor
             List<ForbiddenPatternViolation> violations = new List<ForbiddenPatternViolation>();
             foreach (string filePath in filePaths)
             {
-                if (!ShouldScanFile(filePath, allowedRoots))
+                if (!ShouldScanFile(filePath, allowedRoots, includeEditorFiles, includeTestFiles))
                     continue;
 
                 violations.AddRange(ScanFile(filePath, rule));
@@ -286,14 +338,14 @@ namespace TinnosukeGameLib.Tests.Editor
             return ScanText(relativePath, sourceText, rule);
         }
 
-        static bool ShouldScanFile(string filePath, IEnumerable<string> allowedRoots)
+        static bool ShouldScanFile(string filePath, IEnumerable<string> allowedRoots, bool includeEditorFiles, bool includeTestFiles)
         {
             string normalizedPath = Path.GetFullPath(filePath).Replace('\\', '/');
             if (!normalizedPath.EndsWith(".cs", PathComparison))
                 return false;
-            if (normalizedPath.Contains("/Editor/", PathComparison))
+            if (!includeEditorFiles && normalizedPath.Contains("/Editor/", PathComparison))
                 return false;
-            if (normalizedPath.Contains("/Tests/", PathComparison))
+            if (!includeTestFiles && normalizedPath.Contains("/Tests/", PathComparison))
                 return false;
 
             foreach (string allowedRoot in allowedRoots)

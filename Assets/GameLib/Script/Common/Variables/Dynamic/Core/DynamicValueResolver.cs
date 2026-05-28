@@ -119,16 +119,13 @@ namespace Game.Common
             if (scope?.Resolver == null || string.IsNullOrEmpty(key))
                 return false;
 
-            if (!scope.Resolver.TryResolve<IBlackboardService>(out var bb))
-                return false;
-
             if (!VarIdResolver.TryResolve(key, out var varId) || varId == 0)
                 return false;
 
-            if (TryGetVariant(bb, varId, readScope, out var v) && v.TryGet(out value))
+            if (TryGetVariant(scope, varId, readScope, out var v) && v.TryGet(out value))
                 return true;
 
-            if (TryGetManagedRef(scope, bb, varId, readScope, out var managed) && managed is T typed)
+            if (TryGetManagedRef(scope, varId, readScope, out var managed) && managed is T typed)
             {
                 value = typed;
                 return true;
@@ -159,16 +156,13 @@ namespace Game.Common
             if (targetScope?.Resolver == null)
                 return false;
 
-            if (!targetScope.Resolver.TryResolve<IBlackboardService>(out var bb))
-                return false;
-
             if (!VarIdResolver.TryResolve(key, out var varId) || varId == 0)
                 return false;
 
-            if (TryGetVariant(bb, varId, readScope, out var v) && v.TryGet(out value))
+            if (TryGetVariant(targetScope, varId, readScope, out var v) && v.TryGet(out value))
                 return true;
 
-            if (TryGetManagedRef(targetScope, bb, varId, readScope, out var managed) && managed is T typed)
+            if (TryGetManagedRef(targetScope, varId, readScope, out var managed) && managed is T typed)
             {
                 value = typed;
                 return true;
@@ -190,19 +184,16 @@ namespace Game.Common
             if (scope?.Resolver == null || string.IsNullOrEmpty(key))
                 return false;
 
-            if (!scope.Resolver.TryResolve<IBlackboardService>(out var bb))
-                return false;
-
             if (!VarIdResolver.TryResolve(key, out var varId) || varId == 0)
                 return false;
 
-            if (TryGetVariant(bb, varId, readScope, out var v))
+            if (TryGetVariant(scope, varId, readScope, out var v))
             {
                 value = v.ToString();
                 return true;
             }
 
-            if (TryGetManagedRef(scope, bb, varId, readScope, out var managed) && managed != null)
+            if (TryGetManagedRef(scope, varId, readScope, out var managed) && managed != null)
             {
                 value = managed.ToString();
                 return true;
@@ -232,19 +223,16 @@ namespace Game.Common
             if (targetScope?.Resolver == null)
                 return false;
 
-            if (!targetScope.Resolver.TryResolve<IBlackboardService>(out var bb))
-                return false;
-
             if (!VarIdResolver.TryResolve(key, out var varId) || varId == 0)
                 return false;
 
-            if (TryGetVariant(bb, varId, readScope, out var v))
+            if (TryGetVariant(targetScope, varId, readScope, out var v))
             {
                 value = v.ToString();
                 return true;
             }
 
-            if (TryGetManagedRef(targetScope, bb, varId, readScope, out var managed) && managed != null)
+            if (TryGetManagedRef(targetScope, varId, readScope, out var managed) && managed != null)
             {
                 value = managed.ToString();
                 return true;
@@ -253,44 +241,70 @@ namespace Game.Common
             return false;
         }
 
-        static bool TryGetVariant(IBlackboardService bb, int varId, BlackboardReadScope readScope, out DynamicVariant value)
+        static bool TryGetVariant(IScopeNode scope, int varId, BlackboardReadScope readScope, out DynamicVariant value)
         {
             value = default;
-            if (bb == null || varId == 0)
+            if (scope == null || varId == 0)
                 return false;
 
-            return readScope == BlackboardReadScope.Global
-                ? bb.TryGlobalGetVariant(varId, out value)
-                : bb.TryLocalGetVariant(varId, out value);
+            if (readScope == BlackboardReadScope.Local)
+                return TryGetLocalVariant(scope, varId, out value);
+
+            for (var node = scope; node != null; node = node.Parent)
+            {
+                if (TryGetLocalVariant(node, varId, out value))
+                    return true;
+            }
+
+            value = default;
+            return false;
         }
 
-        static bool TryGetManagedRef(IScopeNode scope, IBlackboardService bb, int varId, BlackboardReadScope readScope, out object value)
+        static bool TryGetLocalVariant(IScopeNode? scope, int varId, out DynamicVariant value)
+        {
+            value = default;
+            if (!TryResolveScopeVars(scope, out var vars))
+                return false;
+
+            return vars.TryGetVariant(varId, out value);
+        }
+
+        static bool TryGetManagedRef(IScopeNode scope, int varId, BlackboardReadScope readScope, out object value)
         {
             value = null;
-            if (bb == null || varId == 0)
+            if (scope == null || varId == 0)
                 return false;
 
             if (readScope == BlackboardReadScope.Local)
             {
-                return bb.LocalVars != null && bb.LocalVars.TryGetManagedRef(varId, out value);
+                return TryResolveScopeVars(scope, out var localVars) && localVars.TryGetManagedRef(varId, out value);
             }
 
-            // Global: walk self -> parents and ask each LocalVars for managed ref.
             var node = scope;
             while (node != null)
             {
-                var resolver = node.Resolver;
-                if (resolver != null && resolver.TryResolve<IBlackboardService>(out var current) && current != null)
-                {
-                    if (current.LocalVars != null && current.LocalVars.TryGetManagedRef(varId, out value))
-                        return true;
-                }
+                if (TryResolveScopeVars(node, out var vars) && vars.TryGetManagedRef(varId, out value))
+                    return true;
 
                 node = node.Parent;
             }
 
             value = null;
             return false;
+        }
+
+        static bool TryResolveScopeVars(IScopeNode? scope, out IVarStore vars)
+        {
+            vars = NullVarStore.Instance;
+            var resolver = scope?.Resolver;
+            if (resolver == null)
+                return false;
+
+            if (!resolver.TryResolve<IVarStore>(out var resolved) || resolved == null)
+                return false;
+
+            vars = resolved;
+            return true;
         }
 
         // ================================================================

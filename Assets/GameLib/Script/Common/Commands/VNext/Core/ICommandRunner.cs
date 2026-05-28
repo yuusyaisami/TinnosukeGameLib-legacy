@@ -45,6 +45,13 @@ namespace Game.Commands.VNext
         void ApplyDefaultVars(IVarStore dest, bool overwrite = false);
     }
 
+    public interface ICommandRunnerService : ICommandRunner, ICommandRunnerActivity, ICommandDetachedRunner, ICommandRunnerDefaultVarsProvider
+    {
+        IScopeNode OwnerScope { get; }
+        new IScopeNode? Scope { get; }
+        bool IsStarted { get; }
+    }
+
     public interface IProjectCommandRunner : ICommandRunner { }
     public interface IPlatformCommandRunner : ICommandRunner { }
     public interface IGlobalCommandRunner : ICommandRunner { }

@@ -70,6 +70,12 @@ namespace Game.UI
         IScopeNode? CurrentElement { get; }
 
         /// <summary>
+        /// 現在選択中ノードの handle。
+        /// graph 未登録時は Invalid。
+        /// </summary>
+        UINodeHandle CurrentHandle { get; }
+
+        /// <summary>
         /// 前回選択されていたUIElementLifetimeScope。
         /// 
         /// ## 用途
@@ -79,6 +85,12 @@ namespace Game.UI
         /// - フォールバック選択の参照
         /// </summary>
         IScopeNode? PreviousElement { get; }
+
+        /// <summary>
+        /// 前回選択されていたノードの handle。
+        /// graph 未登録時は Invalid。
+        /// </summary>
+        UINodeHandle PreviousHandle { get; }
 
         /// <summary>
         /// 現在ホバー中のUIElementLifetimeScope。
@@ -94,6 +106,12 @@ namespace Game.UI
         /// ホバーと選択は独立した概念。
         /// </summary>
         IScopeNode? HoveredElement { get; }
+
+        /// <summary>
+        /// 現在ホバー中ノードの handle。
+        /// graph 未登録時は Invalid。
+        /// </summary>
+        UINodeHandle HoveredHandle { get; }
 
         /// <summary>
         /// 現在選択中のUIElementに登録されたIUIInputConsumer一覧。
@@ -186,6 +204,12 @@ namespace Game.UI
         bool Select(IScopeNode? target);
 
         /// <summary>
+        /// 指定した handle の UIElement を選択する。
+        /// graph から解決できない場合は false。
+        /// </summary>
+        bool Select(UINodeHandle target);
+
+        /// <summary>
         /// 指定したUIElementの選択を試みる。
         /// 
         /// ## 成功条件
@@ -206,6 +230,11 @@ namespace Game.UI
         /// <param name="target">選択したいUIElement</param>
         /// <returns>選択に成功した場合true</returns>
         bool TrySelect(IScopeNode target);
+
+        /// <summary>
+        /// 指定した handle の UIElement の選択を試みる。
+        /// </summary>
+        bool TrySelect(UINodeHandle target);
 
         /// <summary>
         /// 選択をクリアする（選択なしの状態にする）。
@@ -293,6 +322,11 @@ namespace Game.UI
         /// - 候補フィルタリング
         /// </summary>
         bool CanSelect(IScopeNode? target);
+
+        /// <summary>
+        /// 指定した handle の UIElement が選択可能かを判定する。
+        /// </summary>
+        bool CanSelect(UINodeHandle target);
     }
 
     // ================================================================
@@ -368,6 +402,11 @@ namespace Game.UI
         /// Modal Stack境界やActive状態を無視して選択を変更する。
         /// </summary>
         void ForceSelect(IScopeNode? target);
+
+        /// <summary>
+        /// handle 解決後に強制選択する。
+        /// </summary>
+        void ForceSelect(UINodeHandle target);
     }
 
     // ================================================================

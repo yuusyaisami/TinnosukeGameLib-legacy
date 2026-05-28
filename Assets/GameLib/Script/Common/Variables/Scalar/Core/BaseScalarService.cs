@@ -11,8 +11,10 @@ namespace Game.Scalar
     /// ScalarKey ごとにランタイムを管琁E��、Mod パイプラインを通じて値を扱ぁEScalar サービス、E
     /// ローカルのみ(Local*) / 親フォールバック(Global*) を�E示皁E��使ぁE�Eける、E
     /// </summary>
-    public class BaseScalarService :
+    public class ScalarRuntimeService :
         IBaseScalarService,
+        IScalarRuntimeShell,
+        IScalarEndpointSource,
         IScalarTelemetry,
         IScopeTickHandler,
         IScopeAcquireHandler,
@@ -34,7 +36,7 @@ namespace Game.Scalar
 
         sealed class Subscription : IDisposable
         {
-            readonly BaseScalarService _owner;
+            readonly ScalarRuntimeService _owner;
             readonly int _keyId; // 0 = all keys
             readonly ScalarValueChangedHandler _handler;
             bool _disposed;
@@ -43,7 +45,7 @@ namespace Game.Scalar
             public ScalarValueChangedHandler Handler => _handler;
             public bool IsDisposed => _disposed;
 
-            public Subscription(BaseScalarService owner, int keyId, ScalarValueChangedHandler handler)
+            public Subscription(ScalarRuntimeService owner, int keyId, ScalarValueChangedHandler handler)
             {
                 _owner = owner;
                 _keyId = keyId;
@@ -67,6 +69,9 @@ namespace Game.Scalar
         readonly SimpleDynamicContext _dynamicContext;
         readonly IScalarRuntimeConfigProvider _configProvider;
         readonly Dictionary<int, ScalarKeyRuntime> _runtimes = new();
+        IScalarInheritedRuntimeTopology _inheritedRuntimeTopology;
+        IScopeNode _activeScope;
+        bool _isStarted;
 
         // Subscriptions
         readonly List<Subscription> _subscriptions = new();
@@ -76,25 +81,32 @@ namespace Game.Scalar
         // Value cache for change detection
         readonly Dictionary<int, float> _lastValues = new();
 
-        BaseScalarService _nearestAncestorScalarServiceCache;
-        bool _hasNearestAncestorScalarServiceCache;
+        ScalarOwnerIdentity _ownerIdentity;
+        bool _hasOwnerIdentity;
 
-        public BaseScalarService(
+        public ScalarRuntimeService(
             IScopeNode scope,
-            IScalarRuntimeConfigProvider configProvider)
+            IScalarRuntimeConfigProvider configProvider,
+            IScalarInheritedRuntimeTopology inheritedRuntimeTopology = null)
         {
             _scope = scope;
             _dynamicContext = new SimpleDynamicContext(NullVarStore.Instance, scope);
             _configProvider = configProvider;
+            _inheritedRuntimeTopology = inheritedRuntimeTopology;
             _space = scope != null ? scope.Kind : LifetimeScopeKind.None;
+            _activeScope = scope;
+            _isStarted = false;
         }
 
         public void OnAcquire(IScopeNode scope, bool isReset)
         {
+            _activeScope = scope ?? _scope;
+            _isStarted = true;
+            EnsureInheritedRuntimeTopology(_activeScope ?? _scope);
+            RegisterInheritedTopology(_activeScope ?? _scope);
+
             if (!isReset)
                 return;
-
-            InvalidateAncestorScalarCache();
 
             // Runtime scope は pool 再利用される前提なので、Acquire 時�E reset では
             // まぁEscalar の local runtime を完�Eに破棁E��る、E
@@ -111,15 +123,51 @@ namespace Game.Scalar
 
         public void OnRelease(IScopeNode scope, bool isReset)
         {
+            UnregisterInheritedTopology();
+            _activeScope = _scope;
+            _isStarted = false;
+
             if (!isReset)
                 return;
-
-            InvalidateAncestorScalarCache();
             ResetForScopeReuse();
         }
 
         public LifetimeScopeKind Space => _space;
+        public IScopeNode OwnerScope => _scope;
+        public IScopeNode Scope => _activeScope ?? _scope;
+        public bool IsStarted => _isStarted;
+        public ScalarOwnerIdentity OwnerIdentity => _ownerIdentity;
+        public bool HasOwnerIdentity => _hasOwnerIdentity;
         internal IDynamicContext DynamicContext => _dynamicContext;
+
+        public bool TryInstallDeclarations(IReadOnlyList<ScalarDeclarationInput> declarations, out string failureReason)
+        {
+            return ScalarDeclarationRuntimeBridge.TryApplyDeclarations((IBaseScalarService)this, declarations, out failureReason);
+        }
+
+        public bool TryReadLocal(ScalarKey key, out float value, out string failureReason)
+        {
+            if (!_isStarted)
+            {
+                value = 0f;
+                failureReason = "ScalarRuntimeService is not started.";
+                return false;
+            }
+
+            failureReason = string.Empty;
+            return LocalTryGet(key, out value);
+        }
+
+        public bool TryGetOwnedEndpoint(ScalarKey key, out ScalarBindingEndpoint endpoint)
+        {
+            endpoint = default;
+
+            if (!_hasOwnerIdentity || !HasLocalOwnership(key))
+                return false;
+
+            endpoint = new ScalarBindingEndpoint(_ownerIdentity, key.KeyId);
+            return true;
+        }
 
         static bool IsValidKey(ScalarKey key) => key.Id > 0;
 
@@ -253,60 +301,26 @@ namespace Game.Scalar
             if (TryGetLocalInternal(key, includeAllLayers, layer, out value))
                 return true;
 
-            var parentService = ResolveParentScalarService();
-            if (parentService == null || ReferenceEquals(parentService, this))
+            if (!TryResolveInheritedRuntime(key, out _, out var inheritedRuntime))
             {
                 value = 0f;
                 return false;
             }
 
-            return parentService.TryGetLocalInternal(key, includeAllLayers, layer, out value);
+            return inheritedRuntime.TryGetLocalInternal(key, includeAllLayers, layer, out value);
         }
 
-        BaseScalarService ResolveParentScalarService()
-        {
-            if (_hasNearestAncestorScalarServiceCache)
-                return _nearestAncestorScalarServiceCache;
-
-            var parentScope = _scope?.Parent;
-            if (parentScope?.Resolver == null)
-            {
-                _nearestAncestorScalarServiceCache = null;
-                _hasNearestAncestorScalarServiceCache = true;
-                return null;
-            }
-
-            if (parentScope.Resolver.TryResolve<IBaseScalarService>(out var svc) && svc is BaseScalarService baseSvc)
-            {
-                _nearestAncestorScalarServiceCache = baseSvc;
-                _hasNearestAncestorScalarServiceCache = true;
-                return baseSvc;
-            }
-
-            _nearestAncestorScalarServiceCache = null;
-            _hasNearestAncestorScalarServiceCache = true;
-            return null;
-        }
-
-        void InvalidateAncestorScalarCache()
-        {
-            _nearestAncestorScalarServiceCache = null;
-            _hasNearestAncestorScalarServiceCache = false;
-        }
-
-        BaseScalarService ResolveServiceForGlobalKey(ScalarKey key, bool includeAllLayers, string layer)
+        ScalarRuntimeService ResolveServiceForGlobalKey(ScalarKey key, bool includeAllLayers, string layer)
         {
             if (TryGetLocalInternal(key, includeAllLayers, layer, out _))
                 return this;
 
-            var parentService = ResolveParentScalarService();
-            if (parentService == null || ReferenceEquals(parentService, this))
-                return this;
-
-            return parentService;
+            return TryResolveInheritedRuntime(key, out _, out var inheritedRuntime)
+                ? inheritedRuntime
+                : null;
         }
 
-        bool HasLocalOwnership(ScalarKey key)
+        internal bool HasLocalOwnership(ScalarKey key)
         {
             if (key.Id == 0)
                 return true;
@@ -321,16 +335,14 @@ namespace Game.Scalar
             return false;
         }
 
-        BaseScalarService ResolveServiceForGlobalWrite(ScalarKey key)
+        ScalarRuntimeService ResolveServiceForGlobalWrite(ScalarKey key)
         {
-            if (key.Id != 0 && _runtimes.TryGetValue(key.Id, out var rt) && rt != null && rt.HasLocalOverride)
+            if (HasLocalOwnership(key))
                 return this;
 
-            var parentService = ResolveParentScalarService();
-            if (parentService == null || ReferenceEquals(parentService, this))
-                return this;
-
-            return parentService;
+            return TryResolveInheritedRuntime(key, out _, out var inheritedRuntime)
+                ? inheritedRuntime
+                : null;
         }
 
         public float AddLocalBase(ScalarKey key, string layer, float delta)
@@ -384,6 +396,12 @@ namespace Game.Scalar
             }
 
             var target = ResolveServiceForGlobalWrite(key);
+            if (target == null)
+            {
+                ReportRequiredValueMissing(nameof(GlobalAdd), key);
+                return null;
+            }
+
             return target.LocalAdd(key, layer, delta, duration, source, tag);
         }
 
@@ -425,6 +443,12 @@ namespace Game.Scalar
             }
 
             var target = ResolveServiceForGlobalWrite(key);
+            if (target == null)
+            {
+                ReportRequiredValueMissing(nameof(GlobalMul), key);
+                return null;
+            }
+
             return target.LocalMul(key, layer, factor, phase, duration, source, tag);
         }
 
@@ -467,6 +491,12 @@ namespace Game.Scalar
             }
 
             var target = ResolveServiceForGlobalWrite(key);
+            if (target == null)
+            {
+                ReportRequiredValueMissing(nameof(SetGlobalBase), key);
+                return;
+            }
+
             target.SetLocalBase(key, value);
         }
 
@@ -642,6 +672,12 @@ namespace Game.Scalar
         public IDisposable GlobalSubscribe(ScalarKey key, ScalarValueChangedHandler handler)
         {
             var target = ResolveServiceForGlobalKey(key, includeAllLayers: true, layer: null);
+            if (target == null)
+            {
+                ReportRequiredValueMissing(nameof(GlobalSubscribe), key);
+                return EmptySubscription.Instance;
+            }
+
             return target.LocalSubscribe(key, handler);
         }
 
@@ -676,11 +712,110 @@ namespace Game.Scalar
 
         void ResetForScopeReuse()
         {
-            InvalidateAncestorScalarCache();
             ClearAll();
             _subscriptions.Clear();
             _keySubscriptions.Clear();
             _allSubscriptions.Clear();
+        }
+
+        void EnsureInheritedRuntimeTopology(IScopeNode scope)
+        {
+            if (_inheritedRuntimeTopology != null || scope?.Resolver == null)
+                return;
+
+            if (scope.Resolver.TryResolve<IScalarInheritedRuntimeTopology>(out var inheritedRuntimeTopology) && inheritedRuntimeTopology != null)
+                _inheritedRuntimeTopology = inheritedRuntimeTopology;
+        }
+
+        void RegisterInheritedTopology(IScopeNode scope)
+        {
+            _hasOwnerIdentity = TryCreateOwnerIdentity(scope, out _ownerIdentity);
+
+            if (!_hasOwnerIdentity || _inheritedRuntimeTopology == null)
+                return;
+
+            _inheritedRuntimeTopology.RegisterRuntime(_ownerIdentity, this);
+
+            if (TryCreateOwnerIdentity(scope?.Parent, out var inheritedOwner))
+                _inheritedRuntimeTopology.SetInheritedOwner(_ownerIdentity, inheritedOwner);
+        }
+
+        void UnregisterInheritedTopology()
+        {
+            if (_hasOwnerIdentity && _inheritedRuntimeTopology != null)
+            {
+                _inheritedRuntimeTopology.UnregisterRuntime(_ownerIdentity, this);
+                _inheritedRuntimeTopology.ClearInheritedOwner(_ownerIdentity);
+            }
+
+            _hasOwnerIdentity = false;
+            _ownerIdentity = default;
+        }
+
+        bool TryResolveInheritedRuntime(ScalarKey key, out ScalarBindingEndpoint endpoint, out ScalarRuntimeService runtime)
+        {
+            endpoint = default;
+            runtime = null;
+
+            if (!_hasOwnerIdentity || !IsValidKey(key))
+                return false;
+
+            EnsureInheritedRuntimeTopology(_activeScope ?? _scope);
+            if (_inheritedRuntimeTopology == null)
+                return false;
+
+            return _inheritedRuntimeTopology.TryResolveInheritedRuntime(_ownerIdentity, key, out endpoint, out runtime);
+        }
+
+        static bool TryCreateOwnerIdentity(IScopeNode scope, out ScalarOwnerIdentity owner)
+        {
+            owner = default;
+            var identity = scope?.Identity;
+            if (identity == null || string.IsNullOrWhiteSpace(identity.Id))
+                return false;
+
+            if (!TryMapOwnerKind(scope.Kind, out var ownerKind))
+                return false;
+
+            owner = new ScalarOwnerIdentity(ownerKind, new ScalarOwnerId(identity.Id));
+            return true;
+        }
+
+        static bool TryMapOwnerKind(LifetimeScopeKind scopeKind, out ScalarOwnerKind ownerKind)
+        {
+            switch (scopeKind)
+            {
+                case LifetimeScopeKind.Project:
+                    ownerKind = ScalarOwnerKind.Application;
+                    return true;
+                case LifetimeScopeKind.Platform:
+                    ownerKind = ScalarOwnerKind.Platform;
+                    return true;
+                case LifetimeScopeKind.Global:
+                    ownerKind = ScalarOwnerKind.Global;
+                    return true;
+                case LifetimeScopeKind.Scene:
+                    ownerKind = ScalarOwnerKind.Scene;
+                    return true;
+                case LifetimeScopeKind.Field:
+                    ownerKind = ScalarOwnerKind.Field;
+                    return true;
+                case LifetimeScopeKind.Entity:
+                    ownerKind = ScalarOwnerKind.Entity;
+                    return true;
+                case LifetimeScopeKind.UI:
+                    ownerKind = ScalarOwnerKind.UI;
+                    return true;
+                case LifetimeScopeKind.UIElement:
+                    ownerKind = ScalarOwnerKind.UIElement;
+                    return true;
+                case LifetimeScopeKind.Runtime:
+                    ownerKind = ScalarOwnerKind.Runtime;
+                    return true;
+                default:
+                    ownerKind = default;
+                    return false;
+            }
         }
 
         void ReapplyScopeBindingsIfAvailable()
@@ -786,11 +921,110 @@ namespace Game.Scalar
 
         public void Dispose()
         {
+            UnregisterInheritedTopology();
+            _activeScope = _scope;
+            _isStarted = false;
             ClearAll();
             _subscriptions.Clear();
             _keySubscriptions.Clear();
             _allSubscriptions.Clear();
             _lastValues.Clear();
+        }
+
+        sealed class EmptySubscription : IDisposable
+        {
+            public static readonly EmptySubscription Instance = new EmptySubscription();
+
+            public void Dispose()
+            {
+            }
+        }
+    }
+
+    public sealed class ScalarInheritedRuntimeTopology : IScalarInheritedRuntimeTopology
+    {
+        readonly Dictionary<ScalarOwnerIdentity, ScalarRuntimeService> _services = new();
+        readonly Dictionary<ScalarOwnerIdentity, ScalarOwnerIdentity> _inheritedOwners = new();
+
+        public void RegisterRuntime(ScalarOwnerIdentity owner, ScalarRuntimeService service)
+        {
+            if (!owner.IsValid || service == null)
+                return;
+
+            _services[owner] = service;
+        }
+
+        public void UnregisterRuntime(ScalarOwnerIdentity owner, ScalarRuntimeService service)
+        {
+            if (!owner.IsValid)
+                return;
+
+            if (_services.TryGetValue(owner, out var current) && ReferenceEquals(current, service))
+                _services.Remove(owner);
+        }
+
+        public void SetInheritedOwner(ScalarOwnerIdentity owner, ScalarOwnerIdentity inheritedOwner)
+        {
+            if (!owner.IsValid || !inheritedOwner.IsValid)
+                return;
+
+            _inheritedOwners[owner] = inheritedOwner;
+        }
+
+        public void ClearInheritedOwner(ScalarOwnerIdentity owner)
+        {
+            if (!owner.IsValid)
+                return;
+
+            _inheritedOwners.Remove(owner);
+        }
+
+        public bool TryResolveRuntime(ScalarBindingEndpoint endpoint, out ScalarRuntimeService service)
+        {
+            if (!endpoint.IsValid)
+            {
+                service = null;
+                return false;
+            }
+
+            return _services.TryGetValue(endpoint.Owner, out service) && service != null;
+        }
+
+        public bool TryResolveInheritedRuntime(ScalarOwnerIdentity owner, ScalarKey key, out ScalarBindingEndpoint endpoint, out ScalarRuntimeService service)
+        {
+            endpoint = default;
+            service = null;
+
+            if (!owner.IsValid || !key.IsVerified)
+                return false;
+
+            var visited = 0;
+            var current = owner;
+
+            while (_inheritedOwners.TryGetValue(current, out var inheritedOwner) && visited++ < 32)
+            {
+                if (_services.TryGetValue(inheritedOwner, out service) && service != null && service.HasLocalOwnership(key))
+                {
+                    endpoint = new ScalarBindingEndpoint(inheritedOwner, key.KeyId);
+                    return true;
+                }
+
+                current = inheritedOwner;
+            }
+
+            service = null;
+            return false;
+        }
+    }
+
+    public class BaseScalarService : ScalarRuntimeService
+    {
+        public BaseScalarService(
+            IScopeNode scope,
+            IScalarRuntimeConfigProvider configProvider,
+            IScalarInheritedRuntimeTopology inheritedRuntimeTopology = null)
+            : base(scope, configProvider, inheritedRuntimeTopology)
+        {
         }
     }
 }

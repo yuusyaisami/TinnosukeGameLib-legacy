@@ -2,6 +2,9 @@
 using System;
 using System.Collections.Generic;
 using Game.Kernel.Abstractions;
+using Game.Kernel.Generation;
+using Game.Kernel.IR;
+using Game.Kernel.Value;
 
 namespace Game.Kernel.Layers
 {
@@ -22,6 +25,10 @@ namespace Game.Kernel.Layers
         BootRuntimeSurface = 40,
         RuntimeServiceGraph = 50,
         RuntimeScopeGraph = 60,
+        SceneSpawnBoundary = 65,
+        SceneSpawnHost = 66,
+        SceneSpawnDeclaration = 67,
+        SceneEntityInstanceAnchor = 68,
         LifecycleDispatcher = 70,
         LifecyclePlanResolver = 80,
         BootManifest = 90,
@@ -47,6 +54,18 @@ namespace Game.Kernel.Layers
         RuntimeScopeGraph = 30,
         LifecycleDispatcher = 40,
         LifecyclePlanResolver = 50,
+        SpawnBoundary = 55,
+        EntityRegistrationPlan = 60,
+        ServiceRegistrationPlan = 65,
+        EntityServiceRoutePlan = 70,
+        ValueStore = 75,
+    }
+
+    public interface ISceneKernelValueStoreBoundary
+    {
+        bool TryGetValueStore(EntityRef entityRef, out IValueStore valueStore);
+
+        bool TryDispatchValueInit(int scopeRuntimeInstanceId, string targetStoreRef, LifecyclePhase phase, out string failureReason);
     }
 
     public readonly struct KernelComponentPlacementDescriptor : IEquatable<KernelComponentPlacementDescriptor>
@@ -140,6 +159,24 @@ namespace Game.Kernel.Layers
     public interface ISceneKernelComposition
     {
         IReadOnlyList<KernelComponentPlacementDescriptor> Placements { get; }
+
+        ISceneKernelSpawnBoundary? SpawnBoundary { get; }
+
+        ISceneKernelValueStoreBoundary? ValueStoreBoundary { get; }
+
+        void BindSpawnBoundary(ISceneKernelSpawnBoundary spawnBoundary);
+
+        void BindValueStoreBoundary(ISceneKernelValueStoreBoundary valueStoreBoundary);
+
+        void ClearSpawnBoundary();
+
+        void ClearValueStoreBoundary();
+
+        EntityRegistrationPlan? EntityRegistrationPlan { get; }
+
+        ServiceRegistrationPlan? ServiceRegistrationPlan { get; }
+
+        EntityServiceRoutePlan? EntityServiceRoutePlan { get; }
 
         bool TryGetBoundary(SceneKernelBoundaryKind boundaryKind, out object? boundary);
     }

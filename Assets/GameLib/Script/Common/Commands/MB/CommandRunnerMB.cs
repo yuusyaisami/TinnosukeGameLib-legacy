@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -9,8 +10,10 @@ using Game.Commands.VNext;
 namespace Game.Commands
 {
     [DisallowMultipleComponent]
-    public sealed class CommandRunnerMB : MonoBehaviour, IFeatureInstaller
+    public sealed class CommandRunnerMB : MonoBehaviour
     {
+        bool _runtimeInstalled;
+
         [FoldoutGroup("Debug Viewer")]
         [LabelText("Monitor Channel Debug Viewer")]
         [SerializeField]
@@ -29,8 +32,70 @@ namespace Game.Commands
         [SerializeField]
         VarStorePayload _defaultVars = new();
 
-        public void InstallFeature(IRuntimeContainerBuilder builder, IScopeNode owner)
+        public void InstallRuntime(IRuntimeContainerBuilder builder, IScopeNode owner)
         {
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+            if (owner == null)
+                throw new ArgumentNullException(nameof(owner));
+
+            if (_runtimeInstalled)
+                return;
+
+            _runtimeInstalled = true;
+
+            void RegisterCommandRunnerService(IRuntimeRegistrationBuilder registration)
+            {
+                registration
+                    .AsSelf()
+                    .As<VNext.ICommandRunnerService>()
+                    .As<IScopeAcquireHandler>()
+                    .As<IScopeReleaseHandler>()
+                    .WithParameter(owner)
+                    .WithParameter(_defaultVars);
+            }
+
+            void RegisterProvisionalRunnerBridge<TTypedRunner>() where TTypedRunner : class
+            {
+                RegisterCommandRunnerService(
+                    builder.Register<VNext.CommandRunnerService>(RuntimeLifetime.Singleton));
+
+                builder.Register<VNext.ProvisionalRunnerBridge>(RuntimeLifetime.Singleton)
+                    .AsSelf()
+                    .As<VNext.ICommandRunner>()
+                    .As<VNext.ICommandRunnerActivity>()
+                    .As<VNext.ICommandDetachedRunner>()
+                    .As<VNext.ICommandRunnerDefaultVarsProvider>()
+                    .As<TTypedRunner>()
+                    .As<IScopeAcquireHandler>()
+                    .As<IScopeReleaseHandler>()
+                    .WithParameter(owner)
+                    .WithParameter(_defaultVars);
+            }
+
+            void RegisterRuntimeRunnerService()
+            {
+                RegisterCommandRunnerService(
+                    builder.Register<VNext.CommandRunnerService>(RuntimeLifetime.Singleton));
+
+                builder.Register<VNext.ProvisionalRunnerBridge>(RuntimeLifetime.Singleton)
+                    .AsSelf()
+                    .As<VNext.ICommandRunner>()
+                    .As<VNext.ICommandRunnerActivity>()
+                    .As<VNext.ICommandDetachedRunner>()
+                    .As<VNext.ICommandRunnerDefaultVarsProvider>()
+                    .As<IScopeAcquireHandler>()
+                    .As<IScopeReleaseHandler>()
+                    .WithParameter(owner)
+                    .WithParameter(_defaultVars);
+            }
+
+            void RegisterRunnerShellOnly()
+            {
+                RegisterCommandRunnerService(
+                    builder.Register<VNext.CommandRunnerService>(RuntimeLifetime.Singleton));
+            }
+
             // MonitorChannelHub は吁E��コープで共有�Eシングルトンとして登録
             builder.RegisterAsScopeMulti<IMonitorChannelHub, MonitorChannelHub>(RuntimeLifetime.Singleton)
                 .WithParameter(owner)
@@ -421,9 +486,16 @@ namespace Game.Commands
                 builder.Register<VNext.DeleteAllSaveDataCommandExecutor>(RuntimeLifetime.Singleton)
                     .As<VNext.ICommandExecutor>();
             }
+            else
+            {
+                builder.RegisterInstance<VNext.ICommandCatalog>(VNext.NullCommandCatalog.Instance);
+                builder.RegisterInstance<VNext.ICommandKeyResolver>(VNext.NullCommandKeyResolver.Instance);
+                builder.RegisterInstance<VNext.ICommandResolveLogger>(VNext.NullCommandResolveLogger.Instance);
+            }
 
-            builder.Register<VNext.CommandExecutorCatalog>(RuntimeLifetime.Singleton)
-                .As<VNext.ICommandExecutorCatalog>();
+            builder.Register<VNext.ICommandExecutorCatalog>(
+                static resolver => VNext.CommandExecutorCatalogFactory.Create(resolver),
+                RuntimeLifetime.Singleton);
 
             builder.RegisterInstance<VNext.ICommandPayloadFieldReaderProvider>(new VNext.CommandPayloadFieldReaderProvider());
             builder.RegisterInstance<VNext.ICommandPayloadReferenceValidator>(VNext.MissingCommandPayloadReferenceValidator.Instance);
@@ -431,79 +503,37 @@ namespace Game.Commands
             switch (owner.Kind)
             {
                 case LifetimeScopeKind.Project:
-                    builder.Register<VNext.CommandRunner>(RuntimeLifetime.Singleton)
-                        .As<VNext.ICommandRunner>()
-                        .As<VNext.ICommandRunnerActivity>()
-                        .As<VNext.IProjectCommandRunner>()
-                        .As<IScopeAcquireHandler>()
-                        .As<IScopeReleaseHandler>()
-                        .WithParameter(owner)
-                        .WithParameter(_defaultVars);
+                    RegisterProvisionalRunnerBridge<VNext.IProjectCommandRunner>();
                     break;
                 case LifetimeScopeKind.Platform:
-                    builder.Register<VNext.CommandRunner>(RuntimeLifetime.Singleton)
-                        .As<VNext.ICommandRunner>()
-                        .As<VNext.ICommandRunnerActivity>()
-                        .As<VNext.IPlatformCommandRunner>()
-                        .As<IScopeAcquireHandler>()
-                        .As<IScopeReleaseHandler>()
-                        .WithParameter(owner)
-                        .WithParameter(_defaultVars);
+                    RegisterProvisionalRunnerBridge<VNext.IPlatformCommandRunner>();
                     break;
                 case LifetimeScopeKind.Global:
-                    builder.Register<VNext.CommandRunner>(RuntimeLifetime.Singleton)
-                        .As<VNext.ICommandRunner>()
-                        .As<VNext.ICommandRunnerActivity>()
-                        .As<VNext.IGlobalCommandRunner>()
-                        .As<IScopeAcquireHandler>()
-                        .As<IScopeReleaseHandler>()
-                        .WithParameter(owner)
-                        .WithParameter(_defaultVars);
+                    RegisterProvisionalRunnerBridge<VNext.IGlobalCommandRunner>();
                     break;
                 case LifetimeScopeKind.Scene:
-                    builder.Register<VNext.CommandRunner>(RuntimeLifetime.Singleton)
-                        .As<VNext.ICommandRunner>()
-                        .As<VNext.ICommandRunnerActivity>()
-                        .As<VNext.ISceneCommandRunner>()
-                        .As<IScopeAcquireHandler>()
-                        .As<IScopeReleaseHandler>()
-                        .WithParameter(owner)
-                        .WithParameter(_defaultVars);
+                    RegisterProvisionalRunnerBridge<VNext.ISceneCommandRunner>();
                     break;
                 case LifetimeScopeKind.Field:
-                    builder.Register<VNext.CommandRunner>(RuntimeLifetime.Singleton)
-                        .As<VNext.ICommandRunner>()
-                        .As<VNext.ICommandRunnerActivity>()
-                        .As<VNext.IFieldCommandRunner>()
-                        .As<IScopeAcquireHandler>()
-                        .As<IScopeReleaseHandler>()
-                        .WithParameter(owner)
-                        .WithParameter(_defaultVars);
+                    RegisterProvisionalRunnerBridge<VNext.IFieldCommandRunner>();
                     break;
                 case LifetimeScopeKind.Entity:
-                    builder.Register<VNext.CommandRunner>(RuntimeLifetime.Singleton)
-                        .As<VNext.ICommandRunner>()
-                        .As<VNext.ICommandRunnerActivity>()
-                        .As<VNext.IEntityCommandRunner>()
-                        .As<IScopeAcquireHandler>()
-                        .As<IScopeReleaseHandler>()
-                        .WithParameter(owner)
-                        .WithParameter(_defaultVars);
+                    RegisterProvisionalRunnerBridge<VNext.IEntityCommandRunner>();
                     break;
                 case LifetimeScopeKind.UI:
-                    builder.Register<VNext.CommandRunner>(RuntimeLifetime.Singleton)
-                        .As<VNext.ICommandRunner>()
-                        .As<VNext.ICommandRunnerActivity>()
-                        .As<VNext.IUICommandRunner>()
-                        .As<IScopeAcquireHandler>()
-                        .As<IScopeReleaseHandler>()
-                        .WithParameter(owner)
-                        .WithParameter(_defaultVars);
+                    RegisterProvisionalRunnerBridge<VNext.IUICommandRunner>();
+                    break;
+                case LifetimeScopeKind.Runtime:
+                    RegisterRuntimeRunnerService();
                     break;
                 case LifetimeScopeKind.UIElement:
-                    builder.Register<VNext.UIElementCommandRunner>(RuntimeLifetime.Singleton)
+                    RegisterRunnerShellOnly();
+                    builder.Register<VNext.ProvisionalRunnerBridge>(RuntimeLifetime.Singleton)
+                        .AsSelf()
                         .As<VNext.ICommandRunner>()
                         .As<VNext.ICommandRunnerActivity>()
+                        .As<VNext.ICommandDetachedRunner>()
+                        .As<VNext.ICommandRunnerDefaultVarsProvider>()
                         .As<VNext.IUIElementCommandRunner>()
                         .As<IScopeAcquireHandler>()
                         .As<IScopeReleaseHandler>()
@@ -512,5 +542,6 @@ namespace Game.Commands
                     break;
             }
         }
+
     }
 }

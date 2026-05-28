@@ -14,7 +14,7 @@ namespace TinnosukeGameLib.Tests.Editor
     public sealed class ScalarRuntimePolicyTests
     {
         [Test]
-        public void GlobalTryGet_StopsAtDirectParent()
+        public void GlobalTryGet_FailsClosedWithoutExplicitInheritedTopology()
         {
             var key = new ScalarKey("GameLib.Movement.DefaultSpeed");
 
@@ -32,11 +32,53 @@ namespace TinnosukeGameLib.Tests.Editor
 
             grandparentService.SetLocalBase(key, 42f);
 
-            Assert.That(parentService.GlobalTryGet(key, out var parentValue), Is.True);
-            Assert.That(parentValue, Is.EqualTo(42f));
+            Assert.That(parentService.GlobalTryGet(key, out var parentValue), Is.False);
+            Assert.That(parentValue, Is.EqualTo(0f));
 
             Assert.That(childService.GlobalTryGet(key, out var childValue), Is.False);
             Assert.That(childValue, Is.EqualTo(0f));
+        }
+
+        [Test]
+        public void GlobalTryGet_UsesExplicitInheritedTopology()
+        {
+            var key = new ScalarKey("GameLib.Movement.DefaultSpeed");
+            var topology = new ScalarInheritedRuntimeTopology();
+
+            var grandparentScope = new TestScopeNode(LifetimeScopeKind.Project)
+            {
+                Identity = new TestIdentityService(LifetimeScopeKind.Project, "project-root"),
+            };
+            var parentScope = new TestScopeNode(LifetimeScopeKind.Global)
+            {
+                Parent = grandparentScope,
+                Identity = new TestIdentityService(LifetimeScopeKind.Global, "global-root"),
+            };
+            var childScope = new TestScopeNode(LifetimeScopeKind.Scene)
+            {
+                Parent = parentScope,
+                Identity = new TestIdentityService(LifetimeScopeKind.Scene, "scene-root"),
+            };
+
+            grandparentScope.Resolver = new TestRuntimeResolver().Register<IScalarInheritedRuntimeTopology>(topology);
+            parentScope.Resolver = new TestRuntimeResolver().Register<IScalarInheritedRuntimeTopology>(topology);
+            childScope.Resolver = new TestRuntimeResolver().Register<IScalarInheritedRuntimeTopology>(topology);
+
+            var grandparentService = new BaseScalarService(grandparentScope, null, topology);
+            var parentService = new BaseScalarService(parentScope, null, topology);
+            var childService = new BaseScalarService(childScope, null, topology);
+
+            grandparentService.OnAcquire(grandparentScope, false);
+            parentService.OnAcquire(parentScope, false);
+            childService.OnAcquire(childScope, false);
+
+            grandparentService.SetLocalBase(key, 42f);
+
+            Assert.That(parentService.GlobalTryGet(key, out var parentValue), Is.True);
+            Assert.That(parentValue, Is.EqualTo(42f));
+
+            Assert.That(childService.GlobalTryGet(key, out var childValue), Is.True);
+            Assert.That(childValue, Is.EqualTo(42f));
         }
 
         [Test]
@@ -79,7 +121,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 lanes.Add(snapshot.Lane);
             }
 
-            Assert.That(lanes, Does.Contain(LayeredNumericLaneKind.FinalClamp));
+            Assert.That(lanes, Has.Member(LayeredNumericLaneKind.FinalClamp));
         }
 
         [Test]
@@ -108,20 +150,29 @@ namespace TinnosukeGameLib.Tests.Editor
                 lanes.Add(snapshot.Lane);
             }
 
-            Assert.That(lanes, Does.Not.Contain(LayeredNumericLaneKind.FinalClamp));
+            Assert.That(lanes, Has.No.Member(LayeredNumericLaneKind.FinalClamp));
         }
 
         [Test]
         public void ScalarBinding_DeltaRebaseRestoresExplicitEndpointBaseline()
         {
-            var sourceScope = new TestScopeNode(LifetimeScopeKind.Global);
-            var targetScope = new TestScopeNode(LifetimeScopeKind.Scene);
+            var sourceScope = new TestScopeNode(LifetimeScopeKind.Global)
+            {
+                Identity = new TestIdentityService(LifetimeScopeKind.Global, "binding-source"),
+            };
+            var targetScope = new TestScopeNode(LifetimeScopeKind.Scene)
+            {
+                Identity = new TestIdentityService(LifetimeScopeKind.Scene, "binding-target"),
+            };
             var sourceService = new BaseScalarService(sourceScope, null);
             var targetService = new BaseScalarService(targetScope, null);
             var manager = new ScalarBindingManager();
 
             var sourceKey = new ScalarKey("GameLib.Movement.DefaultSpeed");
             var targetKey = new ScalarKey("GameLib.Movement.SpeedMultiplier");
+
+            sourceService.OnAcquire(sourceScope, false);
+            targetService.OnAcquire(targetScope, false);
 
             sourceService.SetLocalBase(sourceKey, 10f);
             targetService.SetLocalBase(targetKey, 1f);
@@ -139,6 +190,20 @@ namespace TinnosukeGameLib.Tests.Editor
             handle.Rebase();
 
             Assert.That(targetService.LocalGet(targetKey), Is.EqualTo(1f));
+        }
+
+        [Test]
+        public void GlobalAdd_WritesToLocalOwnedRuntimeBeforeAnyOverrideExists()
+        {
+            var key = new ScalarKey("GameLib.Movement.DefaultSpeed");
+            var configProvider = new TestScalarRuntimeConfigProvider(key, 4f);
+            var scope = new TestScopeNode(LifetimeScopeKind.Scene);
+            var service = new BaseScalarService(scope, configProvider);
+
+            var handle = service.GlobalAdd(key, null, 3f);
+
+            Assert.That(handle, Is.Not.Null);
+            Assert.That(service.LocalGet(key), Is.EqualTo(7f));
         }
 
         [Test]
@@ -224,7 +289,7 @@ namespace TinnosukeGameLib.Tests.Editor
                     return true;
                 }
 
-                instance = default;
+                instance = default!;
                 return false;
             }
 
@@ -328,7 +393,7 @@ namespace TinnosukeGameLib.Tests.Editor
             public IReadOnlyList<IScopeNode>? GetPathFromRoot()
             {
                 var nodes = new List<IScopeNode>();
-                var current = this;
+                IScopeNode? current = this;
 
                 while (current != null)
                 {
@@ -339,6 +404,23 @@ namespace TinnosukeGameLib.Tests.Editor
                 nodes.Reverse();
                 return nodes;
             }
+        }
+
+        sealed class TestIdentityService : ILTSIdentityService
+        {
+            public TestIdentityService(LifetimeScopeKind kind, string id)
+            {
+                Kind = kind;
+                Id = id;
+            }
+
+            public LifetimeScopeKind Kind { get; }
+            public string Id { get; }
+            public string Category => string.Empty;
+            public bool IsActive { get; set; } = true;
+            public Game.Times.TimeScaleBehavior TimeScaleBehavior => default;
+            public UnityEngine.Transform SelfTransform => null!;
+            public float Radius => 0f;
         }
     }
 }

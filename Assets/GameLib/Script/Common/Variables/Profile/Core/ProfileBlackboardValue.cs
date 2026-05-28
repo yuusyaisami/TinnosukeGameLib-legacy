@@ -68,12 +68,12 @@ namespace Game.Profile
             entries.Add(BindingSaveEntry.ForBlackboard(BlackboardVarId, BlackboardSaveLayerValue, scopeIdentity, profileTypeName));
         }
 
-        void IProfileValueBinding.WriteToBlackboard(IBlackboardService blackboard)
+        void IProfileValueBinding.WriteToBlackboard(IVarStore blackboard)
         {
             if (!HasBlackboardKey || blackboard == null)
                 return;
 
-            var vars = blackboard.LocalVars;
+            var vars = blackboard;
             var varId = BlackboardVarId;
             if (varId == 0)
                 return;
@@ -155,12 +155,12 @@ namespace Game.Profile
             entries.Add(BindingSaveEntry.ForBlackboard(BlackboardVarId, BlackboardSaveLayerValue, scopeIdentity, profileTypeName));
         }
 
-        void IProfileValueBinding.WriteToBlackboard(IBlackboardService blackboard)
+        void IProfileValueBinding.WriteToBlackboard(IVarStore blackboard)
         {
             if (!HasBlackboardKey || blackboard == null)
                 return;
 
-            var vars = blackboard.LocalVars;
+            var vars = blackboard;
             var varId = BlackboardVarId;
             if (varId == 0)
                 return;
@@ -238,12 +238,12 @@ namespace Game.Profile
             entries.Add(BindingSaveEntry.ForBlackboard(BlackboardVarId, BlackboardSaveLayerValue, scopeIdentity, profileTypeName));
         }
 
-        void IProfileValueBinding.WriteToBlackboard(IBlackboardService blackboard)
+        void IProfileValueBinding.WriteToBlackboard(IVarStore blackboard)
         {
             if (!HasBlackboardKey || blackboard == null)
                 return;
 
-            var vars = blackboard.LocalVars;
+            var vars = blackboard;
             var varId = BlackboardVarId;
             if (varId == 0)
                 return;
@@ -321,12 +321,12 @@ namespace Game.Profile
             entries.Add(BindingSaveEntry.ForBlackboard(BlackboardVarId, BlackboardSaveLayerValue, scopeIdentity, profileTypeName));
         }
 
-        void IProfileValueBinding.WriteToBlackboard(IBlackboardService blackboard)
+        void IProfileValueBinding.WriteToBlackboard(IVarStore blackboard)
         {
             if (!HasBlackboardKey || blackboard == null)
                 return;
 
-            var vars = blackboard.LocalVars;
+            var vars = blackboard;
             var varId = BlackboardVarId;
             if (varId == 0)
                 return;
@@ -404,12 +404,12 @@ namespace Game.Profile
             entries.Add(BindingSaveEntry.ForBlackboard(BlackboardVarId, BlackboardSaveLayerValue, scopeIdentity, profileTypeName));
         }
 
-        void IProfileValueBinding.WriteToBlackboard(IBlackboardService blackboard)
+        void IProfileValueBinding.WriteToBlackboard(IVarStore blackboard)
         {
             if (!HasBlackboardKey || blackboard == null)
                 return;
 
-            var vars = blackboard.LocalVars;
+            var vars = blackboard;
             var varId = BlackboardVarId;
             if (varId == 0)
                 return;
@@ -487,12 +487,12 @@ namespace Game.Profile
             entries.Add(BindingSaveEntry.ForBlackboard(BlackboardVarId, BlackboardSaveLayerValue, scopeIdentity, profileTypeName));
         }
 
-        void IProfileValueBinding.WriteToBlackboard(IBlackboardService blackboard)
+        void IProfileValueBinding.WriteToBlackboard(IVarStore blackboard)
         {
             if (!HasBlackboardKey || blackboard == null)
                 return;
 
-            var vars = blackboard.LocalVars;
+            var vars = blackboard;
             var varId = BlackboardVarId;
             if (varId == 0)
                 return;

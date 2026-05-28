@@ -120,6 +120,57 @@ namespace Game.Editor.Tests
         }
 
         [Test]
+        public void Runtime_SelfBlackboardSourceReadsFromScopeVarsWithoutBlackboardService()
+        {
+            var runtime = new DynamicEvaluationRuntime();
+            var vars = new VarStore();
+            var varId = 404;
+            Assert.That(vars.TrySetVariant(varId, DynamicVariant.FromFloat(12f)), Is.True);
+
+            using var resolver = new TestRuntimeResolver();
+            resolver.Add<IVarStore>(vars);
+            var scope = new TestScopeNode(
+                new TestIdentityService("dynamic-self-blackboard-local", "group", LifetimeScopeKind.Scene),
+                resolver);
+            var context = CreateConstantStampContext(runtime, NullVarStore.Instance, scope, planId: 16);
+            var value = DynamicValue.FromSource(SelfBlackboardSource.FromVarId(varId));
+
+            Assert.That(value.Evaluate(context).AsFloat, Is.EqualTo(12f));
+            Assert.That(value.Evaluate(context).AsFloat, Is.EqualTo(12f));
+
+            Assert.That(vars.TrySetVariant(varId, DynamicVariant.FromFloat(15f)), Is.True);
+
+            Assert.That(value.Evaluate(context).AsFloat, Is.EqualTo(15f));
+        }
+
+        [Test]
+        public void Runtime_SelfBlackboardSourceReadsParentScopeVarsWithoutBlackboardService()
+        {
+            var runtime = new DynamicEvaluationRuntime();
+            var parentVars = new VarStore();
+            var varId = 405;
+            Assert.That(parentVars.TrySetVariant(varId, DynamicVariant.FromInt(9)), Is.True);
+
+            using var parentResolver = new TestRuntimeResolver();
+            parentResolver.Add<IVarStore>(parentVars);
+            var parentScope = new TestScopeNode(
+                new TestIdentityService("dynamic-self-blackboard-parent", "group", LifetimeScopeKind.Scene),
+                parentResolver);
+            var childScope = new TestScopeNode(
+                new TestIdentityService("dynamic-self-blackboard-child", "group", LifetimeScopeKind.Entity),
+                parent: parentScope);
+            var context = CreateConstantStampContext(runtime, NullVarStore.Instance, childScope, planId: 17);
+            var value = DynamicValue.FromSource(SelfBlackboardSource.FromVarId(varId, BlackboardReadScope.Global));
+
+            Assert.That(value.Evaluate(context).AsInt, Is.EqualTo(9));
+            Assert.That(value.Evaluate(context).AsInt, Is.EqualTo(9));
+
+            Assert.That(parentVars.TrySetVariant(varId, DynamicVariant.FromInt(11)), Is.True);
+
+            Assert.That(value.Evaluate(context).AsInt, Is.EqualTo(11));
+        }
+
+        [Test]
         public void Runtime_CapturesNestedDynamicValueRead()
         {
             var runtime = new DynamicEvaluationRuntime();
@@ -416,10 +467,15 @@ namespace Game.Editor.Tests
 
         static DynamicEvaluationContext CreateConstantStampContext(DynamicEvaluationRuntime runtime, IVarStore vars, int planId)
         {
+            return CreateConstantStampContext(runtime, vars, null, planId);
+        }
+
+        static DynamicEvaluationContext CreateConstantStampContext(DynamicEvaluationRuntime runtime, IVarStore vars, IScopeNode? scope, int planId)
+        {
             var plan = CreatePlan(planId, DynamicEvaluationPhase.ExplicitRead);
             var baseContext = new SimpleDynamicContext(
                 vars,
-                null,
+                scope,
                 dependencyTokens: new DynamicDependencyTokenSet(scopeVersion: 1),
                 origin: new DynamicEvaluationOrigin(planId, 0));
 
@@ -598,15 +654,20 @@ namespace Game.Editor.Tests
 
         sealed class TestScopeNode : IScopeNode
         {
-            public TestScopeNode(ILTSIdentityService identity)
+            public TestScopeNode(
+                ILTSIdentityService identity,
+                IRuntimeResolver? resolver = null,
+                IScopeNode? parent = null)
             {
                 Identity = identity;
+                Resolver = resolver;
+                Parent = parent;
             }
 
-            public IScopeNode? Parent => null;
+            public IScopeNode? Parent { get; }
             public ILTSIdentityService? Identity { get; }
             public LifetimeScopeKind Kind => Identity?.Kind ?? LifetimeScopeKind.None;
-            public IRuntimeResolver? Resolver => null;
+            public IRuntimeResolver? Resolver { get; }
             public bool IsVisible => true;
             public bool IsActive => true;
 
@@ -635,6 +696,79 @@ namespace Game.Editor.Tests
             public IReadOnlyList<IScopeNode>? GetPathFromRoot()
             {
                 return Array.Empty<IScopeNode>();
+            }
+        }
+
+        sealed class TestRuntimeResolver : IRuntimeResolver
+        {
+            readonly Dictionary<Type, object> _instances = new();
+
+            public void Add<T>(T instance)
+            {
+                _instances[typeof(T)] = instance!;
+            }
+
+            public bool TryResolve(Type type, out object? instance)
+            {
+                if (_instances.TryGetValue(type, out var exact))
+                {
+                    instance = exact;
+                    return true;
+                }
+
+                foreach (var pair in _instances)
+                {
+                    if (type.IsAssignableFrom(pair.Key) || type.IsInstanceOfType(pair.Value))
+                    {
+                        instance = pair.Value;
+                        return true;
+                    }
+                }
+
+                instance = null;
+                return false;
+            }
+
+            public bool TryResolve<T>(out T instance)
+            {
+                if (TryResolve(typeof(T), out var resolved) && resolved is T typed)
+                {
+                    instance = typed;
+                    return true;
+                }
+
+                instance = default!;
+                return false;
+            }
+
+            public object Resolve(Type type)
+            {
+                return TryResolve(type, out var instance)
+                    ? instance!
+                    : throw new InvalidOperationException($"Type '{type.FullName}' is not registered in the test resolver.");
+            }
+
+            public T Resolve<T>()
+            {
+                return TryResolve<T>(out var instance)
+                    ? instance
+                    : throw new InvalidOperationException($"Type '{typeof(T).FullName}' is not registered in the test resolver.");
+            }
+
+            public object? ResolveOrDefault(Type type)
+            {
+                TryResolve(type, out var instance);
+                return instance;
+            }
+
+            public void Inject(object instance)
+            {
+                _ = instance;
+            }
+
+            public void Dispose()
+            {
+                _instances.Clear();
             }
         }
     }

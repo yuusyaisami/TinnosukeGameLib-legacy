@@ -5,6 +5,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Game.Kernel.IR;
+using Game.Scalar;
 
 namespace Game.Profile
 {
@@ -15,6 +17,11 @@ namespace Game.Profile
         static readonly object _cacheLock = new object();
 
         public abstract Type ProfileType { get; }
+
+        public bool TryCreateScalarDeclarations(ScalarOwnerIdentity owner, SourceLocationIR source, out ScalarDeclarationInput[] declarations, out string failureReason)
+        {
+            return ProfileScalarDeclarationProjection.TryCreateScalarDeclarations(EnumerateBindings(), owner, ProfileType.Name, source, out declarations, out failureReason);
+        }
 
         public virtual IEnumerable<IProfileValueBinding> EnumerateBindings()
         {

@@ -177,6 +177,13 @@ namespace Game.Dialogue
 
         [BoxGroup("Input")]
         [ShowIf(nameof(UsesInputSettings))]
+        [LabelText("Button Channel Hub Source")]
+        [Tooltip("Inspector setting.")]
+        [SerializeField]
+        ButtonChannelHubDeclarationMB? _buttonChannelHubSource;
+
+        [BoxGroup("Input")]
+        [ShowIf(nameof(UsesInputSettings))]
         [LabelText("Advance Phase")]
         [Tooltip("Inspector setting.")]
         [SerializeField]
@@ -212,6 +219,7 @@ namespace Game.Dialogue
 
         public bool EnableInput => _enableInput;
         public string ButtonChannelTag => DialogueTagUtility.Normalize(_buttonChannelTag);
+        public ButtonChannelHubDeclarationMB? ButtonChannelHubSource => _buttonChannelHubSource;
         public ButtonChannelPhase AdvancePhase => _advancePhase;
         public bool RequirePhaseTransition => _requirePhaseTransition;
         public bool AutoPushModalLayer => _autoPushModalLayer;
@@ -227,6 +235,7 @@ namespace Game.Dialogue
             {
                 _enableInput = _enableInput,
                 _buttonChannelTag = _buttonChannelTag,
+                _buttonChannelHubSource = _buttonChannelHubSource,
                 _advancePhase = _advancePhase,
                 _requirePhaseTransition = _requirePhaseTransition,
                 _autoPushModalLayer = _autoPushModalLayer,

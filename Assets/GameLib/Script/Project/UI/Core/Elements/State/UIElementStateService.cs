@@ -11,6 +11,480 @@ using Game;
 
 namespace Game.UI
 {
+    public readonly struct UINodeHandle : IEquatable<UINodeHandle>
+    {
+        readonly int _value;
+
+        public UINodeHandle(int value)
+        {
+            _value = value;
+        }
+
+        public int Value => _value;
+        public bool IsValid => _value > 0;
+        public static UINodeHandle Invalid => default;
+
+        public bool Equals(UINodeHandle other) => _value == other._value;
+        public override bool Equals(object? obj) => obj is UINodeHandle other && Equals(other);
+        public override int GetHashCode() => _value;
+        public override string ToString() => IsValid ? $"ui-node:{_value}" : "ui-node:invalid";
+
+        public static bool operator ==(UINodeHandle left, UINodeHandle right) => left.Equals(right);
+        public static bool operator !=(UINodeHandle left, UINodeHandle right) => !left.Equals(right);
+    }
+
+    public interface IUIHandleNode
+    {
+        UINodeHandle NodeHandle { get; }
+    }
+
+    public interface IUINodeGraphService
+    {
+        int NodeCount { get; }
+        int Version { get; }
+
+        UINodeHandle RegisterNode(
+            IScopeNode owner,
+            IUIElementState state,
+            UIElementStateMB? sourceComponent,
+            NavigationOverride? navigationOverride);
+
+        void UnregisterNode(UINodeHandle handle, IScopeNode owner, UIElementStateMB? sourceComponent);
+        bool TryGetHandle(IScopeNode owner, out UINodeHandle handle);
+        bool TryGetOwner(UINodeHandle handle, out IScopeNode owner);
+        bool TryGetState(UINodeHandle handle, out IUIElementState state);
+        bool TryGetParentHandle(UINodeHandle handle, out UINodeHandle parent);
+        bool TryGetRootHandle(UINodeHandle handle, out UINodeHandle root);
+        bool TryGetDepth(UINodeHandle handle, out int depth);
+        bool IsSameOrDescendant(UINodeHandle handle, UINodeHandle ancestor);
+        bool TryGetNavigationTarget(UINodeHandle handle, NavigateDirection direction, out UINodeHandle target);
+    }
+
+    public interface IUINodeGraphTelemetry
+    {
+        int NodeCount { get; }
+        int Version { get; }
+        bool TryGetHandle(IScopeNode owner, out UINodeHandle handle);
+        bool TryGetOwner(UINodeHandle handle, out IScopeNode owner);
+        bool TryGetParentHandle(UINodeHandle handle, out UINodeHandle parent);
+        bool TryGetRootHandle(UINodeHandle handle, out UINodeHandle root);
+        bool TryGetDepth(UINodeHandle handle, out int depth);
+        bool IsSameOrDescendant(UINodeHandle handle, UINodeHandle ancestor);
+        bool TryGetNavigationTarget(UINodeHandle handle, NavigateDirection direction, out UINodeHandle target);
+    }
+
+    public sealed class UINodeGraphService : IUINodeGraphService, IUINodeGraphTelemetry
+    {
+        sealed class NodeRecord
+        {
+            public NodeRecord(UINodeHandle handle, IScopeNode owner, IUIElementState state, UIElementStateMB? sourceComponent)
+            {
+                Handle = handle;
+                Owner = owner;
+                State = state;
+                SourceComponent = sourceComponent;
+            }
+
+            public UINodeHandle Handle { get; }
+            public IScopeNode Owner { get; }
+            public IUIElementState State { get; set; }
+            public UIElementStateMB? SourceComponent { get; set; }
+            public UINodeHandle ParentHandle { get; set; }
+            public UINodeHandle RootHandle { get; set; }
+            public int Depth { get; set; }
+            public UINodeHandle UpHandle { get; set; }
+            public UINodeHandle DownHandle { get; set; }
+            public UINodeHandle LeftHandle { get; set; }
+            public UINodeHandle RightHandle { get; set; }
+
+            public void ClearNavigation()
+            {
+                UpHandle = UINodeHandle.Invalid;
+                DownHandle = UINodeHandle.Invalid;
+                LeftHandle = UINodeHandle.Invalid;
+                RightHandle = UINodeHandle.Invalid;
+            }
+
+            public bool TryGetNavigationTarget(NavigateDirection direction, out UINodeHandle target)
+            {
+                target = direction switch
+                {
+                    NavigateDirection.Up => UpHandle,
+                    NavigateDirection.Down => DownHandle,
+                    NavigateDirection.Left => LeftHandle,
+                    NavigateDirection.Right => RightHandle,
+                    _ => UINodeHandle.Invalid,
+                };
+
+                return target.IsValid;
+            }
+
+            public void SetNavigationTarget(NavigateDirection direction, UINodeHandle target)
+            {
+                switch (direction)
+                {
+                    case NavigateDirection.Up:
+                        UpHandle = target;
+                        break;
+                    case NavigateDirection.Down:
+                        DownHandle = target;
+                        break;
+                    case NavigateDirection.Left:
+                        LeftHandle = target;
+                        break;
+                    case NavigateDirection.Right:
+                        RightHandle = target;
+                        break;
+                }
+            }
+
+            public void RemoveNavigationTarget(UINodeHandle target)
+            {
+                if (UpHandle == target)
+                    UpHandle = UINodeHandle.Invalid;
+                if (DownHandle == target)
+                    DownHandle = UINodeHandle.Invalid;
+                if (LeftHandle == target)
+                    LeftHandle = UINodeHandle.Invalid;
+                if (RightHandle == target)
+                    RightHandle = UINodeHandle.Invalid;
+            }
+        }
+
+        readonly struct PendingNavigationLink
+        {
+            public PendingNavigationLink(UINodeHandle sourceHandle, NavigateDirection direction)
+            {
+                SourceHandle = sourceHandle;
+                Direction = direction;
+            }
+
+            public UINodeHandle SourceHandle { get; }
+            public NavigateDirection Direction { get; }
+        }
+
+        readonly Dictionary<IScopeNode, NodeRecord> _recordsByOwner = new(ReferenceEqualityComparer<IScopeNode>.Instance);
+        readonly List<NodeRecord?> _recordsByHandle = new();
+        readonly Dictionary<UIElementStateMB, UINodeHandle> _handlesByComponent = new();
+        readonly Dictionary<UIElementStateMB, List<PendingNavigationLink>> _pendingByTargetComponent = new();
+        int _nextHandleValue = 1;
+        int _nodeCount;
+        int _version;
+
+        public int NodeCount => _nodeCount;
+        public int Version => _version;
+
+        public UINodeHandle RegisterNode(
+            IScopeNode owner,
+            IUIElementState state,
+            UIElementStateMB? sourceComponent,
+            NavigationOverride? navigationOverride)
+        {
+            if (owner == null)
+                throw new ArgumentNullException(nameof(owner));
+
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
+
+            if (_recordsByOwner.TryGetValue(owner, out var existing))
+            {
+                var previousComponent = existing.SourceComponent;
+                if (previousComponent != null && !ReferenceEquals(previousComponent, sourceComponent))
+                    _handlesByComponent.Remove(previousComponent);
+
+                existing.State = state;
+                existing.SourceComponent = sourceComponent;
+                if (sourceComponent != null)
+                    _handlesByComponent[sourceComponent] = existing.Handle;
+
+                existing.ClearNavigation();
+                RemovePendingForSource(existing.Handle);
+                ApplyNavigationOverride(existing, navigationOverride);
+                RefreshHierarchyMetadata();
+                ResolvePendingForTarget(sourceComponent, existing.Handle);
+                _version++;
+                return existing.Handle;
+            }
+
+            var handle = new UINodeHandle(_nextHandleValue++);
+            var record = new NodeRecord(handle, owner, state, sourceComponent);
+            _recordsByOwner.Add(owner, record);
+            _recordsByHandle.Add(record);
+            _nodeCount++;
+
+            if (sourceComponent != null)
+                _handlesByComponent[sourceComponent] = handle;
+
+            ApplyNavigationOverride(record, navigationOverride);
+            RefreshHierarchyMetadata();
+            ResolvePendingForTarget(sourceComponent, handle);
+            _version++;
+            return handle;
+        }
+
+        public void UnregisterNode(UINodeHandle handle, IScopeNode owner, UIElementStateMB? sourceComponent)
+        {
+            if (!handle.IsValid)
+                return;
+
+            if (!TryGetRecord(handle, out var record))
+                return;
+
+            if (!ReferenceEquals(record.Owner, owner))
+                return;
+
+            _recordsByHandle[handle.Value - 1] = null;
+            _recordsByOwner.Remove(owner);
+            _nodeCount--;
+
+            var resolvedComponent = record.SourceComponent ?? sourceComponent;
+            if (resolvedComponent != null && _handlesByComponent.TryGetValue(resolvedComponent, out var componentHandle) && componentHandle == handle)
+                _handlesByComponent.Remove(resolvedComponent);
+
+            record.ClearNavigation();
+            RemoveIncomingReferences(handle);
+            RemovePendingForSource(handle);
+            RefreshHierarchyMetadata();
+            _version++;
+        }
+
+        public bool TryGetHandle(IScopeNode owner, out UINodeHandle handle)
+        {
+            if (owner != null && _recordsByOwner.TryGetValue(owner, out var record))
+            {
+                handle = record.Handle;
+                return true;
+            }
+
+            handle = UINodeHandle.Invalid;
+            return false;
+        }
+
+        public bool TryGetOwner(UINodeHandle handle, out IScopeNode owner)
+        {
+            if (TryGetRecord(handle, out var record))
+            {
+                owner = record.Owner;
+                return true;
+            }
+
+            owner = null!;
+            return false;
+        }
+
+        public bool TryGetState(UINodeHandle handle, out IUIElementState state)
+        {
+            if (TryGetRecord(handle, out var record))
+            {
+                state = record.State;
+                return true;
+            }
+
+            state = null!;
+            return false;
+        }
+
+        public bool TryGetParentHandle(UINodeHandle handle, out UINodeHandle parent)
+        {
+            parent = UINodeHandle.Invalid;
+            if (!TryGetRecord(handle, out var record))
+                return false;
+
+            parent = record.ParentHandle;
+            return parent.IsValid;
+        }
+
+        public bool TryGetRootHandle(UINodeHandle handle, out UINodeHandle root)
+        {
+            root = UINodeHandle.Invalid;
+            if (!TryGetRecord(handle, out var record))
+                return false;
+
+            root = record.RootHandle.IsValid ? record.RootHandle : record.Handle;
+            return true;
+        }
+
+        public bool TryGetDepth(UINodeHandle handle, out int depth)
+        {
+            depth = 0;
+            if (!TryGetRecord(handle, out var record))
+                return false;
+
+            depth = record.Depth;
+            return true;
+        }
+
+        public bool IsSameOrDescendant(UINodeHandle handle, UINodeHandle ancestor)
+        {
+            if (!handle.IsValid || !ancestor.IsValid)
+                return false;
+
+            if (!TryGetRecord(handle, out var record))
+                return false;
+
+            if (record.Handle == ancestor)
+                return true;
+
+            if (record.RootHandle != ancestor && !TryGetRecord(ancestor, out _))
+                return false;
+
+            var current = record.ParentHandle;
+            while (current.IsValid)
+            {
+                if (current == ancestor)
+                    return true;
+
+                if (!TryGetRecord(current, out var currentRecord))
+                    return false;
+
+                current = currentRecord.ParentHandle;
+            }
+
+            return false;
+        }
+
+        public bool TryGetNavigationTarget(UINodeHandle handle, NavigateDirection direction, out UINodeHandle target)
+        {
+            if (TryGetRecord(handle, out var record) && record.TryGetNavigationTarget(direction, out target))
+                return true;
+
+            target = UINodeHandle.Invalid;
+            return false;
+        }
+
+        void ApplyNavigationOverride(NodeRecord source, NavigationOverride? navigationOverride)
+        {
+            if (navigationOverride == null)
+                return;
+
+            ApplyNavigationLink(source, navigationOverride, NavigateDirection.Up);
+            ApplyNavigationLink(source, navigationOverride, NavigateDirection.Down);
+            ApplyNavigationLink(source, navigationOverride, NavigateDirection.Left);
+            ApplyNavigationLink(source, navigationOverride, NavigateDirection.Right);
+        }
+
+        void ApplyNavigationLink(NodeRecord source, NavigationOverride navigationOverride, NavigateDirection direction)
+        {
+            var targetComponent = navigationOverride.GetOverrideElement(direction);
+            if (targetComponent == null)
+                return;
+
+            if (_handlesByComponent.TryGetValue(targetComponent, out var targetHandle) && targetHandle.IsValid)
+            {
+                source.SetNavigationTarget(direction, targetHandle);
+                return;
+            }
+
+            if (!_pendingByTargetComponent.TryGetValue(targetComponent, out var pending))
+            {
+                pending = new List<PendingNavigationLink>();
+                _pendingByTargetComponent.Add(targetComponent, pending);
+            }
+
+            pending.Add(new PendingNavigationLink(source.Handle, direction));
+        }
+
+        void ResolvePendingForTarget(UIElementStateMB? sourceComponent, UINodeHandle targetHandle)
+        {
+            if (sourceComponent == null)
+                return;
+
+            if (!_pendingByTargetComponent.TryGetValue(sourceComponent, out var pending))
+                return;
+
+            for (int i = 0; i < pending.Count; i++)
+            {
+                var link = pending[i];
+                if (TryGetRecord(link.SourceHandle, out var sourceRecord))
+                    sourceRecord.SetNavigationTarget(link.Direction, targetHandle);
+            }
+
+            _pendingByTargetComponent.Remove(sourceComponent);
+        }
+
+        void RemoveIncomingReferences(UINodeHandle handle)
+        {
+            for (int i = 0; i < _recordsByHandle.Count; i++)
+            {
+                var record = _recordsByHandle[i];
+                if (record == null)
+                    continue;
+
+                record.RemoveNavigationTarget(handle);
+            }
+        }
+
+        void RemovePendingForSource(UINodeHandle sourceHandle)
+        {
+            List<UIElementStateMB>? emptyKeys = null;
+
+            foreach (var pair in _pendingByTargetComponent)
+            {
+                var pending = pair.Value;
+                for (int index = pending.Count - 1; index >= 0; index--)
+                {
+                    if (pending[index].SourceHandle == sourceHandle)
+                        pending.RemoveAt(index);
+                }
+
+                if (pending.Count == 0)
+                {
+                    emptyKeys ??= new List<UIElementStateMB>();
+                    emptyKeys.Add(pair.Key);
+                }
+            }
+
+            if (emptyKeys == null)
+                return;
+
+            for (int i = 0; i < emptyKeys.Count; i++)
+                _pendingByTargetComponent.Remove(emptyKeys[i]);
+        }
+
+        bool TryGetRecord(UINodeHandle handle, out NodeRecord record)
+        {
+            var index = handle.Value - 1;
+            if (!handle.IsValid || index < 0 || index >= _recordsByHandle.Count)
+            {
+                record = null!;
+                return false;
+            }
+
+            record = _recordsByHandle[index]!;
+            return record != null;
+        }
+
+        void RefreshHierarchyMetadata()
+        {
+            for (int i = 0; i < _recordsByHandle.Count; i++)
+            {
+                var record = _recordsByHandle[i];
+                if (record == null)
+                    continue;
+
+                var parentHandle = UINodeHandle.Invalid;
+                var rootHandle = record.Handle;
+                var depth = 0;
+
+                for (var current = record.Owner.Parent; current != null; current = current.Parent)
+                {
+                    if (!_recordsByOwner.TryGetValue(current, out var ancestorRecord))
+                        continue;
+
+                    if (!parentHandle.IsValid)
+                        parentHandle = ancestorRecord.Handle;
+
+                    rootHandle = ancestorRecord.Handle;
+                    depth++;
+                }
+
+                record.ParentHandle = parentHandle;
+                record.RootHandle = rootHandle;
+                record.Depth = depth;
+            }
+        }
+    }
+
     // ================================================================
     // UIElementStateService - UIElement縺ｮ迥ｶ諷九→險ｭ螳壹ｒ邂｡逅・☆繧九し繝ｼ繝薙せ
     // ================================================================
@@ -185,6 +659,18 @@ namespace Game.UI
             };
 
             return ResolveScopeNode(target);
+        }
+
+        internal UIElementStateMB? GetOverrideElement(NavigateDirection direction)
+        {
+            return direction switch
+            {
+                NavigateDirection.Up => Up,
+                NavigateDirection.Down => Down,
+                NavigateDirection.Left => Left,
+                NavigateDirection.Right => Right,
+                _ => null
+            };
         }
 
         /// <summary>
@@ -499,7 +985,7 @@ namespace Game.UI
     /// 險ｭ螳壹・螟画峩縺ｯUIElementStateMB繧帝壹§縺ｦ陦後ｏ繧後・
     /// 縺薙・繧ｵ繝ｼ繝薙せ縺ｫ蜿肴丐縺輔ｌ繧九・
     /// </summary>
-    public sealed class UIElementStateService : IUIElementStateController, IUIModalRoot, IScopeAcquireHandler, IScopeReleaseHandler
+    public sealed class UIElementStateService : IUIElementStateController, IUIModalRoot, IUIHandleNode, IScopeAcquireHandler, IScopeReleaseHandler
     {
         // ----------------------------------------------------------------
         // 繝輔ぅ繝ｼ繝ｫ繝・
@@ -575,6 +1061,12 @@ namespace Game.UI
         /// <summary>Lifecycle 縺ｮ despawn 迥ｶ諷句盾辣ｧ</summary>
         IScopeLifecycleService? _lifecycleService;
 
+        /// <summary>UI graph registry</summary>
+        IUINodeGraphService? _nodeGraph;
+
+        /// <summary>Registered UI node handle</summary>
+        UINodeHandle _nodeHandle;
+
         // ----------------------------------------------------------------
         // 繝励Ο繝代ユ繧｣ - Active/Visible
         // ----------------------------------------------------------------
@@ -588,6 +1080,8 @@ namespace Game.UI
         /// <inheritdoc/>
         public IScopeNode? Owner => _owner;
 
+        public UINodeHandle NodeHandle => _nodeHandle;
+
         /// <inheritdoc/>
         public bool AcceptsInput => IsVisible && IsEffectivelyActive && !IsLifecycleDespawning();
 
@@ -599,10 +1093,15 @@ namespace Game.UI
 
         IScopeNode? IUIModalRoot.OwnerScope => _owner;
 
+        UINodeHandle IUIModalRoot.OwnerHandle => _nodeHandle;
+
         bool IUIModalRoot.IsDescendant(IScopeNode? target)
         {
             if (target == null)
                 return false;
+
+            if (_nodeGraph != null && _nodeHandle.IsValid && _nodeGraph.TryGetHandle(target, out var targetHandle))
+                return _nodeGraph.IsSameOrDescendant(targetHandle, _nodeHandle);
 
             var current = target;
             while (current != null)
@@ -613,6 +1112,14 @@ namespace Game.UI
             }
 
             return false;
+        }
+
+        bool IUIModalRoot.IsDescendant(UINodeHandle target)
+        {
+            if (!target.IsValid || _nodeGraph == null || !_nodeHandle.IsValid)
+                return false;
+
+            return _nodeGraph.IsSameOrDescendant(target, _nodeHandle);
         }
 
         /// <inheritdoc/>
@@ -735,6 +1242,12 @@ namespace Game.UI
             EnsureParentStateCache();
             scope.TryResolveInAncestors<IScopeLifecycleService>(out _lifecycleService);
 
+            if (_nodeGraph == null)
+                scope.TryResolveInAncestors<IUINodeGraphService>(out _nodeGraph);
+
+            if (_nodeGraph != null && !_nodeHandle.IsValid)
+                _nodeHandle = _nodeGraph.RegisterNode(_owner, this, ResolveOwnerComponent(), _navigationOverride);
+
             // selectionState may not have been available at construction time; try resolve from scope's container
             if (_selectionState == null)
             {
@@ -761,10 +1274,23 @@ namespace Game.UI
                 _selectionState.OnSelectionChanged -= HandleSelectionChanged;
             }
 
+            if (_nodeGraph != null && _nodeHandle.IsValid)
+            {
+                _nodeGraph.UnregisterNode(_nodeHandle, _owner, ResolveOwnerComponent());
+                _nodeHandle = UINodeHandle.Invalid;
+            }
+
             UnbindParentState();
             _parentStateCacheResolved = false;
             _effectiveActiveDirty = true;
             _lifecycleService = null;
+        }
+
+        UIElementStateMB? ResolveOwnerComponent()
+        {
+            return _owner.Identity?.SelfTransform != null
+                ? _owner.Identity.SelfTransform.GetComponent<UIElementStateMB>()
+                : null;
         }
 
 

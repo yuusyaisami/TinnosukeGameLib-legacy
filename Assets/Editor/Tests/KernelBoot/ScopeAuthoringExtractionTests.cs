@@ -1,20 +1,38 @@
+#nullable enable
+
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using Game;
 using Game.Kernel.Authoring;
 using Game.Kernel.Boot;
 using Game.Kernel.Contributions;
 using Game.Kernel.Diagnostics;
 using Game.Kernel.IR;
-using Game.UI;
 using NUnit.Framework;
+using TinnosukeGameLib.Editor.KernelBoot;
 using UnityEngine;
 
 using KernelModuleKind = Game.Kernel.IR.ModuleKind;
 using KernelModuleVersion = Game.Kernel.IR.ModuleVersion;
+using Object = UnityEngine.Object;
 
 namespace TinnosukeGameLib.Tests.Editor
 {
     [TestFixture]
     public sealed class ScopeAuthoringExtractionTests
     {
+        const string ButtonChannelHubServiceName = "ButtonChannelHubService";
+        const string ButtonChannelHubServiceContractName = "Game.UI.IButtonChannelHubService";
+        const string ModalStackChannelHubDeclarationTypeName = "Game.UI.ModalStackChannelHubDeclarationMB";
+        const string ModalStackChannelHubServiceName = "ModalStackChannelHubService";
+        const string ModalStackChannelHubServiceContractName = "Game.UI.IModalStackChannelHubService";
+        const string ModalStackChannelTelemetryContractName = "Game.UI.IModalStackChannelTelemetry";
+        const string UISelectionDeclarationTypeName = "Game.UI.UISelectionDeclarationMB";
+        const string UISelectionServiceName = "UISelectionService";
+        const string UISelectionServiceContractName = "Game.UI.IUISelectionService";
+        const string UISelectionTelemetryContractName = "Game.UI.IUISelectionTelemetry";
+
         [Test]
         public void Extraction_UsesExplicitRootsAndStableOrdering()
         {
@@ -311,21 +329,16 @@ namespace TinnosukeGameLib.Tests.Editor
 
                 EntityIdentityMB entity = CreateEntity(rootObject.transform, "NavigationEntity", "entity.navigation", "Assets/Scenes/Navigation.unity", "NavigationRoot/NavigationEntity", 15001);
 
-                GameObject declarationObject = new GameObject("NavigationDecl");
-                declarationObject.transform.SetParent(entity.transform, false);
-
-                UINavigationDeclarationMB declaration = declarationObject.AddComponent<UINavigationDeclarationMB>();
-                declaration.SetEntityIdentity(entity);
-                declaration.SetServiceIds(5101, 5102, 5103, 5104);
-                declaration.SetSourceLocation(
-                    UnityAuthoringSourceKind.SceneObject,
-                    "4f4f3b04b1e44671b9f1b6a8613bb2d6",
-                    "Assets/Scenes/Navigation.unity",
-                    15002,
+                TestNavigationDeclarationMB declaration = CreateNavigationDeclaration(
+                    entity,
+                    "NavigationDecl",
                     "Assets/Scenes/Navigation.unity",
                     "NavigationRoot/NavigationEntity/NavigationDecl",
-                    nameof(UINavigationDeclarationMB),
-                    "declaration");
+                    15002,
+                    5101,
+                    5102,
+                    5103,
+                    5104);
 
                 ScopeAuthoringExtractionReport report = ScopeAuthoringExtractionService.Extract(root);
 
@@ -341,13 +354,151 @@ namespace TinnosukeGameLib.Tests.Editor
                 Assert.That(report.ServiceDeclarations[1].Dependencies.Length, Is.EqualTo(1));
                 Assert.That(report.ServiceDeclarations[1].Dependencies[0].Target, Is.EqualTo(new DependencyNodeIR(new ServiceId(5103))));
                 Assert.That(report.Contributions.Count, Is.EqualTo(1));
-                Assert.That(report.Contributions[0].OwnedContributionKinds.Length, Is.EqualTo(2));
+                Assert.That(report.Contributions[0].OwnedContributionKinds.Length, Is.EqualTo(3));
                 Assert.That(report.Contributions[0].OwnedContributionKinds[0], Is.EqualTo(ContributionKind.ServiceContribution));
                 Assert.That(report.Contributions[0].OwnedContributionKinds[1], Is.EqualTo(ContributionKind.ScopeContribution));
-                Assert.That(report.Contributions[0].Items.Length, Is.EqualTo(3));
+                Assert.That(report.Contributions[0].OwnedContributionKinds[2], Is.EqualTo(ContributionKind.LifecycleContribution));
+                Assert.That(report.Contributions[0].Items.Length, Is.EqualTo(5));
                 Assert.That(report.Contributions[0].Items[0].Kind, Is.EqualTo(ContributionKind.ServiceContribution));
                 Assert.That(report.Contributions[0].Items[1].Kind, Is.EqualTo(ContributionKind.ServiceContribution));
                 Assert.That(report.Contributions[0].Items[2].Kind, Is.EqualTo(ContributionKind.ScopeContribution));
+                Assert.That(report.Contributions[0].Items[3].Kind, Is.EqualTo(ContributionKind.LifecycleContribution));
+                Assert.That(report.Contributions[0].Items[4].Kind, Is.EqualTo(ContributionKind.LifecycleContribution));
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void Extraction_CollectsButtonChannelHubServiceDeclaration()
+        {
+            GameObject rootObject = new GameObject("ButtonChannelRoot");
+
+            try
+            {
+                ScopeAuthoringRoot root = rootObject.AddComponent<ScopeAuthoringRoot>();
+                ConfigureRoot(root, 86, "ButtonChannelModule", "Assets/Scenes/ButtonChannel.unity", "ButtonChannelRoot", "ScopeAuthoringRoot", "module");
+                CreateLink(rootObject.transform, "ScopeLink", 55, "Assets/Scenes/ButtonChannel.unity", "ButtonChannelRoot/ScopeLink", "ScopeAuthoringLink", "scope");
+
+                EntityIdentityMB entity = CreateEntity(rootObject.transform, "ButtonEntity", "entity.button", "Assets/Scenes/ButtonChannel.unity", "ButtonChannelRoot/ButtonEntity", 17001);
+
+                TestButtonChannelHubDeclarationMB declaration = CreateButtonChannelHubDeclaration(
+                    entity,
+                    "ButtonChannelDecl",
+                    "Assets/Scenes/ButtonChannel.unity",
+                    "ButtonChannelRoot/ButtonEntity/ButtonChannelDecl",
+                    17002,
+                    5301);
+
+                ScopeAuthoringExtractionReport report = ScopeAuthoringExtractionService.Extract(root);
+
+                Assert.That(report.IsValid, Is.True);
+                Assert.That(report.DeclarationInputs.Count, Is.EqualTo(1));
+                Assert.That(report.ServiceDeclarations.Count, Is.EqualTo(1));
+                Assert.That(report.ServiceDeclarations[0].ServiceId, Is.EqualTo(new ServiceId(5301)));
+                Assert.That(report.ServiceDeclarations[0].OwnerEntityRef.Value, Is.EqualTo("entity.button"));
+                Assert.That(report.ServiceDeclarations[0].ServiceName, Is.EqualTo(ButtonChannelHubServiceName));
+                Assert.That(report.ServiceDeclarations[0].ContractNames.Length, Is.EqualTo(1));
+                Assert.That(report.ServiceDeclarations[0].ContractNames[0], Is.EqualTo(ButtonChannelHubServiceContractName));
+                Assert.That(report.Contributions.Count, Is.EqualTo(1));
+                Assert.That(report.Contributions[0].Items.Length, Is.EqualTo(2));
+                Assert.That(report.Contributions[0].Items[1].Kind, Is.EqualTo(ContributionKind.ServiceContribution));
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void Extraction_AutoMigratesLegacyButtonChannelHubBindings()
+        {
+            GameObject rootObject = new GameObject("ButtonChannelMigrationRoot");
+
+            try
+            {
+                ScopeAuthoringRoot root = rootObject.AddComponent<ScopeAuthoringRoot>();
+                ConfigureRoot(root, 87, "ButtonChannelMigrationModule", "Assets/Scenes/ButtonChannelMigration.unity", "ButtonChannelMigrationRoot", "ScopeAuthoringRoot", "module");
+                CreateLink(rootObject.transform, "ScopeLink", 56, "Assets/Scenes/ButtonChannelMigration.unity", "ButtonChannelMigrationRoot/ScopeLink", "ScopeAuthoringLink", "scope");
+
+                EntityIdentityMB entity = CreateEntity(rootObject.transform, "ButtonEntity", "entity.button.migration", "Assets/Scenes/ButtonChannelMigration.unity", "ButtonChannelMigrationRoot/ButtonEntity", 17011);
+
+                TestButtonChannelHubDeclarationMB declaration = CreateButtonChannelHubDeclaration(
+                    entity,
+                    "ButtonChannelDecl",
+                    "Assets/Scenes/ButtonChannelMigration.unity",
+                    "ButtonChannelMigrationRoot/ButtonEntity/ButtonChannelDecl",
+                    17012,
+                    0);
+
+#if UNITY_EDITOR
+                declaration.EnsureLegacyMigrationBindings();
+#endif
+
+                ScopeAuthoringExtractionReport report = ScopeAuthoringExtractionService.Extract(root);
+
+                Assert.That(report.IsValid, Is.True);
+                Assert.That(report.ServiceDeclarations.Count, Is.EqualTo(1));
+                Assert.That(declaration.ButtonChannelHubServiceId, Is.GreaterThan(0));
+                Assert.That(report.ServiceDeclarations[0].ServiceId, Is.EqualTo(new ServiceId(declaration.ButtonChannelHubServiceId)));
+                Assert.That(report.ServiceDeclarations[0].OwnerEntityRef.Value, Is.EqualTo("entity.button.migration"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void Extraction_CollectsSelectionAndModalHubDeclarations()
+        {
+            GameObject rootObject = new GameObject("UISelectionRoot");
+
+            try
+            {
+                ScopeAuthoringRoot root = rootObject.AddComponent<ScopeAuthoringRoot>();
+                ConfigureRoot(root, 88, "UISelectionModule", "Assets/Scenes/UISelection.unity", "UISelectionRoot", "ScopeAuthoringRoot", "module");
+                CreateLink(rootObject.transform, "ScopeLink", 57, "Assets/Scenes/UISelection.unity", "UISelectionRoot/ScopeLink", "ScopeAuthoringLink", "scope");
+
+                EntityIdentityMB entity = CreateEntity(rootObject.transform, "UIEntity", "entity.ui.selection", "Assets/Scenes/UISelection.unity", "UISelectionRoot/UIEntity", 18001);
+
+                _ = CreateModalStackChannelHubDeclaration(
+                    entity,
+                    "ModalDecl",
+                    "Assets/Scenes/UISelection.unity",
+                    "UISelectionRoot/UIEntity/ModalDecl",
+                    18002,
+                    5401);
+
+                _ = CreateUISelectionDeclaration(
+                    entity,
+                    "SelectionDecl",
+                    "Assets/Scenes/UISelection.unity",
+                    "UISelectionRoot/UIEntity/SelectionDecl",
+                    18003,
+                    5402,
+                    5401);
+
+                ScopeAuthoringExtractionReport report = ScopeAuthoringExtractionService.Extract(root);
+
+                Assert.That(report.IsValid, Is.True);
+                Assert.That(report.ServiceDeclarations.Count, Is.EqualTo(2));
+
+                EntityServiceDeclarationInput modalDeclaration = FindServiceDeclaration(report, 5401);
+                EntityServiceDeclarationInput selectionDeclaration = FindServiceDeclaration(report, 5402);
+
+                Assert.That(modalDeclaration.ServiceName, Is.EqualTo(ModalStackChannelHubServiceName));
+                Assert.That(ContainsText(modalDeclaration.ContractNames, ModalStackChannelHubServiceContractName), Is.True);
+                Assert.That(ContainsText(modalDeclaration.ContractNames, ModalStackChannelTelemetryContractName), Is.True);
+                Assert.That(modalDeclaration.Dependencies.Length, Is.EqualTo(0));
+
+                Assert.That(selectionDeclaration.ServiceName, Is.EqualTo(UISelectionServiceName));
+                Assert.That(ContainsText(selectionDeclaration.ContractNames, UISelectionServiceContractName), Is.True);
+                Assert.That(ContainsText(selectionDeclaration.ContractNames, UISelectionTelemetryContractName), Is.True);
+                Assert.That(selectionDeclaration.Dependencies.Length, Is.EqualTo(1));
+                Assert.That(selectionDeclaration.Dependencies[0].Target, Is.EqualTo(new DependencyNodeIR(new ServiceId(5401))));
             }
             finally
             {
@@ -369,7 +520,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 EntityIdentityMB firstEntity = CreateEntity(rootObject.transform, "FirstEntity", "entity.first", "Assets/Scenes/NavigationDuplicate.unity", "NavigationDuplicateRoot/FirstEntity", 16001);
                 EntityIdentityMB secondEntity = CreateEntity(rootObject.transform, "SecondEntity", "entity.second", "Assets/Scenes/NavigationDuplicate.unity", "NavigationDuplicateRoot/SecondEntity", 16002);
 
-                UINavigationDeclarationMB firstDeclaration = CreateNavigationDeclaration(firstEntity, "FirstDecl", "Assets/Scenes/NavigationDuplicate.unity", "NavigationDuplicateRoot/FirstEntity/FirstDecl", 16003, 5201, 5202, 5203, 5204);
+                TestNavigationDeclarationMB firstDeclaration = CreateNavigationDeclaration(firstEntity, "FirstDecl", "Assets/Scenes/NavigationDuplicate.unity", "NavigationDuplicateRoot/FirstEntity/FirstDecl", 16003, 5201, 5202, 5203, 5204);
                 _ = firstDeclaration;
                 CreateNavigationDeclaration(secondEntity, "SecondDecl", "Assets/Scenes/NavigationDuplicate.unity", "NavigationDuplicateRoot/SecondEntity/SecondDecl", 16004, 5201, 5205, 5206, 5207);
 
@@ -434,9 +585,55 @@ namespace TinnosukeGameLib.Tests.Editor
             }
         }
 
+        [Test]
+        public void Extraction_TreatsOnlyExplicitChildEntityIdentitiesAsSeparateEntities()
+        {
+            GameObject rootObject = new GameObject("EntityHierarchyRoot");
+
+            try
+            {
+                ScopeAuthoringRoot root = rootObject.AddComponent<ScopeAuthoringRoot>();
+                ConfigureRoot(root, 85, "EntityHierarchyModule", "Assets/Scenes/EntityHierarchy.unity", "EntityHierarchyRoot", "ScopeAuthoringRoot", "module");
+
+                EntityIdentityMB parentEntity = CreateEntity(rootObject.transform, "ParentEntity", "entity.parent", "Assets/Scenes/EntityHierarchy.unity", "EntityHierarchyRoot/ParentEntity", 18001);
+
+                GameObject childWithoutIdentity = new GameObject("ChildWithoutIdentity");
+                childWithoutIdentity.transform.SetParent(parentEntity.transform, false);
+
+                GameObject declarationObject = new GameObject("NestedDecl");
+                declarationObject.transform.SetParent(childWithoutIdentity.transform, false);
+                TestEntityDeclarationMB nestedDeclaration = declarationObject.AddComponent<TestEntityDeclarationMB>();
+                nestedDeclaration.SetEntityIdentity(parentEntity);
+                nestedDeclaration.SetSourceLocation(
+                    UnityAuthoringSourceKind.SceneObject,
+                    "4f4f3b04b1e44671b9f1b6a8613bb2d6",
+                    "Assets/Scenes/EntityHierarchy.unity",
+                    18002,
+                    "Assets/Scenes/EntityHierarchy.unity",
+                    "EntityHierarchyRoot/ParentEntity/ChildWithoutIdentity/NestedDecl",
+                    nameof(TestEntityDeclarationMB),
+                    "declaration");
+
+                EntityIdentityMB childEntity = CreateEntity(parentEntity.transform, "ChildEntity", "entity.child", "Assets/Scenes/EntityHierarchy.unity", "EntityHierarchyRoot/ParentEntity/ChildEntity", 18003);
+
+                ScopeAuthoringExtractionReport report = ScopeAuthoringExtractionService.Extract(root);
+
+                Assert.That(report.IsValid, Is.True);
+                Assert.That(report.EntityInputs.Count, Is.EqualTo(2));
+                Assert.That(report.EntityInputs[0].EntityRef.Value, Is.EqualTo("entity.child"));
+                Assert.That(report.EntityInputs[1].EntityRef.Value, Is.EqualTo("entity.parent"));
+                Assert.That(report.DeclarationInputs.Count, Is.EqualTo(1));
+                Assert.That(report.DeclarationInputs[0].OwnerEntityRef.Value, Is.EqualTo("entity.parent"));
+            }
+            finally
+            {
+                Object.DestroyImmediate(rootObject);
+            }
+        }
+
         static void ConfigureRoot(ScopeAuthoringRoot root, int moduleId, string moduleName, string assetPath, string gameObjectPath, string componentType, string propertyPath)
         {
-            root.SetModuleMetadata(moduleId, moduleName, KernelModuleKind.Feature, new KernelModuleVersion(1));
+            root.SetModuleMetadata(moduleId, moduleName, KernelModuleKind.Feature, 1);
             root.SetContributionAvailability("Battle", "Windows", "Desktop", ContributionEnvironment.Release);
             root.SetSourceLocation(
                 UnityAuthoringSourceKind.SceneObject,
@@ -487,12 +684,12 @@ namespace TinnosukeGameLib.Tests.Editor
             return entity;
         }
 
-        static UINavigationDeclarationMB CreateNavigationDeclaration(EntityIdentityMB entity, string name, string assetPath, string gameObjectPath, long localFileId, int navigationServiceId, int inputNavigateServiceId, int selectionServiceId, int controlSchemeServiceId)
+        static TestNavigationDeclarationMB CreateNavigationDeclaration(EntityIdentityMB entity, string name, string assetPath, string gameObjectPath, long localFileId, int navigationServiceId, int inputNavigateServiceId, int selectionServiceId, int controlSchemeServiceId)
         {
             GameObject declarationObject = new GameObject(name);
             declarationObject.transform.SetParent(entity.transform, false);
 
-            UINavigationDeclarationMB declaration = declarationObject.AddComponent<UINavigationDeclarationMB>();
+            TestNavigationDeclarationMB declaration = declarationObject.AddComponent<TestNavigationDeclarationMB>();
             declaration.SetEntityIdentity(entity);
             declaration.SetServiceIds(navigationServiceId, inputNavigateServiceId, selectionServiceId, controlSchemeServiceId);
             declaration.SetSourceLocation(
@@ -502,9 +699,124 @@ namespace TinnosukeGameLib.Tests.Editor
                 localFileId,
                 assetPath,
                 gameObjectPath,
-                nameof(UINavigationDeclarationMB),
+                nameof(TestNavigationDeclarationMB),
                 "declaration");
             return declaration;
+        }
+
+        static TestButtonChannelHubDeclarationMB CreateButtonChannelHubDeclaration(EntityIdentityMB entity, string name, string assetPath, string gameObjectPath, long localFileId, int serviceId)
+        {
+            GameObject declarationObject = new GameObject(name);
+            declarationObject.transform.SetParent(entity.transform, false);
+
+            TestButtonChannelHubDeclarationMB declaration = declarationObject.AddComponent<TestButtonChannelHubDeclarationMB>();
+            declaration.SetEntityIdentity(entity);
+            declaration.SetServiceId(serviceId);
+            declaration.SetSourceLocation(
+                UnityAuthoringSourceKind.SceneObject,
+                "4f4f3b04b1e44671b9f1b6a8613bb2d6",
+                assetPath,
+                localFileId,
+                assetPath,
+                gameObjectPath,
+                nameof(TestButtonChannelHubDeclarationMB),
+                "declaration");
+            return declaration;
+        }
+
+        static EntityDeclarationMB CreateModalStackChannelHubDeclaration(EntityIdentityMB entity, string name, string assetPath, string gameObjectPath, long localFileId, int serviceId)
+        {
+            GameObject declarationObject = new GameObject(name);
+            declarationObject.transform.SetParent(entity.transform, false);
+
+            EntityDeclarationMB declaration = AddRuntimeDeclarationComponent(declarationObject, ModalStackChannelHubDeclarationTypeName);
+            declaration.SetEntityIdentity(entity);
+            InvokeRequiredMethod(declaration, "SetServiceId", serviceId);
+            declaration.SetSourceLocation(
+                UnityAuthoringSourceKind.SceneObject,
+                "4f4f3b04b1e44671b9f1b6a8613bb2d6",
+                assetPath,
+                localFileId,
+                assetPath,
+                gameObjectPath,
+                declaration.GetType().Name,
+                "declaration");
+            return declaration;
+        }
+
+        static EntityDeclarationMB CreateUISelectionDeclaration(EntityIdentityMB entity, string name, string assetPath, string gameObjectPath, long localFileId, int selectionServiceId, int modalStackServiceId)
+        {
+            GameObject declarationObject = new GameObject(name);
+            declarationObject.transform.SetParent(entity.transform, false);
+
+            EntityDeclarationMB declaration = AddRuntimeDeclarationComponent(declarationObject, UISelectionDeclarationTypeName);
+            declaration.SetEntityIdentity(entity);
+            InvokeRequiredMethod(declaration, "SetServiceIds", selectionServiceId, modalStackServiceId);
+            declaration.SetSourceLocation(
+                UnityAuthoringSourceKind.SceneObject,
+                "4f4f3b04b1e44671b9f1b6a8613bb2d6",
+                assetPath,
+                localFileId,
+                assetPath,
+                gameObjectPath,
+                declaration.GetType().Name,
+                "declaration");
+            return declaration;
+        }
+
+        static EntityDeclarationMB AddRuntimeDeclarationComponent(GameObject target, string fullTypeName)
+        {
+            Type type = ResolveRuntimeType(fullTypeName);
+            Component component = target.AddComponent(type);
+            if (component is not EntityDeclarationMB declaration)
+                throw new AssertionException($"{fullTypeName} must derive from {nameof(EntityDeclarationMB)}.");
+
+            return declaration;
+        }
+
+        static Type ResolveRuntimeType(string fullTypeName)
+        {
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            for (int index = 0; index < assemblies.Length; index++)
+            {
+                Type? resolved = assemblies[index].GetType(fullTypeName, throwOnError: false);
+                if (resolved != null)
+                    return resolved;
+            }
+
+            throw new AssertionException($"Missing runtime type: {fullTypeName}");
+        }
+
+        static void InvokeRequiredMethod(object target, string methodName, params object[] args)
+        {
+            MethodInfo? method = target.GetType().GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public);
+            if (method == null)
+                throw new AssertionException($"Missing method {methodName} on {target.GetType().FullName}.");
+
+            method.Invoke(target, args);
+        }
+
+        static bool ContainsText(ReadOnlySpan<string> values, string expected)
+        {
+            for (int index = 0; index < values.Length; index++)
+            {
+                if (string.Equals(values[index], expected, StringComparison.Ordinal))
+                    return true;
+            }
+
+            return false;
+        }
+
+        static EntityServiceDeclarationInput FindServiceDeclaration(ScopeAuthoringExtractionReport report, int serviceId)
+        {
+            for (int index = 0; index < report.ServiceDeclarations.Count; index++)
+            {
+                EntityServiceDeclarationInput declaration = report.ServiceDeclarations[index];
+                if (declaration.ServiceId == new ServiceId(serviceId))
+                    return declaration;
+            }
+
+            throw new AssertionException("Missing service declaration: " + serviceId);
         }
 
         static bool HasPayloadEntry(KernelDiagnostic diagnostic, string key)
@@ -521,6 +833,228 @@ namespace TinnosukeGameLib.Tests.Editor
 
         sealed class TestEntityDeclarationMB : EntityDeclarationMB
         {
+        }
+
+        sealed class TestNavigationDeclarationMB : EntityDeclarationMB, IEntityServiceDeclarationAuthoring
+        {
+            [SerializeField]
+            int navigationServiceId;
+
+            [SerializeField]
+            int inputNavigateServiceId;
+
+            [SerializeField]
+            int selectionServiceId;
+
+            [SerializeField]
+            int controlSchemeServiceId;
+
+#if UNITY_EDITOR
+            public void SetServiceIds(int newNavigationServiceId, int newInputNavigateServiceId, int newSelectionServiceId, int newControlSchemeServiceId)
+            {
+                if (Application.isPlaying)
+                    throw new InvalidOperationException("Test authoring state may only be mutated in edit mode.");
+
+                navigationServiceId = newNavigationServiceId;
+                inputNavigateServiceId = newInputNavigateServiceId;
+                selectionServiceId = newSelectionServiceId;
+                controlSchemeServiceId = newControlSchemeServiceId;
+            }
+#endif
+
+            public bool TryCreateServiceDeclarations(in EntityDeclarationPlanInput declarationInput, out EntityServiceDeclarationInput[] declarations, out string failureReason)
+            {
+                if (navigationServiceId <= 0 || inputNavigateServiceId <= 0 || selectionServiceId <= 0 || controlSchemeServiceId <= 0)
+                {
+                    declarations = System.Array.Empty<EntityServiceDeclarationInput>();
+                    failureReason = "TestNavigationDeclarationMB requires positive service ids.";
+                    return false;
+                }
+
+                if (navigationServiceId == inputNavigateServiceId
+                    || navigationServiceId == selectionServiceId
+                    || navigationServiceId == controlSchemeServiceId
+                    || inputNavigateServiceId == selectionServiceId
+                    || inputNavigateServiceId == controlSchemeServiceId
+                    || selectionServiceId == controlSchemeServiceId)
+                {
+                    declarations = System.Array.Empty<EntityServiceDeclarationInput>();
+                    failureReason = "TestNavigationDeclarationMB requires distinct service ids.";
+                    return false;
+                }
+
+                declarations = new[]
+                {
+                    new EntityServiceDeclarationInput(
+                        declarationInput.OwnerModule,
+                        declarationInput.OwnerEntityRef,
+                        new ServiceId(navigationServiceId),
+                        CreateStableId(declarationInput.OwnerEntityRef, navigationServiceId, "navigation"),
+                        "UINavigationService",
+                        "test-navigation",
+                        new[]
+                        {
+                            "Game.UI.IUINavigationService",
+                            "Game.UI.IUINavigationTelemetry",
+                        },
+                        new[]
+                        {
+                            new EntityServiceDependencyInput(new DependencyNodeIR(new ServiceId(selectionServiceId)), DependencyStrength.Required),
+                            new EntityServiceDependencyInput(new DependencyNodeIR(new ServiceId(controlSchemeServiceId)), DependencyStrength.Required),
+                            new EntityServiceDependencyInput(new DependencyNodeIR(new ServiceId(inputNavigateServiceId)), DependencyStrength.Required),
+                        },
+                        System.Array.Empty<ServiceLifecycleContributionInput>(),
+                        SourceKind,
+                        ServiceLifetimeKind.Singleton,
+                        ServiceFactoryKind.GeneratedFactory,
+                        declarationInput.Source),
+                    new EntityServiceDeclarationInput(
+                        declarationInput.OwnerModule,
+                        declarationInput.OwnerEntityRef,
+                        new ServiceId(inputNavigateServiceId),
+                        CreateStableId(declarationInput.OwnerEntityRef, inputNavigateServiceId, "input-navigate"),
+                        "UIInputNavigateManagerService",
+                        "test-input-navigate",
+                        new[]
+                        {
+                            "Game.UI.IUIInputNavigateService",
+                        },
+                        new[]
+                        {
+                            new EntityServiceDependencyInput(new DependencyNodeIR(new ServiceId(selectionServiceId)), DependencyStrength.Required),
+                        },
+                        new[]
+                        {
+                            new ServiceLifecycleContributionInput(
+                                LifecyclePhase.Acquire,
+                                10,
+                                LifecycleActionKind.ServiceMethod,
+                                CreateLifecycleStableId(declarationInput.OwnerEntityRef, inputNavigateServiceId, "acquire"),
+                                "IUIInputNavigateService.Acquire",
+                                declarationInput.Source),
+                            new ServiceLifecycleContributionInput(
+                                LifecyclePhase.Release,
+                                10,
+                                LifecycleActionKind.ServiceMethod,
+                                CreateLifecycleStableId(declarationInput.OwnerEntityRef, inputNavigateServiceId, "release"),
+                                "IUIInputNavigateService.Release",
+                                declarationInput.Source),
+                        },
+                        SourceKind,
+                        ServiceLifetimeKind.Singleton,
+                        ServiceFactoryKind.GeneratedFactory,
+                        declarationInput.Source),
+                };
+
+                failureReason = string.Empty;
+                return true;
+            }
+
+            static string CreateStableId(Game.Kernel.Abstractions.EntityRef ownerEntityRef, int serviceId, string suffix)
+            {
+                return "entity-service:" + ownerEntityRef.Value + ':' + suffix + ':' + serviceId.ToString("D10");
+            }
+
+            static string CreateLifecycleStableId(Game.Kernel.Abstractions.EntityRef ownerEntityRef, int serviceId, string phase)
+            {
+                return "entity-lifecycle:" + ownerEntityRef.Value + ':' + serviceId.ToString("D10") + ':' + phase;
+            }
+        }
+
+        sealed class TestButtonChannelHubDeclarationMB : EntityDeclarationMB, IEntityServiceDeclarationAuthoring
+        {
+            [SerializeField]
+            int buttonChannelHubServiceId;
+
+            public int ButtonChannelHubServiceId => buttonChannelHubServiceId;
+
+#if UNITY_EDITOR
+            public void EnsureLegacyMigrationBindings()
+            {
+                if (Application.isPlaying)
+                    throw new InvalidOperationException("Test authoring state may only be mutated in edit mode.");
+
+                if (EntityIdentity == null)
+                {
+                    EntityIdentityMB entityIdentity = GetComponent<EntityIdentityMB>();
+                    if (entityIdentity == null)
+                        entityIdentity = GetComponentInParent<EntityIdentityMB>(true);
+
+                    if (entityIdentity != null)
+                        SetEntityIdentity(entityIdentity);
+                }
+
+                if (buttonChannelHubServiceId <= 0 && HasSourceLocation)
+                    buttonChannelHubServiceId = ComputeMigratedServiceId(CreateSourceLocation());
+            }
+
+            public void SetServiceId(int newServiceId)
+            {
+                if (Application.isPlaying)
+                    throw new InvalidOperationException("Test authoring state may only be mutated in edit mode.");
+
+                buttonChannelHubServiceId = System.Math.Max(0, newServiceId);
+            }
+#endif
+
+            public bool TryCreateServiceDeclarations(in EntityDeclarationPlanInput declarationInput, out EntityServiceDeclarationInput[] declarations, out string failureReason)
+            {
+                if (buttonChannelHubServiceId <= 0)
+                {
+                    declarations = System.Array.Empty<EntityServiceDeclarationInput>();
+                    failureReason = "TestButtonChannelHubDeclarationMB requires a positive service id.";
+                    return false;
+                }
+
+                declarations = new[]
+                {
+                    new EntityServiceDeclarationInput(
+                        declarationInput.OwnerModule,
+                        declarationInput.OwnerEntityRef,
+                        new ServiceId(buttonChannelHubServiceId),
+                        CreateStableId(declarationInput.OwnerEntityRef, buttonChannelHubServiceId),
+                        ButtonChannelHubServiceName,
+                        "test-button-channel-hub",
+                        new[]
+                        {
+                            ButtonChannelHubServiceContractName,
+                        },
+                        System.Array.Empty<EntityServiceDependencyInput>(),
+                        System.Array.Empty<ServiceLifecycleContributionInput>(),
+                        SourceKind,
+                        ServiceLifetimeKind.Singleton,
+                        ServiceFactoryKind.GeneratedFactory,
+                        declarationInput.Source),
+                };
+
+                failureReason = string.Empty;
+                return true;
+            }
+
+            static string CreateStableId(Game.Kernel.Abstractions.EntityRef ownerEntityRef, int serviceId)
+            {
+                return "entity-service:" + ownerEntityRef.Value + ":button-channel-hub:" + serviceId.ToString("D10");
+            }
+
+            static int ComputeMigratedServiceId(Game.Kernel.Authoring.UnitySourceLocation sourceLocation)
+            {
+                const int baseServiceId = 1_000_000_000;
+                const int range = int.MaxValue - baseServiceId;
+
+                unchecked
+                {
+                    uint hash = 2166136261;
+                    string seed = sourceLocation.ToString();
+                    for (int index = 0; index < seed.Length; index++)
+                    {
+                        hash ^= seed[index];
+                        hash *= 16777619;
+                    }
+
+                    int serviceId = baseServiceId + (int)(hash % (uint)range);
+                    return serviceId <= 0 ? baseServiceId : serviceId;
+                }
+            }
         }
     }
 }

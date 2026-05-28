@@ -33,6 +33,8 @@ namespace Game.Kernel.Boot
         ResourcesFallbackForbidden = 190,
         DefaultRootCreationForbidden = 200,
         DuplicateRootCleanupForbidden = 210,
+        CommandExecutorTableMissing = 220,
+        CommandCatalogMissing = 230,
     }
 
     public static class BootValidationCodes
@@ -59,6 +61,8 @@ namespace Game.Kernel.Boot
         public const string ResourcesFallbackForbidden = "BOOT_RESOURCES_FALLBACK_FORBIDDEN";
         public const string DefaultRootCreationForbidden = "BOOT_DEFAULT_ROOT_CREATION_FORBIDDEN";
         public const string DuplicateRootCleanupForbidden = "BOOT_DUPLICATE_ROOT_CLEANUP_FORBIDDEN";
+        public const string CommandExecutorTableMissing = "BOOT_COMMAND_EXECUTOR_TABLE_MISSING";
+        public const string CommandCatalogMissing = "BOOT_COMMAND_CATALOG_MISSING";
     }
 
     static class BootDiagnosticsPayloadBuilder
@@ -474,10 +478,15 @@ namespace Game.Kernel.Boot
             BootArtifactValidationState artifactState,
             BootRootValidationState rootState,
             BootFallbackValidationState fallbackState,
-            ServiceGraphPlan? serviceGraphPlan = null,
             ScopeGraphPlan scopeGraphPlan,
+            ServiceGraphPlan? serviceGraphPlan = null,
+            EntityRegistrationPlan? entityRegistrationPlan = null,
+            ServiceRegistrationPlan? serviceRegistrationPlan = null,
+            EntityServiceRoutePlan? entityServiceRoutePlan = null,
             LifecyclePlan? lifecyclePlan = null,
-            KernelDebugMap? debugMap = null)
+            KernelDebugMap? debugMap = null,
+            CommandCatalogPlan? commandCatalogPlan = null,
+            CommandExecutorTablePlan? commandExecutorTablePlan = null)
         {
             ArtifactState = artifactState ?? throw new ArgumentNullException(nameof(artifactState));
             RootState = rootState ?? throw new ArgumentNullException(nameof(rootState));
@@ -496,8 +505,13 @@ namespace Game.Kernel.Boot
             DependencyValidationStatus = dependencyValidationStatus;
             ServiceGraphPlan = serviceGraphPlan;
             ScopeGraphPlan = scopeGraphPlan;
+            EntityRegistrationPlan = entityRegistrationPlan;
+            ServiceRegistrationPlan = serviceRegistrationPlan;
+            EntityServiceRoutePlan = entityServiceRoutePlan;
             LifecyclePlan = lifecyclePlan;
             DebugMap = debugMap;
+            CommandCatalogPlan = commandCatalogPlan;
+            CommandExecutorTablePlan = commandExecutorTablePlan;
         }
 
         public KernelBootManifest? Manifest { get; }
@@ -518,9 +532,19 @@ namespace Game.Kernel.Boot
 
         public ScopeGraphPlan ScopeGraphPlan { get; }
 
+        public EntityRegistrationPlan? EntityRegistrationPlan { get; }
+
+        public ServiceRegistrationPlan? ServiceRegistrationPlan { get; }
+
+        public EntityServiceRoutePlan? EntityServiceRoutePlan { get; }
+
         public LifecyclePlan? LifecyclePlan { get; }
 
         public KernelDebugMap? DebugMap { get; }
+
+        public CommandCatalogPlan? CommandCatalogPlan { get; }
+
+        public CommandExecutorTablePlan? CommandExecutorTablePlan { get; }
     }
 
     public static class BootValidator
@@ -631,12 +655,29 @@ namespace Game.Kernel.Boot
 
                     ValidateArtifactHeaderCompatibility(input.ScopeGraphPlan.Header, ArtifactKind.ScopeGraph, manifest, selectedProfile, issues);
 
+                    if (input.EntityRegistrationPlan != null)
+                        ValidateArtifactHeaderCompatibility(input.EntityRegistrationPlan.Header, ArtifactKind.EntityRegistration, manifest, selectedProfile, issues);
+
+                    if (input.ServiceRegistrationPlan != null)
+                        ValidateArtifactHeaderCompatibility(input.ServiceRegistrationPlan.Header, ArtifactKind.ServiceRegistration, manifest, selectedProfile, issues);
+
+                    if (input.EntityServiceRoutePlan != null)
+                        ValidateArtifactHeaderCompatibility(input.EntityServiceRoutePlan.Header, ArtifactKind.EntityServiceRoute, manifest, selectedProfile, issues);
+
                     if (input.LifecyclePlan != null)
                         ValidateArtifactHeaderCompatibility(input.LifecyclePlan.Header, ArtifactKind.LifecyclePlan, manifest, selectedProfile, issues);
+
+                    if (input.CommandCatalogPlan != null)
+                        ValidateArtifactHeaderCompatibility(input.CommandCatalogPlan.Header, ArtifactKind.CommandCatalog, manifest, selectedProfile, issues);
+
+                    if (input.CommandExecutorTablePlan != null)
+                        ValidateArtifactHeaderCompatibility(input.CommandExecutorTablePlan.Header, ArtifactKind.CommandExecutorTable, manifest, selectedProfile, issues);
 
                     if (input.DebugMap != null)
                         ValidateArtifactHeaderCompatibility(input.DebugMap.Header, ArtifactKind.KernelDebugMap, manifest, selectedProfile, issues);
                 }
+
+                ValidateCommandProjectionPairing(input, manifest, selectedProfile, issues);
 
                 if (input.DebugMap == null)
                 {
@@ -871,6 +912,35 @@ namespace Game.Kernel.Boot
                         "Add the required service to the verified boot input set.",
                         requiredIdentity));
                 }
+            }
+        }
+
+        static void ValidateCommandProjectionPairing(BootValidationInput input, KernelBootManifest manifest, KernelProfile? selectedProfile, List<BootValidationIssue> issues)
+        {
+            bool hasCommandCatalogEntries = input.CommandCatalogPlan != null && input.CommandCatalogPlan.Entries.Length > 0;
+            bool hasExecutorTableEntries = input.CommandExecutorTablePlan != null && input.CommandExecutorTablePlan.Entries.Length > 0;
+            RuntimeIdentityRef artifactSetIdentity = new RuntimeIdentityRef(RuntimeIdentityKind.ArtifactSet, manifest.ArtifactSet.ArtifactSetId.Value);
+
+            if (hasCommandCatalogEntries && !hasExecutorTableEntries)
+            {
+                issues.Add(new BootValidationIssue(
+                    BootValidationCodes.CommandExecutorTableMissing,
+                    GetBlockingSeverity(selectedProfile),
+                    BootValidationGateKind.CommandExecutorTableMissing,
+                    "Verified CommandCatalog boot input requires a non-empty CommandExecutorTablePlan.",
+                    "Provide the verified CommandExecutorTable artifact generated from the same KernelIR before booting.",
+                    artifactSetIdentity));
+            }
+
+            if (hasExecutorTableEntries && !hasCommandCatalogEntries)
+            {
+                issues.Add(new BootValidationIssue(
+                    BootValidationCodes.CommandCatalogMissing,
+                    GetBlockingSeverity(selectedProfile),
+                    BootValidationGateKind.CommandCatalogMissing,
+                    "Verified CommandExecutorTable boot input requires a non-empty CommandCatalogPlan.",
+                    "Provide the verified CommandCatalog artifact generated from the same KernelIR before booting.",
+                    artifactSetIdentity));
             }
         }
 

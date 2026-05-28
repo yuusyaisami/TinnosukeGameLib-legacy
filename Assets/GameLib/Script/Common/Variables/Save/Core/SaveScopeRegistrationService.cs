@@ -12,7 +12,7 @@ namespace Game.Save
     public sealed class SaveScopeRegistrationService : IScopeAcquireHandler, IScopeReleaseHandler
     {
         readonly ScopeBindingRegistryService? _profiles;
-        readonly IBlackboardService? _blackboard;
+        readonly IVarStore? _blackboard;
         readonly IGridBlackboardService? _gridBlackboard;
         readonly IBaseScalarService? _scalars;
         readonly IScopeNode _owner;
@@ -21,7 +21,7 @@ namespace Game.Save
 
         public SaveScopeRegistrationService(
             ScopeBindingRegistryService? profiles,
-            IBlackboardService? blackboard,
+            IVarStore? blackboard,
             IGridBlackboardService? gridBlackboard,
             IBaseScalarService? scalars,
             IScopeNode owner)
@@ -71,7 +71,7 @@ namespace Game.Save
             _handle?.Dispose();
             _handle = save.RegisterScope(in reg);
 
-            // Profile bindings write initial values to Blackboard/Scalar.
+            // Profile bindings write initial values to the value seam / Scalar.
             // Ensure that work is complete before applying persisted payloads.
             _profiles.ReapplyAllBindings();
 

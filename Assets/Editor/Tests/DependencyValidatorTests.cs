@@ -681,7 +681,7 @@ namespace TinnosukeGameLib.Tests.Editor
         }
 
         [Test]
-        public void Validate_LifecycleValueStoreTargetIsRejectedUntilRuntimeSupportExists()
+        public void Validate_LifecycleValueStoreTargetIsAcceptedWhenMatchingValueInitPlanExists()
         {
             DependencyValidationInput input = CreateBaselineInput(
                 scopes: new[]
@@ -716,10 +716,8 @@ namespace TinnosukeGameLib.Tests.Editor
 
             DependencyValidationReport report = DependencyValidator.Validate(input);
 
-            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Failed));
-            Assert.That(report.Issues, Has.Count.EqualTo(1));
-            Assert.That(report.Issues[0].Code, Is.EqualTo("DEP_LIFECYCLE_TARGET_LOCAL_REF_UNSUPPORTED"));
-            Assert.That(report.Issues[0].Category, Is.EqualTo(ValidationIssueCategory.CrossNode));
+            Assert.That(report.Status, Is.EqualTo(ValidationResultStatus.Passed));
+            Assert.That(report.Issues, Is.Empty);
         }
 
         [Test]
@@ -1227,7 +1225,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 },
                 scopes: new[]
                 {
-                    CreateScope(100, 200, ScopeKind.Runtime, 20, 8),
+                    CreateScope(100, 200, ScopeKind.Detached, 20, 8),
                 },
                 services: new[]
                 {
@@ -1518,7 +1516,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 },
                 scopes: new[]
                 {
-                    CreateScope(100, 200, ScopeKind.Runtime, 20, 8),
+                    CreateScope(100, 200, ScopeKind.Detached, 20, 8),
                 },
                 sources: CreateSources(10, 2, 8));
 
@@ -1539,7 +1537,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 },
                 scopes: new[]
                 {
-                    CreateScope(100, 200, ScopeKind.Runtime, 20, 8),
+                    CreateScope(100, 200, ScopeKind.Detached, 20, 8),
                 },
                 sources: CreateSources(10, 2, 8));
 

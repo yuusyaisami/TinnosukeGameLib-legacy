@@ -1410,41 +1410,28 @@ namespace Game.Common
                     return BlackboardSourceUtility.FailOrNull(
                         context,
                         $"SelfBlackboard(global) resolve failed: key='{VarIdResolver.TryGetIdToStable(blackboardId) ?? "(none)"}' varId={blackboardId} was not found in hierarchy from scope id={context.Scope.Identity?.Id ?? "(none)"}.");
-                return BlackboardSourceUtility.ApplyFallback(context.Scope, null, blackboardId, resolvedFallback, initialValue);
-            }
-            if (!context.Scope.Resolver.TryResolve<IBlackboardService>(out var bb) || bb == null)
-            {
-                if (resolvedFallback == BlackboardReadFallback.Fail)
-                    return BlackboardSourceUtility.FailOrNull(
-                        context,
-                        $"SelfBlackboard(local) resolve failed: IBlackboardService is missing on scope id={context.Scope.Identity?.Id ?? "(none)"}.");
-                return DynamicVariant.Null;
+                return BlackboardSourceUtility.ApplyFallback(context.Scope, blackboardId, resolvedFallback, initialValue);
             }
 
-            var localVars = bb.LocalVars;
-            if (localVars != null)
+            if (BlackboardSourceUtility.TryReadLocalValue(
+                    context.Scope,
+                    blackboardId,
+                    context,
+                    $"SelfBlackboard:local:{blackboardId}",
+                    out var localValue))
             {
-                var kind = localVars.GetVarKind(blackboardId);
-                if (kind == ValueKind.ManagedRef)
-                {
-                    if (localVars.TryGetManagedRef(blackboardId, out var managed) && managed != null)
-                    {
-                        if (DeferredDynamicVarResolver.TryResolve(managed, context, $"SelfBlackboard:local:{blackboardId}", out var deferred))
-                            return deferred;
-                        return DynamicVariant.FromManagedRef(managed);
-                    }
-                }
-                else if (kind != ValueKind.Null && bb.TryLocalGetVariant(blackboardId, out var localVariant))
-                {
-                    return localVariant;
-                }
+                return localValue;
             }
 
             if (resolvedFallback == BlackboardReadFallback.Fail)
-                return BlackboardSourceUtility.FailOrNull(
-                    context,
-                    $"SelfBlackboard(local) resolve failed: key='{VarIdResolver.TryGetIdToStable(blackboardId) ?? "(none)"}' varId={blackboardId} was not found on scope id={context.Scope.Identity?.Id ?? "(none)"}.");
-            return BlackboardSourceUtility.ApplyFallback(context.Scope, bb, blackboardId, resolvedFallback, initialValue);
+            {
+                var failureReason = TableVarStoreSourceUtility.TryResolveScopeVars(context.Scope, out _)
+                    ? $"SelfBlackboard(local) resolve failed: key='{VarIdResolver.TryGetIdToStable(blackboardId) ?? "(none)"}' varId={blackboardId} was not found on scope id={context.Scope.Identity?.Id ?? "(none)"}."
+                    : $"SelfBlackboard(local) resolve failed: IVarStore is missing on scope id={context.Scope.Identity?.Id ?? "(none)"}.";
+                return BlackboardSourceUtility.FailOrNull(context, failureReason);
+            }
+
+            return BlackboardSourceUtility.ApplyFallback(context.Scope, blackboardId, resolvedFallback, initialValue);
         }
 
         public int GetSourceDependencyRevision(IDynamicContext context)
@@ -1471,57 +1458,19 @@ namespace Game.Common
                 return revision;
             }
 
-            if (!context.Scope.Resolver.TryResolve<IBlackboardService>(out var bb) || bb == null || bb.LocalVars == null)
+            if (!TableVarStoreSourceUtility.TryResolveScopeVars(context.Scope, out var localVars))
                 return revision;
 
-            if (!bb.LocalVars.Contains(blackboardId))
+            if (!localVars.Contains(blackboardId))
                 return revision;
 
             var localScopeIdentity = DynamicEvaluationOrigin.ComputeStableScopeIdentity(context.Scope);
-            return TableVarStoreSourceUtility.CombineRevision(revision, localScopeIdentity, bb.LocalVars.GetVarVersion(blackboardId));
+            return TableVarStoreSourceUtility.CombineRevision(revision, localScopeIdentity, localVars.GetVarVersion(blackboardId));
         }
 
         static bool TryGetHierarchical(IScopeNode? origin, int varId, IDynamicContext context, out DynamicVariant value)
         {
-            // Search nearest -> farthest by scope parent chain.
-            // We intentionally consult each scope's *local* var store to avoid
-            // depending on which IBlackboardService instance DI happens to return.
-            for (IScopeNode? node = origin; node != null; node = node.Parent)
-            {
-                var resolver = node.Resolver;
-                if (resolver == null)
-                    continue;
-
-                if (!resolver.TryResolve<IBlackboardService>(out var bb) || bb == null)
-                    continue;
-
-                var local = bb.LocalVars;
-                if (local == null || !local.Contains(varId))
-                    continue;
-
-                var kind = local.GetVarKind(varId);
-                if (kind == ValueKind.ManagedRef)
-                {
-                    if (local.TryGetManagedRef(varId, out var managed) && managed != null)
-                    {
-                        if (DeferredDynamicVarResolver.TryResolve(managed, context, $"SelfBlackboard:global:{varId}@{node.Identity?.Id ?? "(none)"}", out var deferred))
-                        {
-                            value = deferred;
-                            return true;
-                        }
-
-                        value = DynamicVariant.FromManagedRef(managed);
-                        return true;
-                    }
-                }
-                else if (bb.TryLocalGetVariant(varId, out value))
-                {
-                    return true;
-                }
-            }
-
-            value = default;
-            return false;
+            return BlackboardSourceUtility.TryGetHierarchicalValue(origin, varId, context, "SelfBlackboard:global", out value);
         }
         public static SelfBlackboardSource FromVarId(
             int key,
@@ -1598,43 +1547,28 @@ namespace Game.Common
                     return BlackboardSourceUtility.FailOrNull(
                         context,
                         $"OtherBlackboard(global) resolve failed: key='{VarIdResolver.TryGetIdToStable(blackboardId) ?? "(none)"}' varId={blackboardId} was not found in hierarchy from target scope id={targetScope.Identity?.Id ?? "(none)"}.");
-                return BlackboardSourceUtility.ApplyFallback(targetScope, null, blackboardId, resolvedFallback, initialValue);
+                return BlackboardSourceUtility.ApplyFallback(targetScope, blackboardId, resolvedFallback, initialValue);
             }
 
-            if (!targetScope.Resolver.TryResolve<IBlackboardService>(out var bb) || bb == null)
+            if (BlackboardSourceUtility.TryReadLocalValue(
+                    targetScope,
+                    blackboardId,
+                    context,
+                    $"OtherBlackboard:local:{blackboardId}@{targetScope.Identity?.Id ?? "(none)"}",
+                    out var localValue))
             {
-                if (resolvedFallback == BlackboardReadFallback.Fail)
-                    return BlackboardSourceUtility.FailOrNull(
-                        context,
-                        $"OtherBlackboard(local) resolve failed: IBlackboardService is missing on target scope id={targetScope.Identity?.Id ?? "(none)"}.");
-                return DynamicVariant.Null;
-            }
-
-            var localVars = bb.LocalVars;
-            if (localVars != null)
-            {
-                var kind = localVars.GetVarKind(blackboardId);
-                if (kind == ValueKind.ManagedRef)
-                {
-                    if (localVars.TryGetManagedRef(blackboardId, out var managed) && managed != null)
-                    {
-                        if (DeferredDynamicVarResolver.TryResolve(managed, context, $"OtherBlackboard:local:{blackboardId}@{targetScope.Identity?.Id ?? "(none)"}", out var deferred))
-                            return deferred;
-                        return DynamicVariant.FromManagedRef(managed);
-                    }
-                }
-                else if (kind != ValueKind.Null && bb.TryLocalGetVariant(blackboardId, out var localVariant))
-                {
-                    return localVariant;
-                }
+                return localValue;
             }
 
             if (resolvedFallback == BlackboardReadFallback.Fail)
-                return BlackboardSourceUtility.FailOrNull(
-                    context,
-                    $"OtherBlackboard(local) resolve failed: key='{VarIdResolver.TryGetIdToStable(blackboardId) ?? "(none)"}' varId={blackboardId} was not found on target scope id={targetScope.Identity?.Id ?? "(none)"}.");
+            {
+                var failureReason = TableVarStoreSourceUtility.TryResolveScopeVars(targetScope, out _)
+                    ? $"OtherBlackboard(local) resolve failed: key='{VarIdResolver.TryGetIdToStable(blackboardId) ?? "(none)"}' varId={blackboardId} was not found on target scope id={targetScope.Identity?.Id ?? "(none)"}."
+                    : $"OtherBlackboard(local) resolve failed: IVarStore is missing on target scope id={targetScope.Identity?.Id ?? "(none)"}.";
+                return BlackboardSourceUtility.FailOrNull(context, failureReason);
+            }
 
-            return BlackboardSourceUtility.ApplyFallback(targetScope, bb, blackboardId, resolvedFallback, initialValue);
+            return BlackboardSourceUtility.ApplyFallback(targetScope, blackboardId, resolvedFallback, initialValue);
         }
 
         public int GetSourceDependencyRevision(IDynamicContext context)
@@ -1664,54 +1598,19 @@ namespace Game.Common
                 return revision;
             }
 
-            if (!targetScope.Resolver.TryResolve<IBlackboardService>(out var bb) || bb == null || bb.LocalVars == null)
+            if (!TableVarStoreSourceUtility.TryResolveScopeVars(targetScope, out var localVars))
                 return revision;
 
-            if (!bb.LocalVars.Contains(blackboardId))
+            if (!localVars.Contains(blackboardId))
                 return revision;
 
             var targetScopeIdentity = DynamicEvaluationOrigin.ComputeStableScopeIdentity(targetScope);
-            return TableVarStoreSourceUtility.CombineRevision(revision, targetScopeIdentity, bb.LocalVars.GetVarVersion(blackboardId));
+            return TableVarStoreSourceUtility.CombineRevision(revision, targetScopeIdentity, localVars.GetVarVersion(blackboardId));
         }
 
         static bool TryGetHierarchical(IScopeNode? origin, int varId, IDynamicContext context, out DynamicVariant value)
         {
-            for (IScopeNode? node = origin; node != null; node = node.Parent)
-            {
-                var resolver = node.Resolver;
-                if (resolver == null)
-                    continue;
-
-                if (!resolver.TryResolve<IBlackboardService>(out var bb) || bb == null)
-                    continue;
-
-                var local = bb.LocalVars;
-                if (local == null || !local.Contains(varId))
-                    continue;
-
-                var kind = local.GetVarKind(varId);
-                if (kind == ValueKind.ManagedRef)
-                {
-                    if (local.TryGetManagedRef(varId, out var managed) && managed != null)
-                    {
-                        if (DeferredDynamicVarResolver.TryResolve(managed, context, $"OtherBlackboard:global:{varId}@{node.Identity?.Id ?? "(none)"}", out var deferred))
-                        {
-                            value = deferred;
-                            return true;
-                        }
-
-                        value = DynamicVariant.FromManagedRef(managed);
-                        return true;
-                    }
-                }
-                else if (bb.TryLocalGetVariant(varId, out value))
-                {
-                    return true;
-                }
-            }
-
-            value = default;
-            return false;
+            return BlackboardSourceUtility.TryGetHierarchicalValue(origin, varId, context, "OtherBlackboard:global", out value);
         }
     }
 
@@ -2790,16 +2689,7 @@ namespace Game.Common
 
         public static bool TryResolveScopeVars(IScopeNode? scope, out IVarStore vars)
         {
-            vars = NullVarStore.Instance;
-            var resolver = scope?.Resolver;
-            if (resolver == null)
-                return false;
-
-            if (!resolver.TryResolve<IVarStore>(out var resolved) || resolved == null)
-                return false;
-
-            vars = resolved;
-            return true;
+            return ScopeValueStoreBindingUtility.TryResolveScopeVars(scope, out vars);
         }
 
         public static bool TryGetCellVariant(
@@ -3499,6 +3389,43 @@ namespace Game.Common
             return DynamicVariant.Null;
         }
 
+        public static bool TryReadLocalValue(
+            IScopeNode? scope,
+            int varId,
+            IDynamicContext context,
+            string traceLabel,
+            out DynamicVariant value)
+        {
+            value = default;
+            if (!TableVarStoreSourceUtility.TryResolveScopeVars(scope, out var vars))
+                return false;
+
+            return TryReadValue(vars, varId, context, traceLabel, out value);
+        }
+
+        public static bool TryGetHierarchicalValue(
+            IScopeNode? origin,
+            int varId,
+            IDynamicContext context,
+            string tracePrefix,
+            out DynamicVariant value)
+        {
+            for (IScopeNode? node = origin; node != null; node = node.Parent)
+            {
+                if (!TableVarStoreSourceUtility.TryResolveScopeVars(node, out var vars))
+                    continue;
+
+                if (!vars.Contains(varId))
+                    continue;
+
+                if (TryReadValue(vars, varId, context, $"{tracePrefix}:{varId}@{node.Identity?.Id ?? "(none)"}", out value))
+                    return true;
+            }
+
+            value = default;
+            return false;
+        }
+
         public static BlackboardReadFallback ResolveFallback(BlackboardReadFallback fallback, BlackboardReadScope readScope)
         {
             if (fallback != BlackboardReadFallback.Default)
@@ -3510,7 +3437,6 @@ namespace Game.Common
 
         public static DynamicVariant ApplyFallback(
             IScopeNode origin,
-            IBlackboardService? localBlackboard,
             int varId,
             BlackboardReadFallback fallback,
             in DynamicVariant initialValue)
@@ -3522,7 +3448,8 @@ namespace Game.Common
             switch (fallback)
             {
                 case BlackboardReadFallback.CreateLocal:
-                    if (localBlackboard != null && localBlackboard.TryLocalSetVariant(varId, in value))
+                    if (ScopeValueStoreBindingUtility.TryResolveScopeVars(origin, out var localVars)
+                        && ScopeValueStoreBindingUtility.TryWriteVariant(localVars, varId, in value, overwriteExisting: true))
                         return value;
                     return DynamicVariant.Null;
 
@@ -3540,38 +3467,55 @@ namespace Game.Common
         static bool TrySetOnGameLogicRoot(IScopeNode origin, int varId, in DynamicVariant value)
         {
             var logicRoot = ScopeNodeHierarchy.FindNearestGameLogicRoot(origin, includeSelf: true);
-            if (logicRoot != null && TryResolveBlackboard(logicRoot, out var bb) && bb != null)
-                return bb.TryLocalSetVariant(varId, in value);
+            if (logicRoot != null
+                && ScopeValueStoreBindingUtility.TryResolveScopeVars(logicRoot, out var logicRootVars)
+                && ScopeValueStoreBindingUtility.TryWriteVariant(logicRootVars, varId, in value, overwriteExisting: true))
+            {
+                return true;
+            }
 
             return TrySetOnRoot(origin, varId, in value);
         }
 
         static bool TrySetOnRoot(IScopeNode? origin, int varId, in DynamicVariant value)
         {
-            IBlackboardService? root = null;
+            IVarStore? rootVars = null;
             for (IScopeNode? node = origin; node != null; node = node.Parent)
             {
-                if (!TryResolveBlackboard(node, out var bb) || bb == null)
-                    continue;
-
-                root = bb;
+                if (ScopeValueStoreBindingUtility.TryResolveScopeVars(node, out var resolved))
+                    rootVars = resolved;
             }
 
-            return root?.TryLocalSetVariant(varId, in value) ?? false;
+            return ScopeValueStoreBindingUtility.TryWriteVariant(rootVars, varId, in value, overwriteExisting: true);
         }
 
-        static bool TryResolveBlackboard(IScopeNode? scope, out IBlackboardService? blackboard)
+        static bool TryReadValue(
+            IVarStore vars,
+            int varId,
+            IDynamicContext context,
+            string traceLabel,
+            out DynamicVariant value)
         {
-            blackboard = null;
-            var resolver = scope?.Resolver;
-            if (resolver == null)
-                return false;
+            value = default;
+            var kind = vars.GetVarKind(varId);
+            if (kind == ValueKind.ManagedRef)
+            {
+                if (!vars.TryGetManagedRef(varId, out var managed) || managed == null)
+                    return false;
 
-            if (!resolver.TryResolve(out blackboard) || blackboard == null)
-                return false;
+                if (DeferredDynamicVarResolver.TryResolve(managed, context, traceLabel, out var deferred))
+                {
+                    value = deferred;
+                    return true;
+                }
 
-            return true;
+                value = DynamicVariant.FromManagedRef(managed);
+                return true;
+            }
+
+            return kind != ValueKind.Null && vars.TryGetVariant(varId, out value);
         }
+
     }
 
     // ================================================================

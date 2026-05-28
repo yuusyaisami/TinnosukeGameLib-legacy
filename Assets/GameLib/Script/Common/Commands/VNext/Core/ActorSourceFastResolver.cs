@@ -352,20 +352,20 @@ namespace Game.Commands.VNext
             if (transform == null)
                 return false;
 
-            if (!transform.TryGetComponent<EntityIdentityMB>(out var identityMB) || identityMB == null)
-                return false;
-
-            if (!MatchesIdentity(identityMB, filter))
-                return false;
-
             if (transform.TryGetComponent<BaseLifetimeScope>(out var baseScope) && baseScope != null)
             {
+                if (!MatchesIdentity(baseScope, filter))
+                    return false;
+
                 scope = baseScope;
                 return true;
             }
 
             if (transform.TryGetComponent<RuntimeLifetimeScope>(out var runtimeScope) && runtimeScope != null)
             {
+                if (!MatchesIdentity(runtimeScope, filter))
+                    return false;
+
                 scope = runtimeScope;
                 return true;
             }
@@ -500,26 +500,6 @@ namespace Game.Commands.VNext
 
             if (!string.IsNullOrEmpty(filter.category) &&
                 !string.Equals(identity.Category, filter.category, StringComparison.Ordinal))
-                return false;
-
-            return true;
-        }
-
-        static bool MatchesIdentity(EntityIdentityMB identity, in CommandTargetIdentityFilter filter)
-        {
-            if (identity == null)
-                return false;
-
-            if (filter.requireActive && !identity.gameObject.activeInHierarchy)
-                return false;
-
-            if (filter.kind != LifetimeScopeKind.None && identity.kind != filter.kind)
-                return false;
-
-            if (!string.IsNullOrEmpty(filter.id) && !string.Equals(identity.id, filter.id, StringComparison.Ordinal))
-                return false;
-
-            if (!string.IsNullOrEmpty(filter.category) && !string.Equals(identity.category, filter.category, StringComparison.Ordinal))
                 return false;
 
             return true;

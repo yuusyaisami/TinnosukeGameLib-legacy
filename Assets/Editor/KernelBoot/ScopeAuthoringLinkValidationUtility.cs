@@ -4,7 +4,10 @@ using System;
 using System.Collections.Generic;
 using Game.Kernel.Authoring;
 using Game.Kernel.Boot;
+using Game.Kernel.IR;
 using UnityEngine;
+
+using AuthoringUnitySourceLocation = Game.Kernel.Authoring.UnitySourceLocation;
 
 namespace TinnosukeGameLib.Editor.KernelBoot
 {
@@ -16,11 +19,11 @@ namespace TinnosukeGameLib.Editor.KernelBoot
             ScopeAuthoringLink? secondary,
             ScopeAuthoringId authoringId,
             string message,
-            UnitySourceLocation sourceLocation,
+            AuthoringUnitySourceLocation sourceLocation,
             bool hasSecondarySourceLocation,
-            UnitySourceLocation secondarySourceLocation,
+            AuthoringUnitySourceLocation secondarySourceLocation,
             bool hasBaseSourceLocation,
-            UnitySourceLocation baseSourceLocation)
+            AuthoringUnitySourceLocation baseSourceLocation)
         {
             Code = code;
             Primary = primary;
@@ -44,15 +47,15 @@ namespace TinnosukeGameLib.Editor.KernelBoot
 
         public string Message { get; }
 
-        public UnitySourceLocation SourceLocation { get; }
+        public AuthoringUnitySourceLocation SourceLocation { get; }
 
         public bool HasSecondarySourceLocation { get; }
 
-        public UnitySourceLocation SecondarySourceLocation { get; }
+        public AuthoringUnitySourceLocation SecondarySourceLocation { get; }
 
         public bool HasBaseSourceLocation { get; }
 
-        public UnitySourceLocation BaseSourceLocation { get; }
+        public AuthoringUnitySourceLocation BaseSourceLocation { get; }
     }
 
     public readonly struct ScopeAuthoringLinkValidationReport
@@ -156,13 +159,13 @@ namespace TinnosukeGameLib.Editor.KernelBoot
             if (result != 0)
                 return result;
 
-            if (left.Secondary.HasValue && right.Secondary.HasValue)
-                return CompareLinkNames(left.Secondary.Value, right.Secondary.Value);
+            if (left.Secondary != null && right.Secondary != null)
+                return CompareLinkNames(left.Secondary, right.Secondary);
 
-            if (left.Secondary.HasValue)
+            if (left.Secondary != null)
                 return 1;
 
-            if (right.Secondary.HasValue)
+            if (right.Secondary != null)
                 return -1;
 
             return 0;
@@ -173,14 +176,14 @@ namespace TinnosukeGameLib.Editor.KernelBoot
             return StringComparer.Ordinal.Compare(left.name, right.name);
         }
 
-        static UnitySourceLocation TryCreateSourceLocation(ScopeAuthoringLink link)
+        static AuthoringUnitySourceLocation TryCreateSourceLocation(ScopeAuthoringLink link)
         {
             return link.HasSourceLocation ? link.CreateSourceLocation() : default;
         }
 
-        static UnitySourceLocation TryCreateBaseSourceLocation(ScopeAuthoringLink link)
+        static AuthoringUnitySourceLocation TryCreateBaseSourceLocation(ScopeAuthoringLink link)
         {
-            return link.TryGetBaseSourceLocation(out UnitySourceLocation sourceLocation) ? sourceLocation : default;
+            return link.TryGetBaseSourceLocation(out AuthoringUnitySourceLocation sourceLocation) ? sourceLocation : default;
         }
     }
 }

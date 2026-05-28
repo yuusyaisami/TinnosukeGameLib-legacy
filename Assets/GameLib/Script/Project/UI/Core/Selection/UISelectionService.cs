@@ -65,20 +65,21 @@ namespace Game.UI
         /// SetCandidateProviderで後から設定可能。
         /// </summary>
         ISelectCandidateProvider? _candidateProvider;
+        IUINodeGraphService? _nodeGraph;
 
 
         // ================================================================
         // 状態
         // ================================================================
 
-        /// <summary>現在選択中のUIElement</summary>
-        IScopeNode? _current;
+        /// <summary>現在選択中ノードの handle。</summary>
+        UINodeHandle _currentHandle = UINodeHandle.Invalid;
 
-        /// <summary>前回選択されていたUIElement</summary>
-        IScopeNode? _previous;
+        /// <summary>前回選択されていたノードの handle。</summary>
+        UINodeHandle _previousHandle = UINodeHandle.Invalid;
 
-        /// <summary>現在ホバー中のUIElement</summary>
-        IScopeNode? _hovered;
+        /// <summary>現在ホバー中ノードの handle。</summary>
+        UINodeHandle _hoveredHandle = UINodeHandle.Invalid;
 
         /// <summary>現在選択中のUIElementのConsumerリスト</summary>
         readonly List<IUIInputConsumer> _currentConsumers = new();
@@ -178,13 +179,19 @@ namespace Game.UI
         // ================================================================
 
         /// <inheritdoc/>
-        public IScopeNode? CurrentElement => _current;
+        public IScopeNode? CurrentElement => ResolveScopeOrNull(_currentHandle);
+
+        public UINodeHandle CurrentHandle => _currentHandle;
 
         /// <inheritdoc/>
-        public IScopeNode? PreviousElement => _previous;
+        public IScopeNode? PreviousElement => ResolveScopeOrNull(_previousHandle);
+
+        public UINodeHandle PreviousHandle => _previousHandle;
 
         /// <inheritdoc/>
-        public IScopeNode? HoveredElement => _hovered;
+        public IScopeNode? HoveredElement => ResolveScopeOrNull(_hoveredHandle);
+
+        public UINodeHandle HoveredHandle => _hoveredHandle;
 
         /// <inheritdoc/>
         public IReadOnlyList<IUIInputConsumer> CurrentConsumers => _currentConsumers;
@@ -196,9 +203,9 @@ namespace Game.UI
         IReadOnlyList<SelectCandidate> IUISelectionTelemetry.LastNavigationCandidates => _lastNavigationCandidates;
         IReadOnlyList<SelectCandidate> IUISelectionTelemetry.LastPointerCandidates => _lastPointerCandidates;
         UISelectionService.SelectionSource IUISelectionTelemetry.LastSelectionSource => _selectionSource;
-        IScopeNode? IUISelectionTelemetry.Current => _current;
-        IScopeNode? IUISelectionTelemetry.Previous => _previous;
-        IScopeNode? IUISelectionTelemetry.Hovered => _hovered;
+        IScopeNode? IUISelectionTelemetry.Current => CurrentElement;
+        IScopeNode? IUISelectionTelemetry.Previous => PreviousElement;
+        IScopeNode? IUISelectionTelemetry.Hovered => HoveredElement;
         IReadOnlyList<IUIInputConsumer> IUISelectionTelemetry.CurrentConsumers => _currentConsumers;
 
         event Action<IScopeNode?>? IUISelectionTelemetry.OnSelectionChanged
@@ -278,6 +285,11 @@ namespace Game.UI
             HandleModalBoundaryChanged();
         }
 
+        public void SetNodeGraph(IUINodeGraphService? nodeGraph)
+        {
+            _nodeGraph = nodeGraph;
+        }
+
         bool TryGetActiveRootScopes(List<IScopeNode> results)
         {
             results.Clear();
@@ -317,13 +329,24 @@ namespace Game.UI
         {
             if (target == null)
             {
-                return SelectInternal(null);
+                return SelectInternal(UINodeHandle.Invalid);
             }
 
-            if (!CanSelect(target))
+            if (!TryResolveTarget(target, out var handle) || !CanSelect(handle))
             {
                 return false;
             }
+
+            return SelectInternal(handle);
+        }
+
+        public bool Select(UINodeHandle target)
+        {
+            if (!target.IsValid)
+                return SelectInternal(UINodeHandle.Invalid);
+
+            if (!CanSelect(target))
+                return false;
 
             return SelectInternal(target);
         }
@@ -337,18 +360,23 @@ namespace Game.UI
                 return false;
             }
 
-            if (!CanSelect(target))
+            if (!TryResolveTarget(target, out var handle) || !CanSelect(handle))
             {
                 return false;
             }
 
-            return SelectInternal(target);
+            return SelectInternal(handle);
+        }
+
+        public bool TrySelect(UINodeHandle target)
+        {
+            return CanSelect(target) && SelectInternal(target);
         }
 
         /// <inheritdoc/>
         public void ClearSelection()
         {
-            SelectInternal(null);
+            SelectInternal(UINodeHandle.Invalid);
             _selectionSource = SelectionSource.None;
             _consecutivePointerMisses = 0;
         }
@@ -357,6 +385,23 @@ namespace Game.UI
         public void ForceSelect(IScopeNode? target)
         {
             Debug.LogWarning("[UISelectionService] ForceSelect: This is for debug only!");
+            if (target == null)
+            {
+                SelectInternal(UINodeHandle.Invalid);
+                return;
+            }
+
+            if (!TryResolveTarget(target, out var handle))
+                return;
+
+            SelectInternal(handle);
+        }
+
+        public void ForceSelect(UINodeHandle target)
+        {
+            if (target.IsValid && !TryResolveTarget(target, out _))
+                return;
+
             SelectInternal(target);
         }
 
@@ -374,9 +419,9 @@ namespace Game.UI
             }
 
             Debug.Log($"[UISelectionService] TryNavigateSelect: direction={direction}");
-            if (_current != null && !CanNavigateSelect(_current))
+            if (_currentHandle.IsValid && !CanNavigateSelect(_currentHandle))
             {
-                SelectInternal(null);
+                SelectInternal(UINodeHandle.Invalid);
             }
             if (_candidateProvider == null)
             {
@@ -396,7 +441,7 @@ namespace Game.UI
             {
                 var rootScope = _rootScopeBuffer[r];
                 _candidateScratch.Clear();
-                _candidateProvider.GetNavigationCandidates(_current, direction, rootScope, _candidateScratch);
+                _candidateProvider.GetNavigationCandidates(CurrentElement, direction, rootScope, _candidateScratch);
                 for (int i = 0; i < _candidateScratch.Count; i++)
                 {
                     var c = _candidateScratch[i];
@@ -467,20 +512,20 @@ namespace Game.UI
 
         bool TryPointerSelectInternal(Vector2 screenPosition)
         {
-            if (_current != null && !CanSelect(_current))
+            if (_currentHandle.IsValid && !CanSelect(_currentHandle))
             {
-                SelectInternal(null);
+                SelectInternal(UINodeHandle.Invalid);
             }
             if (_candidateProvider == null)
             {
-                SetHoverInternal(null);
+                SetHoverInternal(UINodeHandle.Invalid);
                 Debug.LogWarning("[UISelectionService] TryPointerSelect: No CandidateProvider set.");
                 return false;
             }
 
             if (!TryGetActiveRootScopes(_rootScopeBuffer))
             {
-                SetHoverInternal(null);
+                SetHoverInternal(UINodeHandle.Invalid);
                 return false;
             }
 
@@ -517,16 +562,16 @@ namespace Game.UI
                 // Reset miss counter when we have a hit
                 _consecutivePointerMisses = 0;
 
-                if (ReferenceEquals(e, _current))
+                if (TryResolveTarget(e, out var handle) && handle == _currentHandle)
                 {
-                    SetHoverInternal(e);
+                    SetHoverInternal(handle);
                     return false;
                 }
 
-                SetHoverInternal(e);
+                SetHoverInternal(handle);
 
                 // Attempt to select; only update selection source if selection actually changed (avoid converting navigation-driven selection to pointer-driven on harmless hover)
-                var selected = SelectInternal(e);
+                var selected = SelectInternal(handle);
                 if (selected)
                 {
                     _selectionSource = SelectionSource.Pointer;
@@ -538,14 +583,14 @@ namespace Game.UI
             _consecutivePointerMisses++;
 
             // Always clear hover immediately
-            SetHoverInternal(null);
+            SetHoverInternal(UINodeHandle.Invalid);
 
             if (_consecutivePointerMisses >= PointerMissThreshold)
             {
                 // Only clear selection if it was driven by the pointer
                 if (_selectionSource == SelectionSource.Pointer)
                 {
-                    SelectInternal(null);
+                    SelectInternal(UINodeHandle.Invalid);
                     _selectionSource = SelectionSource.None;
                 }
             }
@@ -569,13 +614,13 @@ namespace Game.UI
         {
             if (_candidateProvider == null)
             {
-                SetHoverInternal(null);
+                SetHoverInternal(UINodeHandle.Invalid);
                 return;
             }
 
             if (!TryGetActiveRootScopes(_rootScopeBuffer))
             {
-                SetHoverInternal(null);
+                SetHoverInternal(UINodeHandle.Invalid);
                 return;
             }
 
@@ -611,12 +656,13 @@ namespace Game.UI
                     if (allowSelectionClear)
                         _consecutivePointerMisses = 0;
 
-                    SetHoverInternal(e);
+                    if (TryResolveTarget(e, out var handle))
+                        SetHoverInternal(handle);
                     return;
                 }
             }
 
-            SetHoverInternal(null);
+            SetHoverInternal(UINodeHandle.Invalid);
 
             if (!allowSelectionClear)
                 return;
@@ -624,7 +670,7 @@ namespace Game.UI
             _consecutivePointerMisses++;
             if (_consecutivePointerMisses >= PointerMissThreshold && _selectionSource == SelectionSource.Pointer)
             {
-                SelectInternal(null);
+                SelectInternal(UINodeHandle.Invalid);
                 _selectionSource = SelectionSource.None;
             }
         }
@@ -637,9 +683,9 @@ namespace Game.UI
         public bool SendInputToCurrentSelection(in UIInputEvent inputEvent)
         {
             //Debug.Log($"[UISelectionService] SendInputToCurrentSelection: eventType={inputEvent.Type}");
-            if (_current != null && !CanSelect(_current))
+            if (_currentHandle.IsValid && !CanSelect(_currentHandle))
             {
-                SelectInternal(null);
+                SelectInternal(UINodeHandle.Invalid);
                 return false;
             }
             if (_currentConsumers.Count == 0)
@@ -666,17 +712,21 @@ namespace Game.UI
         /// <inheritdoc/>
         public bool CanSelect(IScopeNode? target)
         {
-            if (target == null)
-            {
-                return false;
-            }
+            return TryResolveTarget(target, out var handle) && CanSelect(handle);
+        }
 
-            // Modal Stack境界内にいるか
+        public bool CanSelect(UINodeHandle target)
+        {
+            if (!target.IsValid)
+                return false;
+
             if (!_modalStackHub.IsInAnyInputRoot(target))
                 return false;
 
-            // UIElementStateがEffectivelyActiveか
-            var state = target.GetUIElementState();
+            if (!TryResolveTarget(target, out var resolved))
+                return false;
+
+            var state = resolved.GetUIElementState();
             if (state != null && !state.IsEffectivelyActive)
                 return false;
             if (state != null && !state.IsVisible)
@@ -689,12 +739,20 @@ namespace Game.UI
 
         bool CanNavigateSelect(IScopeNode? target)
         {
+            return TryResolveTarget(target, out var handle) && CanNavigateSelect(handle);
+        }
+
+        bool CanNavigateSelect(UINodeHandle target)
+        {
             if (!CanSelect(target))
             {
                 return false;
             }
 
-            var state = target.GetUIElementState();
+            if (!TryResolveTarget(target, out var resolved))
+                return false;
+
+            var state = resolved.GetUIElementState();
             if (state != null && !state.EvaluateIsNavigationSelectable())
             {
                 return false;
@@ -710,24 +768,26 @@ namespace Game.UI
         /// <summary>
         /// 選択を内部的に変更する。
         /// </summary>
-        bool SelectInternal(IScopeNode? target)
+        bool SelectInternal(UINodeHandle target)
         {
-            if (ReferenceEquals(_current, target))
+            if (_currentHandle == target)
             {
                 return false;
             }
 
-            _previous = _current;
-            _current = target;
+            _previousHandle = _currentHandle;
+            _currentHandle = target;
 
             // Consumerリストを更新
             UpdateCurrentConsumers();
 
             // イベント発火
-            OnSelectionChanged?.Invoke(_current);
+            OnSelectionChanged?.Invoke(CurrentElement);
 
-            var prevName = _previous?.Identity?.SelfTransform != null ? _previous.Identity.SelfTransform.name : "null";
-            var curName = _current?.Identity?.SelfTransform != null ? _current.Identity.SelfTransform.name : "null";
+            var previous = PreviousElement;
+            var current = CurrentElement;
+            var prevName = previous?.Identity?.SelfTransform != null ? previous.Identity.SelfTransform.name : "null";
+            var curName = current?.Identity?.SelfTransform != null ? current.Identity.SelfTransform.name : "null";
 
             return true;
         }
@@ -735,15 +795,40 @@ namespace Game.UI
         /// <summary>
         /// ホバーを内部的に変更する。
         /// </summary>
-        void SetHoverInternal(IScopeNode? target)
+        void SetHoverInternal(UINodeHandle target)
         {
-            if (ReferenceEquals(_hovered, target))
+            if (_hoveredHandle == target)
             {
                 return;
             }
 
-            _hovered = target;
-            OnHoverChanged?.Invoke(_hovered);
+            _hoveredHandle = target;
+            OnHoverChanged?.Invoke(HoveredElement);
+        }
+
+        bool TryResolveTarget(UINodeHandle target, out IScopeNode resolved)
+        {
+            resolved = null!;
+            return target.IsValid && _nodeGraph != null && _nodeGraph.TryGetOwner(target, out resolved);
+        }
+
+        bool TryResolveTarget(IScopeNode? target, out UINodeHandle handle)
+        {
+            handle = UINodeHandle.Invalid;
+            return target != null && _nodeGraph != null && _nodeGraph.TryGetHandle(target, out handle);
+        }
+
+        IScopeNode? ResolveScopeOrNull(UINodeHandle target)
+        {
+            return TryResolveTarget(target, out var resolved) ? resolved : null;
+        }
+
+        UINodeHandle ResolveHandle(IScopeNode? target)
+        {
+            if (target != null && _nodeGraph != null && _nodeGraph.TryGetHandle(target, out var handle))
+                return handle;
+
+            return UINodeHandle.Invalid;
         }
 
         /// <summary>
@@ -753,15 +838,16 @@ namespace Game.UI
         {
             _currentConsumers.Clear();
 
-            if (_current == null)
+            var current = CurrentElement;
+            if (current == null)
             {
                 return;
             }
 
-            var resolver = _current.Resolver;
+            var resolver = current.Resolver;
             if (resolver == null)
             {
-                Debug.LogWarning($"[UISelectionService] Current element '{_current.Identity?.SelfTransform?.name ?? "(unknown)"}' has no Resolver.");
+                Debug.LogWarning($"[UISelectionService] Current element '{current.Identity?.SelfTransform?.name ?? "(unknown)"}' has no Resolver.");
                 return;
             }
 
@@ -782,12 +868,18 @@ namespace Game.UI
 
         void HandleModalBoundaryChanged()
         {
-            if (_current != null && !CanSelect(_current))
+            if (_currentHandle.IsValid && !CanSelect(_currentHandle))
             {
-                SelectInternal(null);
+                SelectInternal(UINodeHandle.Invalid);
             }
 
-            if (_current == null && _candidateProvider != null)
+            if (!_currentHandle.IsValid && TryGetModalFallbackSelection(out var modalFallbackHandle))
+            {
+                SelectInternal(modalFallbackHandle);
+                return;
+            }
+
+            if (!_currentHandle.IsValid && _candidateProvider != null)
             {
                 if (!TryGetActiveRootScopes(_rootScopeBuffer))
                     return;
@@ -827,6 +919,37 @@ namespace Game.UI
             }
         }
 
+        bool TryGetModalFallbackSelection(out UINodeHandle handle)
+        {
+            handle = UINodeHandle.Invalid;
+
+            var currentInputRoot = _modalStackHub.CurrentInputRoot;
+            if (currentInputRoot == null)
+                return false;
+
+            var rootStates = _modalStackHub.RootStates;
+            for (int i = 0; i < rootStates.Count; i++)
+            {
+                var state = rootStates[i];
+                if (!ReferenceEquals(state.Root, currentInputRoot))
+                    continue;
+
+                if (state.DefaultSelectedHandle.IsValid && CanSelect(state.DefaultSelectedHandle))
+                {
+                    handle = state.DefaultSelectedHandle;
+                    return true;
+                }
+
+                if (state.DefaultSelectedElement != null && TryResolveTarget(state.DefaultSelectedElement, out handle) && CanSelect(handle))
+                    return true;
+
+                break;
+            }
+
+            handle = UINodeHandle.Invalid;
+            return false;
+        }
+
         // ================================================================
         // IUISelectionServiceInternal 明示的実装
         // ================================================================
@@ -842,6 +965,12 @@ namespace Game.UI
                 return;
             }
 
+            if (target is IUIHandleNode handleNode && handleNode.NodeHandle.IsValid)
+            {
+                SelectInternal(handleNode.NodeHandle);
+                return;
+            }
+
             // IUIInputConsumerからIScopeNodeを逆引き
             if (target is MonoBehaviour mb)
             {
@@ -850,8 +979,11 @@ namespace Game.UI
                 {
                     if (parents[i] is IScopeNode scope)
                     {
-                        SelectInternal(scope);
-                        return;
+                        if (TryResolveTarget(scope, out var handle))
+                        {
+                            SelectInternal(handle);
+                            return;
+                        }
                     }
                 }
             }

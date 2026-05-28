@@ -14,6 +14,9 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That((int)ArtifactKind.Unknown, Is.EqualTo(0));
             Assert.That((int)ArtifactKind.ServiceGraph, Is.EqualTo(10));
             Assert.That((int)ArtifactKind.ScopeGraph, Is.EqualTo(20));
+            Assert.That((int)ArtifactKind.EntityRegistration, Is.EqualTo(25));
+            Assert.That((int)ArtifactKind.ServiceRegistration, Is.EqualTo(26));
+            Assert.That((int)ArtifactKind.EntityServiceRoute, Is.EqualTo(27));
             Assert.That((int)ArtifactKind.LifecyclePlan, Is.EqualTo(30));
             Assert.That((int)ArtifactKind.CommandCatalog, Is.EqualTo(40));
             Assert.That((int)ArtifactKind.ValueSchema, Is.EqualTo(50));

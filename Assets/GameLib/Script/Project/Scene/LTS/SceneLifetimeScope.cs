@@ -1,4 +1,6 @@
-﻿using Game.Platform;
+﻿using System;
+using Game.Commands;
+using Game.Platform;
 using UnityEngine;
 using Game.Spawn;
 using Game.Project.Scene.Runtime;
@@ -15,7 +17,6 @@ namespace Game.Scene
     [RequireComponent(typeof(Scalar.BaseScalarMB))]
     [RequireComponent(typeof(BulkTransformManagerMB))]
     [RequireComponent(typeof(Common.EventMB))]
-    [RequireComponent(typeof(BlackboardMB))]
     public sealed class SceneLifetimeScope : RuntimeLifetimeScopeBase
     {
         // 縺薙・Scene縺ｮ蜊碑ｪｿ繝薙Ν繝峨・Root
@@ -25,6 +26,21 @@ namespace Game.Scene
         protected override bool UseBuildCoordinator => true;
         protected override bool AutoBuildOnAwake => true;
         protected override LifetimeScopeKind RequiredParentKind => LifetimeScopeKind.Global;
+
+        protected override void AwakeConfigure(IRuntimeContainerBuilder builder)
+        {
+            var commandRunner = GetComponent<CommandRunnerMB>();
+            if (commandRunner == null)
+                throw new InvalidOperationException($"{nameof(SceneLifetimeScope)} requires {nameof(CommandRunnerMB)}.");
+
+            commandRunner.InstallRuntime(builder, this);
+
+            var runtimeManager = GetComponent<RuntimeManagerMB>();
+            if (runtimeManager == null)
+                throw new InvalidOperationException($"{nameof(SceneLifetimeScope)} requires {nameof(RuntimeManagerMB)}.");
+
+            runtimeManager.InstallRuntime(builder, this);
+        }
 
         protected override void ConfigureBase(IRuntimeContainerBuilder builder)
         {

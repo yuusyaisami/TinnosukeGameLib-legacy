@@ -1,7 +1,6 @@
 #nullable enable
 
 using System;
-using Game.Kernel.Diagnostics;
 
 namespace Game.Kernel.IR
 {
@@ -68,21 +67,6 @@ namespace Game.Kernel.IR
         public string TrackingIssueOrBlockingCondition { get; }
 
         public bool IsExpired => Status == LegacyRemovalStatus.Deprecated || Status == LegacyRemovalStatus.Forbidden;
-
-        public DiagnosticPayloadEntry[] ToDiagnosticPayloadEntries()
-        {
-            return new[]
-            {
-                new DiagnosticPayloadEntry("RemovalPolicyOwnerModule", DiagnosticPayloadValue.FromInt32(OwnerModule.Value)),
-                new DiagnosticPayloadEntry("RemovalPolicyStatus", DiagnosticPayloadValue.FromString(Status.ToString())),
-                new DiagnosticPayloadEntry("RemovalPolicyAllowedProfiles", DiagnosticPayloadValue.FromString(AllowedProfiles.ToString())),
-                new DiagnosticPayloadEntry("RemovalPolicyReason", DiagnosticPayloadValue.FromString(Reason)),
-                new DiagnosticPayloadEntry("RemovalPolicyTargetReplacement", DiagnosticPayloadValue.FromString(TargetReplacement)),
-                new DiagnosticPayloadEntry("RemovalPolicyExpirationCondition", DiagnosticPayloadValue.FromString(ExpirationCondition)),
-                new DiagnosticPayloadEntry("RemovalPolicyDiagnosticsCode", DiagnosticPayloadValue.FromString(DiagnosticsCode)),
-                new DiagnosticPayloadEntry("RemovalPolicyTrackingIssueOrBlockingCondition", DiagnosticPayloadValue.FromString(TrackingIssueOrBlockingCondition)),
-            };
-        }
 
         public bool Allows(KernelProfileMask profileMask)
         {

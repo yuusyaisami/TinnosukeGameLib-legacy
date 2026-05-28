@@ -742,7 +742,7 @@ namespace Game.Dialogue
             if (!_preset.Input.EnableInput)
                 return false;
 
-            if (!TryResolveFromScopeOrAncestors(_activeScope, out IButtonChannelHubService? buttonHub) || buttonHub == null)
+            if (!TryResolveButtonChannelHub(out IButtonChannelHubService? buttonHub) || buttonHub == null)
             {
                 errorMessage = BuildError("DIALOGUE-150", $"Required IButtonChannelHubService was not found. tag='{_tag}' buttonTag='{_preset.Input.ButtonChannelTag}'");
                 return false;
@@ -759,6 +759,15 @@ namespace Game.Dialogue
             _lastInputPhase = output.Phase;
             _inputOutput.OnUpdated += HandleInputOutputUpdated;
             return true;
+        }
+
+        bool TryResolveButtonChannelHub(out IButtonChannelHubService? buttonHub)
+        {
+            buttonHub = null;
+            if (ButtonChannelBindingResolver.TryResolveFromAnchor(_preset.Input.ButtonChannelHubSource, out buttonHub) && buttonHub != null)
+                return true;
+
+            return ButtonChannelBindingResolver.TryResolveFromScope(_activeScope, out buttonHub) && buttonHub != null;
         }
 
         void UnbindInputOutput()

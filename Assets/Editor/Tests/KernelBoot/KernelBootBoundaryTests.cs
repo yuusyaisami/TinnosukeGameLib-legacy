@@ -50,6 +50,55 @@ namespace TinnosukeGameLib.Tests.Editor
         }
 
         [Test]
+        public void Execute_ExposesCommandCatalogPlan_WhenVerifiedCommandCatalogIsPresent()
+        {
+            KernelBootManifest manifest = CreateManifest(new KernelProfileId(7), KernelProfileKind.Release);
+            KernelProfile profile = new KernelProfile(new KernelProfileId(7), KernelProfileKind.Release);
+            CommandCatalogPlan commandCatalogPlan = CreateCommandCatalogPlan();
+            CommandExecutorTablePlan commandExecutorTablePlan = CreateCommandExecutorTablePlan();
+            BootValidationInput input = CreatePassingInput(
+                manifest,
+                profile,
+                commandCatalogPlan: commandCatalogPlan,
+                commandExecutorTablePlan: commandExecutorTablePlan);
+
+            KernelBootBoundaryResult result = KernelBootBoundary.Execute(input);
+
+            Assert.That(result.Status, Is.EqualTo(KernelBootBoundaryStatus.Ready));
+            Assert.That(result, Is.InstanceOf<KernelBootBoundaryResult.Success>());
+
+            KernelBootBoundaryResult.Success success = (KernelBootBoundaryResult.Success)result;
+            Assert.That(success.Context.CommandCatalogPlan, Is.SameAs(commandCatalogPlan));
+            Assert.That(success.Context.CommandExecutorTablePlan, Is.SameAs(commandExecutorTablePlan));
+            Assert.That(success.RuntimeSurface.CommandCatalogPlan, Is.SameAs(commandCatalogPlan));
+            Assert.That(success.RuntimeSurface.CommandExecutorTablePlan, Is.SameAs(commandExecutorTablePlan));
+
+            KernelBootRuntimeSurface runtimeSurface = (KernelBootRuntimeSurface)success.RuntimeSurface;
+            Assert.That(runtimeSurface.Runtime.CommandCatalogPlan, Is.SameAs(commandCatalogPlan));
+            Assert.That(runtimeSurface.Runtime.CommandExecutorTablePlan, Is.SameAs(commandExecutorTablePlan));
+            Assert.That(runtimeSurface.Runtime.CommandCatalogPlan!.Entries.Length, Is.EqualTo(1));
+            Assert.That(runtimeSurface.Runtime.CommandCatalogPlan.Entries[0].TypeId.Value, Is.EqualTo(801));
+            Assert.That(runtimeSurface.Runtime.CommandExecutorTablePlan!.Entries.Length, Is.EqualTo(1));
+            Assert.That(runtimeSurface.Runtime.CommandExecutorTablePlan.Entries[0].ExecutorId.Value, Is.EqualTo(807));
+        }
+
+        [Test]
+        public void Execute_RejectsMissingCommandExecutorTable_WhenVerifiedCommandCatalogIsPresent()
+        {
+            KernelBootManifest manifest = CreateManifest(new KernelProfileId(7), KernelProfileKind.Release);
+            KernelProfile profile = new KernelProfile(new KernelProfileId(7), KernelProfileKind.Release);
+            CommandCatalogPlan commandCatalogPlan = CreateCommandCatalogPlan();
+            BootValidationInput input = CreatePassingInput(manifest, profile, commandCatalogPlan: commandCatalogPlan);
+
+            KernelBootBoundaryResult result = KernelBootBoundary.Execute(input);
+
+            Assert.That(result.Status, Is.EqualTo(KernelBootBoundaryStatus.Failed));
+            Assert.That(result, Is.InstanceOf<KernelBootBoundaryResult.Failure>());
+            Assert.That(result.Diagnostics.Count, Is.EqualTo(1));
+            Assert.That(result.Diagnostics[0].Code.Value, Is.EqualTo(BootValidationCodes.CommandExecutorTableMissing));
+        }
+
+        [Test]
         public void Execute_ReturnsEmptyBootShell_WhenValidationPassesForEmptyIr()
         {
             KernelBootManifest manifest = CreateManifest(new KernelProfileId(7), KernelProfileKind.Release);
@@ -152,7 +201,7 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(result.Diagnostics[0].Code.Value, Is.EqualTo(KernelBootBoundaryCodes.RuntimeConstructionFailed));
             Assert.That(result.Diagnostics[0].Severity, Is.EqualTo(DiagnosticSeverity.Fatal));
             Assert.That(result.Diagnostics[0].Context.ProfileId, Is.EqualTo(profile.Id.Value));
-            Assert.That(result.Diagnostics[0].Context.Artifact.Value, Is.EqualTo(manifest.ArtifactSet.ArtifactSetId.Value));
+            Assert.That(result.Diagnostics[0].Context.Artifact.ArtifactSetId, Is.EqualTo(manifest.ArtifactSet.ArtifactSetId.Value));
             Assert.That(result.Diagnostics[0].Exception, Is.Not.Null);
             Assert.That(result.Diagnostics[0].Exception!.Type, Does.Contain(nameof(InvalidOperationException)));
             Assert.That(result.Diagnostics[0].Exception!.StackTrace, Is.Null);
@@ -239,7 +288,12 @@ namespace TinnosukeGameLib.Tests.Editor
             Assert.That(resolvedDispatcher!.LifecyclePlan.Header.PlanId.Value, Is.EqualTo(41));
         }
 
-        static BootValidationInput CreatePassingInput(KernelBootManifest manifest, KernelProfile profile, LifecyclePlan? lifecyclePlan = null)
+        static BootValidationInput CreatePassingInput(
+            KernelBootManifest manifest,
+            KernelProfile profile,
+            LifecyclePlan? lifecyclePlan = null,
+            CommandCatalogPlan? commandCatalogPlan = null,
+            CommandExecutorTablePlan? commandExecutorTablePlan = null)
         {
             ServiceGraphPlan serviceGraphPlan = CreateServiceGraphPlan(ServiceFactoryKind.GeneratedFactory);
 
@@ -266,7 +320,9 @@ namespace TinnosukeGameLib.Tests.Editor
                 serviceGraphPlan: serviceGraphPlan,
                 scopeGraphPlan: CreateScopeGraphPlan(new[] { CreateScope(21, 21, ScopeKind.Root, 0, 41, 21, false) }),
                 lifecyclePlan: lifecyclePlan,
-                debugMap: CreateDebugMap(manifest));
+                debugMap: CreateDebugMap(manifest),
+                commandCatalogPlan: commandCatalogPlan,
+                commandExecutorTablePlan: commandExecutorTablePlan);
         }
 
         static BootValidationInput CreateEmptyIrInput(KernelBootManifest manifest, KernelProfile profile)
@@ -397,7 +453,7 @@ namespace TinnosukeGameLib.Tests.Editor
 
         static ScopeGraphPlan CreateScopeGraphPlan(ScopeIR[] scopes)
         {
-            Hash128 generatedHash = KernelProjectionHashing.ComputeScopeGraphHash(scopes);
+            Hash128 generatedHash = KernelProjectionHashingTestAdapter.ComputeScopeGraphHash(scopes);
 
             VerifiedArtifactHeader header = new VerifiedArtifactHeader(
                 new PlanId(32),
@@ -425,7 +481,7 @@ namespace TinnosukeGameLib.Tests.Editor
                     CreateStep(42, LifecyclePhase.Boot, 10, new LifecycleTargetRefIR(new ScopePlanId(21)), LifecycleActionKind.ScopeStateTransition, 4101),
                 });
 
-            Hash128 generatedHash = KernelProjectionHashing.ComputeLifecyclePlanHash(new[] { lifecycle });
+            Hash128 generatedHash = KernelProjectionHashingTestAdapter.ComputeLifecyclePlanHash(new[] { lifecycle });
 
             VerifiedArtifactHeader header = new VerifiedArtifactHeader(
                 new PlanId(41),
@@ -441,6 +497,86 @@ namespace TinnosukeGameLib.Tests.Editor
                 "KernelBootBoundaryTests");
 
             return new LifecyclePlan(header, new[] { lifecycle });
+        }
+
+        static CommandCatalogPlan CreateCommandCatalogPlan()
+        {
+            CommandIR[] commands =
+            {
+                new CommandIR(
+                    new CommandTypeId(801),
+                    "BootCommand",
+                    new CommandAuthoringKeyRefIR(new CommandAuthoringKeyId(802), "boot.command", new SourceLocationId(803)),
+                    new CommandCategoryId(804),
+                    new ModuleId(10),
+                    new CommandPayloadSchemaRefIR(
+                        new CommandPayloadSchemaId(805),
+                        new SourceLocationId(806),
+                        Array.Empty<CommandPayloadFieldIR>()),
+                    new CommandExecutorRefIR(new CommandExecutorId(807), new SourceLocationId(808)),
+                    Array.Empty<CommandDependencyIR>(),
+                    new SourceLocationId(809)),
+            };
+
+            Hash128 generatedHash = KernelProjectionHashingTestAdapter.ComputeCommandCatalogHash(commands);
+            VerifiedArtifactHeader header = new VerifiedArtifactHeader(
+                new PlanId(33),
+                new ArtifactSetId(11),
+                new ArtifactId(8),
+                ArtifactKind.CommandCatalog,
+                11,
+                new Hash128(1, 2, 3, 4),
+                new Hash128(5, 6, 7, 8),
+                new Hash128(9, 9, 9, 9),
+                new Hash128(6, 6, 6, 6),
+                generatedHash,
+                "KernelBootBoundaryTests");
+
+            return new CommandCatalogPlan(header, commands);
+        }
+
+        static CommandExecutorTablePlan CreateCommandExecutorTablePlan()
+        {
+            CommandIR[] commands =
+            {
+                new CommandIR(
+                    new CommandTypeId(801),
+                    "BootCommand",
+                    new CommandAuthoringKeyRefIR(new CommandAuthoringKeyId(802), "boot.command", new SourceLocationId(803)),
+                    new CommandCategoryId(804),
+                    new ModuleId(10),
+                    new CommandPayloadSchemaRefIR(
+                        new CommandPayloadSchemaId(805),
+                        new SourceLocationId(806),
+                        Array.Empty<CommandPayloadFieldIR>()),
+                    new CommandExecutorRefIR(new CommandExecutorId(807), new SourceLocationId(808)),
+                    Array.Empty<CommandDependencyIR>(),
+                    new SourceLocationId(809)),
+            };
+            CommandExecutorBindingSeed[] bindings =
+            {
+                new CommandExecutorBindingSeed(new CommandExecutorId(807), "Assembly-CSharp::Game.Commands.VNext.BootCommandExecutor", CommandExecutorBindingKind.Singleton),
+            };
+            CommandExecutorEntryPlan[] projectedEntries =
+            {
+                new CommandExecutorEntryPlan(new CommandExecutorId(807), new ModuleId(10), "Assembly-CSharp::Game.Commands.VNext.BootCommandExecutor", CommandExecutorBindingKind.Singleton, new SourceLocationId(809)),
+            };
+
+            Hash128 generatedHash = KernelProjectionHashingTestAdapter.ComputeCommandExecutorTableHash(projectedEntries);
+            VerifiedArtifactHeader header = new VerifiedArtifactHeader(
+                new PlanId(34),
+                new ArtifactSetId(11),
+                new ArtifactId(9),
+                ArtifactKind.CommandExecutorTable,
+                11,
+                new Hash128(1, 2, 3, 4),
+                new Hash128(5, 6, 7, 8),
+                new Hash128(9, 9, 9, 9),
+                new Hash128(6, 6, 6, 6),
+                generatedHash,
+                "KernelBootBoundaryTests");
+
+            return new CommandExecutorTablePlan(header, commands, bindings);
         }
 
         static LifecycleIR CreateLifecycle(int lifecycleId, string name, LifecycleStepIR[] steps)
@@ -491,7 +627,7 @@ namespace TinnosukeGameLib.Tests.Editor
 
         static ServiceGraphPlan CreateServiceGraphPlan(ServiceIR[] services)
         {
-            Hash128 generatedHash = KernelProjectionHashing.ComputeServiceGraphHash(services);
+            Hash128 generatedHash = KernelProjectionHashingTestAdapter.ComputeServiceGraphHash(services);
 
             VerifiedArtifactHeader header = new VerifiedArtifactHeader(
                 new PlanId(31),
@@ -574,7 +710,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 }
                 : Array.Empty<KernelDebugMapEntry>();
 
-            Hash128 contentHash = KernelProjectionHashing.ComputeDebugMapHash(entries);
+            Hash128 contentHash = KernelProjectionHashingTestAdapter.ComputeDebugMapHash(entries);
             VerifiedArtifactHeader header = new VerifiedArtifactHeader(
                 manifest.ArtifactSet.PlanId,
                 manifest.ArtifactSet.ArtifactSetId,
@@ -607,6 +743,20 @@ namespace TinnosukeGameLib.Tests.Editor
 
         sealed class TestRuntimeSurface : IKernelBootRuntimeSurface
         {
+            public EntityRegistrationPlan? EntityRegistrationPlan => null;
+
+            public ServiceRegistrationPlan? ServiceRegistrationPlan => null;
+
+            public EntityServiceRoutePlan? EntityServiceRoutePlan => null;
+
+            public CommandCatalogPlan? CommandCatalogPlan => null;
+
+            public CommandExecutorTablePlan? CommandExecutorTablePlan => null;
+
+            public KernelRuntimeDiagnostics Diagnostics => throw new NotImplementedException();
+
+            public KernelDebugMap DebugMap => throw new NotImplementedException();
+
             public KernelLifecycleDispatcher? LifecycleDispatcher => null;
 
             public ILifecyclePlanResolver LifecyclePlanResolver => throw new NotImplementedException();

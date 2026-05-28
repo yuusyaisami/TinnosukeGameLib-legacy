@@ -21,9 +21,17 @@ namespace Game.UI
         /// <summary>このモーダルルートに紐づくスコープノード。</summary>
         IScopeNode? OwnerScope { get; }
 
+        /// <summary>このモーダルルートに紐づく graph handle。</summary>
+        UINodeHandle OwnerHandle { get; }
+
         /// <summary>
         /// 指定したスコープがこのモーダルルートの子孫かどうか。
         /// </summary>
         bool IsDescendant(IScopeNode? target);
+
+        /// <summary>
+        /// 指定した handle がこのモーダルルートの子孫かどうか。
+        /// </summary>
+        bool IsDescendant(UINodeHandle target);
     }
 }

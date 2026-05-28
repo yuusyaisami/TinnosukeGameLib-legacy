@@ -5,6 +5,7 @@ using Game.Kernel.Boot;
 using Game.Kernel.Diagnostics;
 using Game.Kernel.Generation;
 using Game.Kernel.IR;
+using Game.Kernel.Validation;
 using NUnit.Framework;
 
 namespace TinnosukeGameLib.Tests.Editor
@@ -134,6 +135,7 @@ namespace TinnosukeGameLib.Tests.Editor
                     new[] { ScopeIdentity(21) },
                     Array.Empty<RuntimeIdentityRef>()),
                 fallbackState: new BootFallbackValidationState(false, false, false, false, false, false),
+                scopeGraphPlan: CreateScopeGraphPlan(),
                 debugMap: CreateDebugMap(manifest));
 
             BootValidationReport report = BootValidator.Validate(input);
@@ -396,6 +398,27 @@ namespace TinnosukeGameLib.Tests.Editor
                 new[] { ScopeIdentity(21) });
         }
 
+        static ServiceGraphPlan CreateEmptyServiceGraphPlan()
+        {
+            ServiceIR[] services = Array.Empty<ServiceIR>();
+            Hash128 contentHash = KernelProjectionHashingTestAdapter.ComputeServiceGraphHash(services);
+
+            VerifiedArtifactHeader header = new VerifiedArtifactHeader(
+                new PlanId(31),
+                new ArtifactSetId(11),
+                new ArtifactId(1),
+                ArtifactKind.ServiceGraph,
+                11,
+                new Hash128(1, 2, 3, 4),
+                new Hash128(5, 6, 7, 8),
+                new Hash128(9, 9, 9, 9),
+                new Hash128(6, 6, 6, 6),
+                contentHash,
+                "BootValidationTests");
+
+            return new ServiceGraphPlan(header, services);
+        }
+
         static ScopeGraphPlan CreateScopeGraphPlan(int artifactSetId = 11)
         {
             ScopeIR[] scopes =
@@ -414,17 +437,17 @@ namespace TinnosukeGameLib.Tests.Editor
                     new SourceLocationId(33))
             };
 
-            Hash128 contentHash = KernelProjectionHashing.ComputeScopeGraphHash(scopes);
+            Hash128 contentHash = KernelProjectionHashingTestAdapter.ComputeScopeGraphHash(scopes);
             VerifiedArtifactHeader header = new VerifiedArtifactHeader(
                 new PlanId(32),
                 new ArtifactSetId(artifactSetId),
                 new ArtifactId(2),
                 ArtifactKind.ScopeGraph,
                 11,
-                new UnityEngine.Hash128(1, 2, 3, 4),
-                new UnityEngine.Hash128(5, 6, 7, 8),
-                new UnityEngine.Hash128(9, 9, 9, 9),
-                new UnityEngine.Hash128(6, 6, 6, 6),
+                new Hash128(1, 2, 3, 4),
+                new Hash128(5, 6, 7, 8),
+                new Hash128(9, 9, 9, 9),
+                new Hash128(6, 6, 6, 6),
                 contentHash,
                 "BootValidationTests");
 
@@ -482,7 +505,7 @@ namespace TinnosukeGameLib.Tests.Editor
                 }
                 : Array.Empty<KernelDebugMapEntry>();
 
-            Hash128 contentHash = KernelProjectionHashing.ComputeDebugMapHash(entries);
+            Hash128 contentHash = KernelProjectionHashingTestAdapter.ComputeDebugMapHash(entries);
             VerifiedArtifactHeader header = new VerifiedArtifactHeader(
                 manifest.ArtifactSet.PlanId,
                 manifest.ArtifactSet.ArtifactSetId,

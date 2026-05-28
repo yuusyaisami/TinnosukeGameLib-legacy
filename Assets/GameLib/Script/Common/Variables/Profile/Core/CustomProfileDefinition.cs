@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Game.Common;
+using Game.Kernel.IR;
 using Game.Save;
 using Game.Scalar;
 using Sirenix.OdinInspector;
@@ -95,7 +96,7 @@ namespace Game.Profile
     }
 
     [Serializable]
-    public sealed class ProfileDynamicValue : IProfileValueBinding
+    public sealed class ProfileDynamicValue : IProfileValueBinding, IScalarDeclarationAuthoring
     {
         [BoxGroup("Value")]
         [LabelText("Kind")]
@@ -314,12 +315,12 @@ namespace Game.Profile
             }
         }
 
-        void IProfileValueBinding.WriteToBlackboard(IBlackboardService blackboard)
+        void IProfileValueBinding.WriteToBlackboard(IVarStore blackboard)
         {
             if (!HasBlackboardKey || blackboard == null)
                 return;
 
-            var vars = blackboard.LocalVars;
+            var vars = blackboard;
             var varId = _blackboardKey;
 
             switch (_blackboardPolicy)
@@ -373,6 +374,41 @@ namespace Game.Profile
                         runtimeSkip.SetLocalBase(_localBaseValue);
                     break;
             }
+        }
+
+        bool IScalarDeclarationAuthoring.TryCreateScalarDeclaration(
+            ScalarOwnerIdentity owner,
+            string profileTypeName,
+            SourceLocationIR source,
+            out ScalarDeclarationInput declaration,
+            out string failureReason)
+        {
+            if (!CanBindScalar || !HasScalarKey)
+            {
+                declaration = default;
+                failureReason = "ProfileDynamicValue requires a float scalar binding to create a scalar declaration.";
+                return false;
+            }
+
+            return ProfileScalarDeclarationProjection.TryCreateScalarDeclaration(
+                owner,
+                _scalarKey,
+                _scalarPolicy,
+                _floatValue,
+                _useEffectMod,
+                _useRoundMod,
+                _roundDigits,
+                _useClampMod,
+                _clamp,
+                _useLocalBase,
+                _localBaseValue,
+                _scalarSaveEnabled && HasScalarKey && _kind == ProfileDynamicValueKind.Float,
+                _scalarSaveLayer,
+                profileTypeName,
+                nameof(ProfileDynamicValue),
+                source,
+                out declaration,
+                out failureReason);
         }
 
         void WriteToVars(IVarStore vars, int varId)

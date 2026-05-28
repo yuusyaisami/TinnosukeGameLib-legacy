@@ -18,7 +18,7 @@ namespace Game.Spawn
         /// <summary>
         /// Parent transform in the Unity hierarchy.
         /// - When null, Runtime spawners should parent under their configured root.
-        /// - When specified and different from the configured root, pooling must be bypassed.
+        /// - When specified, it controls explicit attachment only and does not change pool family.
         /// </summary>
         public Transform? TransformParent;
 
@@ -34,7 +34,7 @@ namespace Game.Spawn
         /// <summary>
         /// Whether the spawned instance may be pooled. When false, spawners should instantiate/destroy
         /// directly and mark the created RuntimeLifetimeScope so it will not be returned to the pool.
-        /// Default: true
+        /// Pool family is prefab-based, not parent-based. Default: true
         /// </summary>
         public bool AllowPooling;
 

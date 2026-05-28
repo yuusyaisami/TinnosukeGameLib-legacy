@@ -248,4 +248,16 @@ Do not add compatibility layers, fallback paths, global registries, or discovery
 
 If a decision affects core architecture, document the assumption in the relevant spec or implementation comment.
 
-````
+## 旧システムについて、
+
+SceneLTSやEntityLTSなどのような 旧システム(Lifetimescopeという名称がつくもの)は
+原則、新システムの ApplicationKernel と SceneKernel を主軸としたものに差し替えられます。
+
+旧システムのメインであるDIは新システムの ServiceGraph と ScopeGraph に近い形で実装されるため、原則DIを使った移行や新機能の実装は行いません。
+
+サービスの登録や解決のための新しいAPIは、基本的に ServiceGraph と ScopeGraph を通じて行われるべきです。Planを作成しての経路のため、IFeatureInstallerを使っているものはすべて移行対象です。原則IFeatureInstallerは使いません、これが新しいアーキテクチャに入っていたら、移行漏れの可能性が高いです。
+
+## 方針
+
+原則、妥協は行いません
+現在の作業バージョンはV2.1です。Milestoneの指定があった場合は原則M2.1のことを指しています。

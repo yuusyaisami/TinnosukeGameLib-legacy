@@ -1,12 +1,826 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using Game.Kernel.Abstractions;
 using Game.Kernel.Diagnostics;
 using Game.Kernel.IR;
 using Game.Kernel.Validation;
 
 namespace Game.Kernel.Generation
 {
+    public sealed class EntityRegistrationPlanEntry
+    {
+        readonly string[] classificationTags;
+
+        public EntityRegistrationPlanEntry(
+            ModuleId ownerModule,
+            EntityRef entityRef,
+            string displayName,
+            string debugName,
+            string metadata,
+            string[]? classificationTags,
+            SourceLocationIR source)
+        {
+            if (ownerModule.Value <= 0)
+                throw new ArgumentException("Entity registration plan entries must provide a non-zero owner module identity.", nameof(ownerModule));
+
+            if (entityRef.IsEmpty)
+                throw new ArgumentException("Entity registration plan entries must provide a non-empty EntityRef.", nameof(entityRef));
+
+            if (!source.IsSpecified)
+                throw new ArgumentException("Entity registration plan entries must provide a specified source location.", nameof(source));
+
+            OwnerModule = ownerModule;
+            EntityRef = entityRef;
+            DisplayName = displayName ?? string.Empty;
+            DebugName = debugName ?? string.Empty;
+            Metadata = metadata ?? string.Empty;
+            this.classificationTags = NormalizeTags(classificationTags);
+            Source = source;
+        }
+
+        public ModuleId OwnerModule { get; }
+
+        public EntityRef EntityRef { get; }
+
+        public string DisplayName { get; }
+
+        public string DebugName { get; }
+
+        public string Metadata { get; }
+
+        public ReadOnlySpan<string> ClassificationTags => classificationTags;
+
+        public SourceLocationIR Source { get; }
+
+        internal static EntityRegistrationPlanEntry[] CloneAndSort(ReadOnlySpan<EntityRegistrationPlanEntry> entries)
+        {
+            EntityRegistrationPlanEntry[] sortedEntries = KernelProjectionArrayHelpers.CloneAndSort(entries, CompareEntries);
+            for (int index = 1; index < sortedEntries.Length; index++)
+            {
+                if (sortedEntries[index - 1].EntityRef == sortedEntries[index].EntityRef)
+                {
+                    throw new ArgumentException(
+                        "EntityRegistrationPlan requires unique EntityRef values. Duplicate EntityRef=" + sortedEntries[index].EntityRef.Value,
+                        nameof(entries));
+                }
+            }
+
+            return sortedEntries;
+        }
+
+        static int CompareEntries(EntityRegistrationPlanEntry left, EntityRegistrationPlanEntry right)
+        {
+            int comparison = StringComparer.Ordinal.Compare(left.EntityRef.Value, right.EntityRef.Value);
+            if (comparison != 0)
+                return comparison;
+
+            comparison = left.OwnerModule.Value.CompareTo(right.OwnerModule.Value);
+            if (comparison != 0)
+                return comparison;
+
+            comparison = StringComparer.Ordinal.Compare(left.DebugName, right.DebugName);
+            if (comparison != 0)
+                return comparison;
+
+            comparison = StringComparer.Ordinal.Compare(left.DisplayName, right.DisplayName);
+            if (comparison != 0)
+                return comparison;
+
+            return StringComparer.Ordinal.Compare(left.Metadata, right.Metadata);
+        }
+
+        static string[] NormalizeTags(string[]? source)
+        {
+            if (source == null || source.Length == 0)
+                return Array.Empty<string>();
+
+            List<string> tags = new List<string>(source.Length);
+            for (int index = 0; index < source.Length; index++)
+            {
+                string tag = source[index] ?? string.Empty;
+                if (tag.Length == 0)
+                    continue;
+
+                bool exists = false;
+                for (int existingIndex = 0; existingIndex < tags.Count; existingIndex++)
+                {
+                    if (StringComparer.Ordinal.Equals(tags[existingIndex], tag))
+                    {
+                        exists = true;
+                        break;
+                    }
+                }
+
+                if (!exists)
+                    tags.Add(tag);
+            }
+
+            if (tags.Count <= 1)
+                return tags.ToArray();
+
+            tags.Sort(StringComparer.Ordinal);
+            return tags.ToArray();
+        }
+    }
+
+    public sealed class EntityRegistrationPlan
+    {
+        readonly EntityRegistrationPlanEntry[] entries;
+
+        public EntityRegistrationPlan(VerifiedArtifactHeader header, ReadOnlySpan<EntityRegistrationPlanEntry> entries)
+        {
+            Header = header ?? throw new ArgumentNullException(nameof(header));
+            KernelProjectionArtifactKindValidator.ValidateArtifactKind(header, ArtifactKind.EntityRegistration);
+            this.entries = EntityRegistrationPlanEntry.CloneAndSort(entries);
+            ContentHash = KernelProjectionHashing.ComputeEntityRegistrationHash(this.entries);
+            KernelProjectionHashing.ValidateHeaderHash(header, ContentHash);
+        }
+
+        public VerifiedArtifactHeader Header { get; }
+
+        public ReadOnlySpan<EntityRegistrationPlanEntry> Entries => entries;
+
+        public Hash128 ContentHash { get; }
+    }
+
+    public readonly struct ServiceRegistrationDependencyPlan
+    {
+        public ServiceRegistrationDependencyPlan(DependencyNodeIR target, DependencyStrength strength)
+        {
+            if (target.Kind == DependencyNodeKind.Unknown)
+                throw new ArgumentException("Service registration dependencies must provide an explicit target.", nameof(target));
+
+            if (!Enum.IsDefined(typeof(DependencyStrength), strength))
+                throw new ArgumentOutOfRangeException(nameof(strength), strength, "Service registration dependencies must provide a defined dependency strength.");
+
+            Target = target;
+            Strength = strength;
+        }
+
+        public DependencyNodeIR Target { get; }
+
+        public DependencyStrength Strength { get; }
+    }
+
+    public sealed class ServiceRegistrationSeed
+    {
+        readonly string[] contractNames;
+        readonly ServiceRegistrationDependencyPlan[] dependencies;
+
+        public ServiceRegistrationSeed(
+            ModuleId ownerModule,
+            EntityRef entityRef,
+            ServiceId serviceId,
+            string stableId,
+            string serviceName,
+            string debugName,
+            string[] contractNames,
+            ServiceRegistrationDependencyPlan[]? dependencies,
+            ServiceLifetimeKind lifetime,
+            ServiceFactoryKind factoryKind,
+            SourceLocationIR source)
+        {
+            if (ownerModule.Value == 0)
+                throw new ArgumentException("Service registration seeds must provide a non-zero owner module identity.", nameof(ownerModule));
+
+            if (entityRef.IsEmpty)
+                throw new ArgumentException("Service registration seeds must provide a non-empty EntityRef.", nameof(entityRef));
+
+            if (serviceId.Value <= 0)
+                throw new ArgumentException("Service registration seeds must provide a non-zero ServiceId.", nameof(serviceId));
+
+            if (string.IsNullOrWhiteSpace(stableId))
+                throw new ArgumentException("Service registration seeds must provide a stable identity.", nameof(stableId));
+
+            if (string.IsNullOrWhiteSpace(serviceName))
+                throw new ArgumentException("Service registration seeds must provide a stable service name.", nameof(serviceName));
+
+            if (lifetime == ServiceLifetimeKind.Unknown)
+                throw new ArgumentException("Service registration seeds must provide a service lifetime.", nameof(lifetime));
+
+            if (factoryKind == ServiceFactoryKind.Unknown)
+                throw new ArgumentException("Service registration seeds must provide a service factory kind.", nameof(factoryKind));
+
+            if (!source.IsSpecified)
+                throw new ArgumentException("Service registration seeds must provide a specified source location.", nameof(source));
+
+            OwnerModule = ownerModule;
+            EntityRef = entityRef;
+            ServiceId = serviceId;
+            StableId = stableId.Trim();
+            ServiceName = serviceName.Trim();
+            DebugName = string.IsNullOrWhiteSpace(debugName) ? string.Empty : debugName.Trim();
+            this.contractNames = CloneContractNames(contractNames);
+            this.dependencies = CloneDependencies(dependencies);
+            Lifetime = lifetime;
+            FactoryKind = factoryKind;
+            Source = source;
+        }
+
+        public ModuleId OwnerModule { get; }
+
+        public EntityRef EntityRef { get; }
+
+        public ServiceId ServiceId { get; }
+
+        public string StableId { get; }
+
+        public string ServiceName { get; }
+
+        public string DebugName { get; }
+
+        public ReadOnlySpan<string> ContractNames => contractNames;
+
+        public ReadOnlySpan<ServiceRegistrationDependencyPlan> Dependencies => dependencies;
+
+        public ServiceLifetimeKind Lifetime { get; }
+
+        public ServiceFactoryKind FactoryKind { get; }
+
+        public SourceLocationIR Source { get; }
+
+        static string[] CloneContractNames(string[]? source)
+        {
+            if (source == null || source.Length == 0)
+                throw new ArgumentException("Service registration seeds must provide at least one contract name.", nameof(source));
+
+            string[] clone = new string[source.Length];
+            for (int index = 0; index < source.Length; index++)
+            {
+                string contractName = string.IsNullOrWhiteSpace(source[index]) ? string.Empty : source[index].Trim();
+                if (contractName.Length == 0)
+                    throw new ArgumentException("Service registration contract names must be non-empty.", nameof(source));
+
+                clone[index] = contractName;
+            }
+
+            Array.Sort(clone, StringComparer.Ordinal);
+            for (int index = 1; index < clone.Length; index++)
+            {
+                if (StringComparer.Ordinal.Equals(clone[index - 1], clone[index]))
+                    throw new ArgumentException("Service registration contract names must be unique.", nameof(source));
+            }
+
+            return clone;
+        }
+
+        static ServiceRegistrationDependencyPlan[] CloneDependencies(ServiceRegistrationDependencyPlan[]? source)
+        {
+            if (source == null || source.Length == 0)
+                return Array.Empty<ServiceRegistrationDependencyPlan>();
+
+            ServiceRegistrationDependencyPlan[] clone = new ServiceRegistrationDependencyPlan[source.Length];
+            for (int index = 0; index < source.Length; index++)
+            {
+                ServiceRegistrationDependencyPlan dependency = source[index];
+                if (dependency.Target.Kind == DependencyNodeKind.Unknown)
+                    throw new ArgumentException("Service registration dependencies must not contain unknown targets.", nameof(source));
+
+                clone[index] = dependency;
+            }
+
+            for (int index = 0; index < clone.Length; index++)
+            {
+                for (int inner = index + 1; inner < clone.Length; inner++)
+                {
+                    if (clone[index].Target == clone[inner].Target)
+                        throw new ArgumentException("Service registration dependencies must be unique.", nameof(source));
+                }
+            }
+
+            return clone;
+        }
+    }
+
+    public sealed class ServiceRegistrationPlanEntry
+    {
+        readonly string[] contractNames;
+        readonly ServiceRegistrationDependencyPlan[] dependencies;
+
+        public ServiceRegistrationPlanEntry(
+            ModuleId ownerModule,
+            EntityRef entityRef,
+            ServiceId serviceId,
+            string stableId,
+            string serviceName,
+            string debugName,
+            string[] contractNames,
+            ServiceRegistrationDependencyPlan[]? dependencies,
+            ServiceLifetimeKind lifetime,
+            ServiceCardinalityKind cardinality,
+            ServiceFactoryKind factoryKind,
+            SourceLocationIR source)
+        {
+            if (ownerModule.Value == 0)
+                throw new ArgumentException("Service registration plan entries must provide a non-zero owner module identity.", nameof(ownerModule));
+
+            if (entityRef.IsEmpty)
+                throw new ArgumentException("Service registration plan entries must provide a non-empty EntityRef.", nameof(entityRef));
+
+            if (serviceId.Value <= 0)
+                throw new ArgumentException("Service registration plan entries must provide a non-zero ServiceId.", nameof(serviceId));
+
+            if (string.IsNullOrWhiteSpace(stableId))
+                throw new ArgumentException("Service registration plan entries must provide a stable identity.", nameof(stableId));
+
+            if (string.IsNullOrWhiteSpace(serviceName))
+                throw new ArgumentException("Service registration plan entries must provide a stable service name.", nameof(serviceName));
+
+            if (lifetime == ServiceLifetimeKind.Unknown)
+                throw new ArgumentException("Service registration plan entries must provide a service lifetime.", nameof(lifetime));
+
+            if (cardinality == ServiceCardinalityKind.Unknown)
+                throw new ArgumentException("Service registration plan entries must provide a service cardinality.", nameof(cardinality));
+
+            if (factoryKind == ServiceFactoryKind.Unknown)
+                throw new ArgumentException("Service registration plan entries must provide a service factory kind.", nameof(factoryKind));
+
+            if (!source.IsSpecified)
+                throw new ArgumentException("Service registration plan entries must provide a specified source location.", nameof(source));
+
+            OwnerModule = ownerModule;
+            EntityRef = entityRef;
+            ServiceId = serviceId;
+            StableId = stableId.Trim();
+            ServiceName = serviceName.Trim();
+            DebugName = string.IsNullOrWhiteSpace(debugName) ? string.Empty : debugName.Trim();
+            this.contractNames = CloneContractNames(contractNames);
+            this.dependencies = CloneDependencies(dependencies);
+            Lifetime = lifetime;
+            Cardinality = cardinality;
+            FactoryKind = factoryKind;
+            Source = source;
+        }
+
+        public ModuleId OwnerModule { get; }
+
+        public EntityRef EntityRef { get; }
+
+        public ServiceId ServiceId { get; }
+
+        public string StableId { get; }
+
+        public string ServiceName { get; }
+
+        public string DebugName { get; }
+
+        public ReadOnlySpan<string> ContractNames => contractNames;
+
+        public ReadOnlySpan<ServiceRegistrationDependencyPlan> Dependencies => dependencies;
+
+        public ServiceLifetimeKind Lifetime { get; }
+
+        public ServiceCardinalityKind Cardinality { get; }
+
+        public ServiceFactoryKind FactoryKind { get; }
+
+        public SourceLocationIR Source { get; }
+
+        public static ServiceRegistrationPlanEntry[] BuildEntries(ReadOnlySpan<ServiceRegistrationSeed> seeds, ServiceGraphPlan serviceGraph)
+        {
+            if (serviceGraph == null)
+                throw new ArgumentNullException(nameof(serviceGraph));
+
+            if (seeds.Length == 0)
+                return Array.Empty<ServiceRegistrationPlanEntry>();
+
+            ServiceRegistrationSeed[] sortedSeeds = KernelProjectionArrayHelpers.CloneAndSort(seeds, CompareSeeds);
+            ServiceRegistrationPlanEntry[] entries = new ServiceRegistrationPlanEntry[sortedSeeds.Length];
+            ReadOnlySpan<ServiceEntryPlan> serviceEntries = serviceGraph.Entries;
+
+            for (int index = 0; index < sortedSeeds.Length; index++)
+            {
+                ServiceRegistrationSeed seed = sortedSeeds[index];
+                if (!TryFindServiceEntry(serviceEntries, seed.ServiceId, out ServiceEntryPlan serviceEntry))
+                {
+                    throw new ArgumentException(
+                        "ServiceRegistrationPlan requires every seeded ServiceId to exist in the verified ServiceGraphPlan. Missing ServiceId=" + seed.ServiceId.Value,
+                        nameof(seeds));
+                }
+
+                ValidateSeedAgainstServiceGraph(seed, serviceEntry, nameof(seeds));
+                entries[index] = new ServiceRegistrationPlanEntry(
+                    seed.OwnerModule,
+                    seed.EntityRef,
+                    seed.ServiceId,
+                    seed.StableId,
+                    seed.ServiceName,
+                    seed.DebugName,
+                    ToContractNames(serviceEntry.Contracts),
+                    CloneDependencies(seed.Dependencies),
+                    serviceEntry.Lifetime,
+                    serviceEntry.Cardinality,
+                    serviceEntry.Factory.FactoryKind,
+                    seed.Source);
+            }
+
+            for (int index = 1; index < entries.Length; index++)
+            {
+                if (entries[index - 1].EntityRef == entries[index].EntityRef
+                    && entries[index - 1].ServiceId == entries[index].ServiceId)
+                {
+                    throw new ArgumentException(
+                        "ServiceRegistrationPlan requires unique EntityRef + ServiceId pairs. Duplicate EntityRef="
+                        + entries[index].EntityRef.Value
+                        + ", ServiceId="
+                        + entries[index].ServiceId.Value,
+                        nameof(seeds));
+                }
+            }
+
+            return entries;
+        }
+
+        static int CompareSeeds(ServiceRegistrationSeed left, ServiceRegistrationSeed right)
+        {
+            int comparison = StringComparer.Ordinal.Compare(left.EntityRef.Value, right.EntityRef.Value);
+            if (comparison != 0)
+                return comparison;
+
+            comparison = left.ServiceId.Value.CompareTo(right.ServiceId.Value);
+            if (comparison != 0)
+                return comparison;
+
+            comparison = left.OwnerModule.Value.CompareTo(right.OwnerModule.Value);
+            if (comparison != 0)
+                return comparison;
+
+            comparison = StringComparer.Ordinal.Compare(left.StableId, right.StableId);
+            if (comparison != 0)
+                return comparison;
+
+            return StringComparer.Ordinal.Compare(left.Source.ToString(), right.Source.ToString());
+        }
+
+        static bool TryFindServiceEntry(ReadOnlySpan<ServiceEntryPlan> serviceEntries, ServiceId serviceId, out ServiceEntryPlan entry)
+        {
+            int low = 0;
+            int high = serviceEntries.Length - 1;
+            while (low <= high)
+            {
+                int mid = low + ((high - low) >> 1);
+                ServiceEntryPlan candidate = serviceEntries[mid];
+                int comparison = candidate.ServiceId.Value.CompareTo(serviceId.Value);
+                if (comparison == 0)
+                {
+                    entry = candidate;
+                    return true;
+                }
+
+                if (comparison < 0)
+                    low = mid + 1;
+                else
+                    high = mid - 1;
+            }
+
+            entry = null!;
+            return false;
+        }
+
+        static void ValidateSeedAgainstServiceGraph(ServiceRegistrationSeed seed, ServiceEntryPlan serviceEntry, string parameterName)
+        {
+            if (serviceEntry.OwnerModule != seed.OwnerModule)
+            {
+                throw new ArgumentException(
+                    "ServiceRegistrationPlan owner module must match the verified ServiceGraphPlan entry. ServiceId=" + seed.ServiceId.Value,
+                    parameterName);
+            }
+
+            if (serviceEntry.Lifetime != seed.Lifetime)
+            {
+                throw new ArgumentException(
+                    "ServiceRegistrationPlan lifetime must match the verified ServiceGraphPlan entry. ServiceId=" + seed.ServiceId.Value,
+                    parameterName);
+            }
+
+            if (serviceEntry.Factory.FactoryKind != seed.FactoryKind)
+            {
+                throw new ArgumentException(
+                    "ServiceRegistrationPlan factory kind must match the verified ServiceGraphPlan entry. ServiceId=" + seed.ServiceId.Value,
+                    parameterName);
+            }
+
+            ReadOnlySpan<ServiceContractRef> contracts = serviceEntry.Contracts;
+            ReadOnlySpan<string> seedContracts = seed.ContractNames;
+            if (contracts.Length != seedContracts.Length)
+            {
+                throw new ArgumentException(
+                    "ServiceRegistrationPlan contract metadata must match the verified ServiceGraphPlan entry. ServiceId=" + seed.ServiceId.Value,
+                    parameterName);
+            }
+
+            for (int index = 0; index < contracts.Length; index++)
+            {
+                if (!StringComparer.Ordinal.Equals(contracts[index].ContractName, seedContracts[index]))
+                {
+                    throw new ArgumentException(
+                        "ServiceRegistrationPlan contract metadata must match the verified ServiceGraphPlan entry. ServiceId=" + seed.ServiceId.Value,
+                        parameterName);
+                }
+            }
+
+            ReadOnlySpan<ServiceDependencyIR> dependencies = serviceEntry.Dependencies;
+            ReadOnlySpan<ServiceRegistrationDependencyPlan> seedDependencies = seed.Dependencies;
+            if (dependencies.Length != seedDependencies.Length)
+            {
+                throw new ArgumentException(
+                    "ServiceRegistrationPlan dependency metadata must match the verified ServiceGraphPlan entry. ServiceId=" + seed.ServiceId.Value,
+                    parameterName);
+            }
+
+            for (int index = 0; index < dependencies.Length; index++)
+            {
+                if (dependencies[index].Target != seedDependencies[index].Target
+                    || dependencies[index].Strength != seedDependencies[index].Strength)
+                {
+                    throw new ArgumentException(
+                        "ServiceRegistrationPlan dependency metadata must match the verified ServiceGraphPlan entry. ServiceId=" + seed.ServiceId.Value,
+                        parameterName);
+                }
+            }
+        }
+
+        static string[] ToContractNames(ReadOnlySpan<ServiceContractRef> source)
+        {
+            if (source.Length == 0)
+                return Array.Empty<string>();
+
+            string[] clone = new string[source.Length];
+            for (int index = 0; index < source.Length; index++)
+                clone[index] = source[index].ContractName;
+
+            return clone;
+        }
+
+        static string[] CloneContractNames(ReadOnlySpan<string> source)
+        {
+            if (source.Length == 0)
+                return Array.Empty<string>();
+
+            string[] clone = new string[source.Length];
+            for (int index = 0; index < source.Length; index++)
+                clone[index] = source[index];
+
+            return clone;
+        }
+
+        static ServiceRegistrationDependencyPlan[] CloneDependencies(ReadOnlySpan<ServiceRegistrationDependencyPlan> source)
+        {
+            if (source.Length == 0)
+                return Array.Empty<ServiceRegistrationDependencyPlan>();
+
+            ServiceRegistrationDependencyPlan[] clone = new ServiceRegistrationDependencyPlan[source.Length];
+            for (int index = 0; index < source.Length; index++)
+                clone[index] = source[index];
+
+            return clone;
+        }
+    }
+
+    public sealed class ServiceRegistrationPlan
+    {
+        readonly ServiceRegistrationPlanEntry[] entries;
+
+        public ServiceRegistrationPlan(VerifiedArtifactHeader header, ReadOnlySpan<ServiceRegistrationSeed> seeds, ServiceGraphPlan serviceGraph)
+        {
+            Header = header ?? throw new ArgumentNullException(nameof(header));
+            KernelProjectionArtifactKindValidator.ValidateArtifactKind(header, ArtifactKind.ServiceRegistration);
+            entries = ServiceRegistrationPlanEntry.BuildEntries(seeds, serviceGraph);
+            ContentHash = KernelProjectionHashing.ComputeServiceRegistrationHash(entries);
+            KernelProjectionHashing.ValidateHeaderHash(header, ContentHash);
+        }
+
+        public VerifiedArtifactHeader Header { get; }
+
+        public ReadOnlySpan<ServiceRegistrationPlanEntry> Entries => entries;
+
+        public Hash128 ContentHash { get; }
+    }
+
+    public sealed class EntityServiceRouteSeed
+    {
+        public EntityServiceRouteSeed(
+            ModuleId ownerModule,
+            EntityRef entityRef,
+            ServiceId serviceId,
+            string serviceName,
+            string debugName,
+            SourceLocationIR source)
+        {
+            if (ownerModule.Value == 0)
+                throw new ArgumentException("Entity service route seeds must provide a non-zero owner module identity.", nameof(ownerModule));
+
+            if (entityRef.IsEmpty)
+                throw new ArgumentException("Entity service route seeds must provide a non-empty EntityRef.", nameof(entityRef));
+
+            if (serviceId.Value <= 0)
+                throw new ArgumentException("Entity service route seeds must provide a non-zero ServiceId.", nameof(serviceId));
+
+            if (!source.IsSpecified)
+                throw new ArgumentException("Entity service route seeds must provide a specified source location.", nameof(source));
+
+            OwnerModule = ownerModule;
+            EntityRef = entityRef;
+            ServiceId = serviceId;
+            ServiceName = serviceName ?? string.Empty;
+            DebugName = debugName ?? string.Empty;
+            Source = source;
+        }
+
+        public ModuleId OwnerModule { get; }
+
+        public EntityRef EntityRef { get; }
+
+        public ServiceId ServiceId { get; }
+
+        public string ServiceName { get; }
+
+        public string DebugName { get; }
+
+        public SourceLocationIR Source { get; }
+    }
+
+    public sealed class EntityServiceRoutePlanEntry
+    {
+        public EntityServiceRoutePlanEntry(
+            ModuleId ownerModule,
+            EntityRef entityRef,
+            ServiceId serviceId,
+            int serviceSlotIndex,
+            string serviceName,
+            string debugName,
+            SourceLocationIR source)
+        {
+            if (ownerModule.Value == 0)
+                throw new ArgumentException("Entity service route entries must provide a non-zero owner module identity.", nameof(ownerModule));
+
+            if (entityRef.IsEmpty)
+                throw new ArgumentException("Entity service route entries must provide a non-empty EntityRef.", nameof(entityRef));
+
+            if (serviceId.Value <= 0)
+                throw new ArgumentException("Entity service route entries must provide a non-zero ServiceId.", nameof(serviceId));
+
+            if (serviceSlotIndex < 0)
+                throw new ArgumentOutOfRangeException(nameof(serviceSlotIndex), serviceSlotIndex, "Entity service route entries must target a non-negative runtime service slot index.");
+
+            if (!source.IsSpecified)
+                throw new ArgumentException("Entity service route entries must provide a specified source location.", nameof(source));
+
+            OwnerModule = ownerModule;
+            EntityRef = entityRef;
+            ServiceId = serviceId;
+            ServiceSlotIndex = serviceSlotIndex;
+            ServiceName = serviceName ?? string.Empty;
+            DebugName = debugName ?? string.Empty;
+            Source = source;
+        }
+
+        public ModuleId OwnerModule { get; }
+
+        public EntityRef EntityRef { get; }
+
+        public ServiceId ServiceId { get; }
+
+        public int ServiceSlotIndex { get; }
+
+        public string ServiceName { get; }
+
+        public string DebugName { get; }
+
+        public SourceLocationIR Source { get; }
+
+        public static EntityServiceRoutePlanEntry[] BuildEntries(ReadOnlySpan<EntityServiceRouteSeed> seeds, ServiceGraphPlan serviceGraph)
+        {
+            if (serviceGraph == null)
+                throw new ArgumentNullException(nameof(serviceGraph));
+
+            if (seeds.Length == 0)
+                return Array.Empty<EntityServiceRoutePlanEntry>();
+
+            EntityServiceRouteSeed[] sortedSeeds = KernelProjectionArrayHelpers.CloneAndSort(seeds, CompareSeeds);
+            EntityServiceRoutePlanEntry[] entries = new EntityServiceRoutePlanEntry[sortedSeeds.Length];
+            ReadOnlySpan<ServiceSlotPlan> serviceSlots = serviceGraph.Slots;
+
+            for (int index = 0; index < sortedSeeds.Length; index++)
+            {
+                EntityServiceRouteSeed seed = sortedSeeds[index];
+                int serviceSlotIndex = FindServiceSlotIndex(serviceSlots, seed.ServiceId);
+                if (serviceSlotIndex < 0)
+                {
+                    throw new ArgumentException(
+                        "EntityServiceRoutePlan requires every seeded ServiceId to exist in the verified ServiceGraphPlan. Missing ServiceId=" + seed.ServiceId.Value,
+                        nameof(seeds));
+                }
+
+                entries[index] = new EntityServiceRoutePlanEntry(
+                    seed.OwnerModule,
+                    seed.EntityRef,
+                    seed.ServiceId,
+                    serviceSlotIndex,
+                    seed.ServiceName,
+                    seed.DebugName,
+                    seed.Source);
+            }
+
+            Array.Sort(entries, CompareEntries);
+            for (int index = 1; index < entries.Length; index++)
+            {
+                if (entries[index - 1].EntityRef == entries[index].EntityRef
+                    && entries[index - 1].ServiceId == entries[index].ServiceId)
+                {
+                    throw new ArgumentException(
+                        "EntityServiceRoutePlan requires unique EntityRef + ServiceId pairs. Duplicate EntityRef="
+                        + entries[index].EntityRef.Value
+                        + ", ServiceId="
+                        + entries[index].ServiceId.Value,
+                        nameof(seeds));
+                }
+            }
+
+            return entries;
+        }
+
+        static int CompareSeeds(EntityServiceRouteSeed left, EntityServiceRouteSeed right)
+        {
+            int comparison = StringComparer.Ordinal.Compare(left.EntityRef.Value, right.EntityRef.Value);
+            if (comparison != 0)
+                return comparison;
+
+            comparison = left.ServiceId.Value.CompareTo(right.ServiceId.Value);
+            if (comparison != 0)
+                return comparison;
+
+            comparison = left.OwnerModule.Value.CompareTo(right.OwnerModule.Value);
+            if (comparison != 0)
+                return comparison;
+
+            return StringComparer.Ordinal.Compare(left.Source.ToString(), right.Source.ToString());
+        }
+
+        static int CompareEntries(EntityServiceRoutePlanEntry left, EntityServiceRoutePlanEntry right)
+        {
+            int comparison = StringComparer.Ordinal.Compare(left.EntityRef.Value, right.EntityRef.Value);
+            if (comparison != 0)
+                return comparison;
+
+            comparison = left.ServiceId.Value.CompareTo(right.ServiceId.Value);
+            if (comparison != 0)
+                return comparison;
+
+            comparison = left.ServiceSlotIndex.CompareTo(right.ServiceSlotIndex);
+            if (comparison != 0)
+                return comparison;
+
+            comparison = left.OwnerModule.Value.CompareTo(right.OwnerModule.Value);
+            if (comparison != 0)
+                return comparison;
+
+            return StringComparer.Ordinal.Compare(left.Source.ToString(), right.Source.ToString());
+        }
+
+        static int FindServiceSlotIndex(ReadOnlySpan<ServiceSlotPlan> serviceSlots, ServiceId serviceId)
+        {
+            int low = 0;
+            int high = serviceSlots.Length - 1;
+            while (low <= high)
+            {
+                int mid = low + ((high - low) >> 1);
+                ServiceSlotPlan candidate = serviceSlots[mid];
+                int comparison = candidate.ServiceId.Value.CompareTo(serviceId.Value);
+                if (comparison == 0)
+                    return candidate.SlotIndex;
+
+                if (comparison < 0)
+                    low = mid + 1;
+                else
+                    high = mid - 1;
+            }
+
+            return -1;
+        }
+    }
+
+    public sealed class EntityServiceRoutePlan
+    {
+        readonly EntityServiceRoutePlanEntry[] entries;
+
+        public EntityServiceRoutePlan(VerifiedArtifactHeader header, ReadOnlySpan<EntityServiceRouteSeed> seeds, ServiceGraphPlan serviceGraph)
+        {
+            Header = header ?? throw new ArgumentNullException(nameof(header));
+            KernelProjectionArtifactKindValidator.ValidateArtifactKind(header, ArtifactKind.EntityServiceRoute);
+            entries = EntityServiceRoutePlanEntry.BuildEntries(seeds, serviceGraph);
+            ContentHash = KernelProjectionHashing.ComputeEntityServiceRouteHash(entries);
+            KernelProjectionHashing.ValidateHeaderHash(header, ContentHash);
+        }
+
+        public VerifiedArtifactHeader Header { get; }
+
+        public ReadOnlySpan<EntityServiceRoutePlanEntry> Entries => entries;
+
+        public Hash128 ContentHash { get; }
+    }
+
     public sealed class KernelProjectionGenerationResult
     {
         public KernelProjectionGenerationResult(
@@ -37,8 +851,12 @@ namespace Game.Kernel.Generation
         public KernelProjectionSet(
             ServiceGraphPlan serviceGraph,
             ScopeGraphPlan scopeGraph,
+            EntityRegistrationPlan entityRegistrationPlan,
+            ServiceRegistrationPlan serviceRegistrationPlan,
+            EntityServiceRoutePlan entityServiceRoutePlan,
             LifecyclePlan lifecyclePlan,
             CommandCatalogPlan commandCatalog,
+            CommandExecutorTablePlan commandExecutorTable,
             ValueSchemaPlan valueSchema,
             RuntimeQueryPlan runtimeQuery,
             KernelDebugMap debugMap,
@@ -47,8 +865,12 @@ namespace Game.Kernel.Generation
         {
             ServiceGraph = serviceGraph ?? throw new ArgumentNullException(nameof(serviceGraph));
             ScopeGraph = scopeGraph ?? throw new ArgumentNullException(nameof(scopeGraph));
+            EntityRegistrationPlan = entityRegistrationPlan ?? throw new ArgumentNullException(nameof(entityRegistrationPlan));
+            ServiceRegistrationPlan = serviceRegistrationPlan ?? throw new ArgumentNullException(nameof(serviceRegistrationPlan));
+            EntityServiceRoutePlan = entityServiceRoutePlan ?? throw new ArgumentNullException(nameof(entityServiceRoutePlan));
             LifecyclePlan = lifecyclePlan ?? throw new ArgumentNullException(nameof(lifecyclePlan));
             CommandCatalog = commandCatalog ?? throw new ArgumentNullException(nameof(commandCatalog));
+            CommandExecutorTable = commandExecutorTable ?? throw new ArgumentNullException(nameof(commandExecutorTable));
             ValueSchema = valueSchema ?? throw new ArgumentNullException(nameof(valueSchema));
             RuntimeQuery = runtimeQuery ?? throw new ArgumentNullException(nameof(runtimeQuery));
             DebugMap = debugMap ?? throw new ArgumentNullException(nameof(debugMap));
@@ -60,9 +882,17 @@ namespace Game.Kernel.Generation
 
         public ScopeGraphPlan ScopeGraph { get; }
 
+        public EntityRegistrationPlan EntityRegistrationPlan { get; }
+
+        public ServiceRegistrationPlan ServiceRegistrationPlan { get; }
+
+        public EntityServiceRoutePlan EntityServiceRoutePlan { get; }
+
         public LifecyclePlan LifecyclePlan { get; }
 
         public CommandCatalogPlan CommandCatalog { get; }
+
+        public CommandExecutorTablePlan CommandExecutorTable { get; }
 
         public ValueSchemaPlan ValueSchema { get; }
 
@@ -655,6 +1485,11 @@ namespace Game.Kernel.Generation
                 case LifecycleTargetKind.RuntimeQuery:
                     targetIdentity = new RuntimeIdentityRef(RuntimeIdentityKind.RuntimeQuery, Target.TargetRuntimeQuery.Value);
                     return true;
+                case LifecycleTargetKind.ValueStore:
+                case LifecycleTargetKind.RuntimeObjectOwner:
+                case LifecycleTargetKind.LegacyAdapter:
+                    targetIdentity = default;
+                    return false;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(Target), Target.Kind, "Lifecycle dispatch targets must use a supported closed-world target kind.");
             }
@@ -667,9 +1502,10 @@ namespace Game.Kernel.Generation
                 case LifecycleTargetKind.Service:
                 case LifecycleTargetKind.Scope:
                 case LifecycleTargetKind.RuntimeQuery:
+                case LifecycleTargetKind.ValueStore:
                     return;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(stepId), stepId, "Lifecycle dispatch tables only support service, scope, and runtime-query targets.");
+                    throw new ArgumentOutOfRangeException(nameof(stepId), stepId, "Lifecycle dispatch tables only support service, scope, runtime-query, and value-store targets.");
             }
         }
     }
@@ -861,6 +1697,77 @@ namespace Game.Kernel.Generation
         }
     }
 
+    public enum CommandExecutorBindingKind
+    {
+        Unknown = 0,
+        Transient = 10,
+        Scoped = 20,
+        Singleton = 30,
+        ProvidedInstance = 40,
+    }
+
+    public sealed class CommandExecutorBindingSeed
+    {
+        public CommandExecutorBindingSeed(CommandExecutorId executorId, string bindingToken, CommandExecutorBindingKind bindingKind)
+        {
+            if (executorId.Value == 0)
+                throw new ArgumentException("Command executor binding seeds must provide a non-zero executor identity.", nameof(executorId));
+
+            if (string.IsNullOrWhiteSpace(bindingToken))
+                throw new ArgumentException("Command executor binding seeds must provide a binding token.", nameof(bindingToken));
+
+            if (bindingKind == CommandExecutorBindingKind.Unknown)
+                throw new ArgumentOutOfRangeException(nameof(bindingKind), bindingKind, "Command executor binding seeds must provide a defined binding kind.");
+
+            ExecutorId = executorId;
+            BindingToken = bindingToken;
+            BindingKind = bindingKind;
+        }
+
+        public CommandExecutorId ExecutorId { get; }
+
+        public string BindingToken { get; }
+
+        public CommandExecutorBindingKind BindingKind { get; }
+    }
+
+    public sealed class CommandExecutorEntryPlan
+    {
+        public CommandExecutorEntryPlan(CommandExecutorId executorId, ModuleId ownerModule, string bindingToken, CommandExecutorBindingKind bindingKind, SourceLocationId source)
+        {
+            if (executorId.Value == 0)
+                throw new ArgumentException("Command executor table entries must provide a non-zero executor identity.", nameof(executorId));
+
+            if (ownerModule.Value == 0)
+                throw new ArgumentException("Command executor table entries must provide a non-zero owner module identity.", nameof(ownerModule));
+
+            if (string.IsNullOrWhiteSpace(bindingToken))
+                throw new ArgumentException("Command executor table entries must provide a binding token.", nameof(bindingToken));
+
+            if (bindingKind == CommandExecutorBindingKind.Unknown)
+                throw new ArgumentOutOfRangeException(nameof(bindingKind), bindingKind, "Command executor table entries must provide a defined binding kind.");
+
+            if (source.Value == 0)
+                throw new ArgumentException("Command executor table entries must provide a non-zero source location identity.", nameof(source));
+
+            ExecutorId = executorId;
+            OwnerModule = ownerModule;
+            BindingToken = bindingToken;
+            BindingKind = bindingKind;
+            Source = source;
+        }
+
+        public CommandExecutorId ExecutorId { get; }
+
+        public ModuleId OwnerModule { get; }
+
+        public string BindingToken { get; }
+
+        public CommandExecutorBindingKind BindingKind { get; }
+
+        public SourceLocationId Source { get; }
+    }
+
     public sealed class CommandModuleMetadata
     {
         readonly CommandTypeId[] commandTypeIds;
@@ -974,10 +1881,7 @@ namespace Game.Kernel.Generation
         {
             Header = header ?? throw new ArgumentNullException(nameof(header));
             KernelProjectionArtifactKindValidator.ValidateArtifactKind(header, ArtifactKind.CommandCatalog);
-            BuildProjection(commands, out this.commands, out entries, out modules, out categories);
-            this.entries = entries;
-            this.modules = modules;
-            this.categories = categories;
+            BuildProjection(commands, out this.commands, out this.entries, out this.modules, out this.categories);
             ContentHash = KernelProjectionHashing.ComputeCommandCatalogHash(this.entries, this.modules, this.categories);
             KernelProjectionHashing.ValidateHeaderHash(header, ContentHash);
         }
@@ -1107,6 +2011,88 @@ namespace Game.Kernel.Generation
             }
 
             values.Add(value);
+        }
+    }
+
+    public sealed class CommandExecutorTablePlan
+    {
+        readonly CommandExecutorEntryPlan[] entries;
+
+        public CommandExecutorTablePlan(VerifiedArtifactHeader header, ReadOnlySpan<CommandIR> commands, ReadOnlySpan<CommandExecutorBindingSeed> bindings)
+        {
+            Header = header ?? throw new ArgumentNullException(nameof(header));
+            KernelProjectionArtifactKindValidator.ValidateArtifactKind(header, ArtifactKind.CommandExecutorTable);
+            entries = BuildProjection(commands, bindings);
+            ContentHash = KernelProjectionHashing.ComputeCommandExecutorTableHash(entries);
+            KernelProjectionHashing.ValidateHeaderHash(header, ContentHash);
+        }
+
+        public VerifiedArtifactHeader Header { get; }
+
+        public ReadOnlySpan<CommandExecutorEntryPlan> Entries => entries;
+
+        public Hash128 ContentHash { get; }
+
+        internal static CommandExecutorEntryPlan[] BuildProjection(ReadOnlySpan<CommandIR> commands, ReadOnlySpan<CommandExecutorBindingSeed> bindings)
+        {
+            if (commands.Length == 0)
+                return Array.Empty<CommandExecutorEntryPlan>();
+
+            if (bindings.Length == 0)
+            {
+                throw new ArgumentException(
+                    "Command executor table generation requires binding seeds for every declared command executor.",
+                    nameof(bindings));
+            }
+
+            Dictionary<int, CommandExecutorBindingSeed> bindingMap = new Dictionary<int, CommandExecutorBindingSeed>(bindings.Length);
+            for (int index = 0; index < bindings.Length; index++)
+            {
+                CommandExecutorBindingSeed binding = bindings[index];
+                if (!bindingMap.TryAdd(binding.ExecutorId.Value, binding))
+                {
+                    throw new ArgumentException(
+                        "Command executor binding seeds must use unique executor identities. Duplicate CommandExecutorId=" + binding.ExecutorId.Value,
+                        nameof(bindings));
+                }
+            }
+
+            CommandIR[] orderedCommands = KernelProjectionArrayHelpers.CloneAndSort(commands, static (left, right) =>
+            {
+                int comparison = left.Executor.Id.Value.CompareTo(right.Executor.Id.Value);
+                if (comparison != 0)
+                    return comparison;
+
+                return left.TypeId.Value.CompareTo(right.TypeId.Value);
+            });
+
+            List<CommandExecutorEntryPlan> plannedEntries = new List<CommandExecutorEntryPlan>(bindingMap.Count);
+            int lastExecutorId = -1;
+
+            for (int index = 0; index < orderedCommands.Length; index++)
+            {
+                CommandIR command = orderedCommands[index];
+                int executorId = command.Executor.Id.Value;
+                if (executorId == lastExecutorId)
+                    continue;
+
+                lastExecutorId = executorId;
+                if (!bindingMap.TryGetValue(executorId, out CommandExecutorBindingSeed binding))
+                {
+                    throw new ArgumentException(
+                        "Command executor table generation is missing a binding seed for CommandExecutorId=" + executorId + ".",
+                        nameof(bindings));
+                }
+
+                plannedEntries.Add(new CommandExecutorEntryPlan(
+                    command.Executor.Id,
+                    command.OwnerModule,
+                    binding.BindingToken,
+                    binding.BindingKind,
+                    command.Executor.Source));
+            }
+
+            return plannedEntries.ToArray();
         }
     }
 
@@ -1423,6 +2409,68 @@ namespace Game.Kernel.Generation
             return ComputeServiceGraphHash(sortedServices, entries, slots);
         }
 
+        public static Hash128 ComputeEntityRegistrationHash(ReadOnlySpan<EntityRegistrationPlanEntry> entries)
+        {
+            List<string> tokens = new List<string>(entries.Length * 8);
+            for (int index = 0; index < entries.Length; index++)
+            {
+                EntityRegistrationPlanEntry entry = entries[index];
+                tokens.Add(
+                    "ENTITY|"
+                    + entry.EntityRef.Value + "|"
+                    + entry.OwnerModule.Value.ToString() + "|"
+                    + entry.DisplayName + "|"
+                    + entry.DebugName + "|"
+                    + entry.Metadata + "|"
+                    + entry.Source.ToString());
+
+                ReadOnlySpan<string> tags = entry.ClassificationTags;
+                for (int tagIndex = 0; tagIndex < tags.Length; tagIndex++)
+                    tokens.Add("ENTITY_TAG|" + entry.EntityRef.Value + "|" + tags[tagIndex]);
+            }
+
+            return VerifiedArtifactHeaderHashing.ComputeGeneratedHash(tokens);
+        }
+
+        public static Hash128 ComputeServiceRegistrationHash(ReadOnlySpan<ServiceRegistrationPlanEntry> entries)
+        {
+            List<string> tokens = new List<string>(entries.Length * 16);
+            for (int index = 0; index < entries.Length; index++)
+            {
+                ServiceRegistrationPlanEntry entry = entries[index];
+                tokens.Add(
+                    "SERVICE_REG|"
+                    + entry.EntityRef.Value + "|"
+                    + entry.ServiceId.Value.ToString() + "|"
+                    + entry.OwnerModule.Value.ToString() + "|"
+                    + entry.StableId + "|"
+                    + entry.ServiceName + "|"
+                    + entry.DebugName + "|"
+                    + entry.Lifetime.ToString() + "|"
+                    + entry.Cardinality.ToString() + "|"
+                    + entry.FactoryKind.ToString() + "|"
+                    + entry.Source.ToString());
+
+                ReadOnlySpan<string> contracts = entry.ContractNames;
+                for (int contractIndex = 0; contractIndex < contracts.Length; contractIndex++)
+                    tokens.Add("SERVICE_REG_CONTRACT|" + entry.EntityRef.Value + "|" + entry.ServiceId.Value.ToString() + "|" + contracts[contractIndex]);
+
+                ReadOnlySpan<ServiceRegistrationDependencyPlan> dependencies = entry.Dependencies;
+                for (int dependencyIndex = 0; dependencyIndex < dependencies.Length; dependencyIndex++)
+                {
+                    ServiceRegistrationDependencyPlan dependency = dependencies[dependencyIndex];
+                    tokens.Add(
+                        "SERVICE_REG_DEP|"
+                        + entry.EntityRef.Value + "|"
+                        + entry.ServiceId.Value.ToString() + "|"
+                        + dependency.Target.ToString() + "|"
+                        + dependency.Strength.ToString());
+                }
+            }
+
+            return VerifiedArtifactHeaderHashing.ComputeGeneratedHash(tokens);
+        }
+
         public static Hash128 ComputeServiceGraphHash(ReadOnlySpan<ServiceIR> services, ReadOnlySpan<ServiceEntryPlan> entries, ReadOnlySpan<ServiceSlotPlan> slots)
         {
             List<string> tokens = new List<string>(services.Length * 8 + entries.Length * 8 + slots.Length * 8);
@@ -1451,6 +2499,26 @@ namespace Game.Kernel.Generation
 
             for (int index = 0; index < valueInitPlans.Length; index++)
                 AddValueInitPlanTokens(tokens, valueInitPlans[index]);
+
+            return VerifiedArtifactHeaderHashing.ComputeGeneratedHash(tokens);
+        }
+
+        public static Hash128 ComputeEntityServiceRouteHash(ReadOnlySpan<EntityServiceRoutePlanEntry> entries)
+        {
+            List<string> tokens = new List<string>(entries.Length * 7);
+            for (int index = 0; index < entries.Length; index++)
+            {
+                EntityServiceRoutePlanEntry entry = entries[index];
+                tokens.Add(
+                    "ENTITY_SERVICE|"
+                    + entry.EntityRef.Value + "|"
+                    + entry.ServiceId.Value.ToString() + "|"
+                    + entry.ServiceSlotIndex + "|"
+                    + entry.OwnerModule.Value.ToString() + "|"
+                    + entry.ServiceName + "|"
+                    + entry.DebugName + "|"
+                    + entry.Source.ToString());
+            }
 
             return VerifiedArtifactHeaderHashing.ComputeGeneratedHash(tokens);
         }
@@ -1487,6 +2555,23 @@ namespace Game.Kernel.Generation
 
             for (int index = 0; index < categories.Length; index++)
                 AddCommandCategoryTokens(tokens, categories[index]);
+
+            return VerifiedArtifactHeaderHashing.ComputeGeneratedHash(tokens);
+        }
+
+        public static Hash128 ComputeCommandExecutorTableHash(ReadOnlySpan<CommandIR> commands, ReadOnlySpan<CommandExecutorBindingSeed> bindings)
+        {
+            CommandExecutorEntryPlan[] entries = CommandExecutorTablePlan.BuildProjection(commands, bindings);
+            return ComputeCommandExecutorTableHash(entries);
+        }
+
+        public static Hash128 ComputeCommandExecutorTableHash(ReadOnlySpan<CommandExecutorEntryPlan> entries)
+        {
+            ValidateCommandExecutorTableProjection(entries);
+
+            List<string> tokens = new List<string>(entries.Length * 6);
+            for (int index = 0; index < entries.Length; index++)
+                AddCommandExecutorEntryTokens(tokens, entries[index]);
 
             return VerifiedArtifactHeaderHashing.ComputeGeneratedHash(tokens);
         }
@@ -1566,6 +2651,18 @@ namespace Game.Kernel.Generation
                     if (ownerModules[ownerIndex - 1] == ownerModules[ownerIndex])
                         throw new ArgumentException("Command category metadata must not contain duplicate owner module identities.");
                 }
+            }
+        }
+
+        static void ValidateCommandExecutorTableProjection(ReadOnlySpan<CommandExecutorEntryPlan> entries)
+        {
+            for (int index = 1; index < entries.Length; index++)
+            {
+                if (entries[index - 1].ExecutorId.Value > entries[index].ExecutorId.Value)
+                    throw new ArgumentException("Command executor table entries must be sorted by executor identity.");
+
+                if (entries[index - 1].ExecutorId == entries[index].ExecutorId)
+                    throw new ArgumentException("Command executor table entries must use unique executor identities.");
             }
         }
 
@@ -1955,6 +3052,11 @@ namespace Game.Kernel.Generation
                 CommandDependencyIR dependency = dependencies[index];
                 tokens.Add("COMMAND_ENTRY_DEP|" + dependency.Target + "|" + dependency.Strength + "|" + dependency.Source.Value);
             }
+        }
+
+        static void AddCommandExecutorEntryTokens(List<string> tokens, CommandExecutorEntryPlan entry)
+        {
+            tokens.Add("COMMAND_EXECUTOR|" + entry.ExecutorId.Value + "|" + entry.OwnerModule.Value + "|" + entry.BindingKind + "|" + entry.BindingToken + "|" + entry.Source.Value);
         }
 
         static void AddCommandModuleTokens(List<string> tokens, CommandModuleMetadata module)

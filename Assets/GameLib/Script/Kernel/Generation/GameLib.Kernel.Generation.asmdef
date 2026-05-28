@@ -2,6 +2,7 @@
   "name": "GameLib.Kernel.Generation",
   "rootNamespace": "Game.Kernel.Generation",
   "references": [
+    "GameLib.Kernel.Abstractions",
     "GameLib.Kernel.IR",
     "GameLib.Kernel.Diagnostics",
     "GameLib.Kernel.Validation"

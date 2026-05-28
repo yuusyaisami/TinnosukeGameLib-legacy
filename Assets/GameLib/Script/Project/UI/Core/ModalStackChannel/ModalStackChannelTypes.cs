@@ -15,6 +15,9 @@ namespace Game.UI
         public IScopeNode? DefaultSelectedElement;
 
         [Tooltip("Inspector setting.")]
+        public UINodeHandle DefaultSelectedHandle;
+
+        [Tooltip("Inspector setting.")]
         public bool CloseOnBackgroundClick;
 
         [Tooltip("Inspector setting.")]
@@ -26,6 +29,7 @@ namespace Game.UI
             CloseOnBackgroundClick = false,
             CloseOnCancel = true,
             DefaultSelectedElement = null,
+            DefaultSelectedHandle = UINodeHandle.Invalid,
         };
     }
 
@@ -137,6 +141,8 @@ namespace Game.UI
         public bool IsActiveInLayer { get; }
         public bool Visible { get; }
         public bool InputActive { get; }
+        public IScopeNode? DefaultSelectedElement { get; }
+        public UINodeHandle DefaultSelectedHandle { get; }
         public ModalLayerRootInactiveReason InactiveReason { get; }
 
         public ModalRootResolvedState(
@@ -145,6 +151,8 @@ namespace Game.UI
             bool isActiveInLayer,
             bool visible,
             bool inputActive,
+            IScopeNode? defaultSelectedElement,
+            UINodeHandle defaultSelectedHandle,
             ModalLayerRootInactiveReason inactiveReason)
         {
             LayerKey = layerKey ?? string.Empty;
@@ -152,6 +160,8 @@ namespace Game.UI
             IsActiveInLayer = isActiveInLayer;
             Visible = visible;
             InputActive = inputActive;
+            DefaultSelectedElement = defaultSelectedElement;
+            DefaultSelectedHandle = defaultSelectedHandle;
             InactiveReason = inactiveReason;
         }
     }
@@ -191,10 +201,12 @@ namespace Game.UI
         IReadOnlyList<ModalRootResolvedState> RootStates { get; }
         IUIModalRoot? CurrentInputRoot { get; }
         bool IsInAnyInputRoot(IScopeNode? element);
+        bool IsInAnyInputRoot(UINodeHandle element);
 
         void RegisterLayer(ModalLayerPreset preset);
         bool TryGetLayerState(string layerKey, out ModalLayerResolvedState state);
         bool TryGetRootState(IScopeNode owner, out ModalRootResolvedState state);
+        bool TryGetRootState(UINodeHandle owner, out ModalRootResolvedState state);
 
         void SetDefaultRoot(string layerKey, IUIModalRoot? root, UIModalStackChangeType changeType = UIModalStackChangeType.Normal);
         void PushModal(string layerKey, IUIModalRoot root, ModalOptions options = default, UIModalStackChangeType changeType = UIModalStackChangeType.Normal);

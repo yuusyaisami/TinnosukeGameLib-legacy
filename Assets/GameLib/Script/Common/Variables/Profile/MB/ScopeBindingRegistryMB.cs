@@ -41,7 +41,7 @@ namespace Game.Profile
 
             builder.Register<ScopeBindingRegistryService>(resolver =>
             {
-                var blackboard = resolver.TryResolve<IBlackboardService>(out var b) ? b : null;
+                var blackboard = resolver.TryResolve<IVarStore>(out var b) ? b : null;
                 var scalar = resolver.TryResolve<Game.Scalar.IBaseScalarService>(out var s) ? s : null;
                 var scopeIdentity = string.Empty;
 
@@ -105,7 +105,7 @@ namespace Game.Profile
             builder.Register<SaveScopeRegistrationService>(resolver =>
             {
                 var profiles = resolver.TryResolve<ScopeBindingRegistryService>(out var p) ? p : null;
-                var blackboard = resolver.TryResolve<IBlackboardService>(out var b) ? b : null;
+                var blackboard = resolver.TryResolve<IVarStore>(out var b) ? b : null;
                 var gridBlackboard = resolver.TryResolve<IGridBlackboardService>(out var gb) ? gb : null;
                 var scalar = resolver.TryResolve<Game.Scalar.IBaseScalarService>(out var s) ? s : null;
                 return new SaveScopeRegistrationService(profiles, blackboard, gridBlackboard, scalar, scope);

@@ -4,6 +4,8 @@ using KernelUnitySourceLocation = Game.Kernel.IR.UnitySourceLocation;
 using KernelSourceLocationIR = Game.Kernel.IR.SourceLocationIR;
 using KernelUnityObjectLinkIR = Game.Kernel.IR.UnityObjectLinkIR;
 using KernelSourceLocationId = Game.Kernel.IR.SourceLocationId;
+using KernelRuntimeUnityObjectLink = Game.Kernel.ScopeGraph.UnityObjectLink;
+using KernelRuntimeUnityObjectLinkKind = Game.Kernel.ScopeGraph.UnityObjectLinkKind;
 
 namespace Game.Kernel.Authoring
 {
@@ -24,9 +26,9 @@ namespace Game.Kernel.Authoring
                 sourceLocation.PropertyPath));
         }
 
-        public static Game.Kernel.Boot.UnityObjectLink ToRuntimeLink(in UnityObjectLink link)
+        public static KernelRuntimeUnityObjectLink ToRuntimeLink(in UnityObjectLink link)
         {
-            return new Game.Kernel.Boot.UnityObjectLink(
+            return new KernelRuntimeUnityObjectLink(
                 ToRuntimeLinkKind(link.Kind),
                 link.SourceGuid,
                 link.LocalFileId,
@@ -39,15 +41,15 @@ namespace Game.Kernel.Authoring
             return new KernelUnityObjectLinkIR(ToRuntimeLinkKind(link.Kind).ToString(), link.SourceGuid, link.LocalFileId, link.DebugName, source);
         }
 
-        static Game.Kernel.Boot.UnityObjectLinkKind ToRuntimeLinkKind(UnityObjectLinkKind kind)
+        static KernelRuntimeUnityObjectLinkKind ToRuntimeLinkKind(UnityObjectLinkKind kind)
         {
             return kind switch
             {
-                UnityObjectLinkKind.Asset => Game.Kernel.Boot.UnityObjectLinkKind.Asset,
-                UnityObjectLinkKind.Scene => Game.Kernel.Boot.UnityObjectLinkKind.Scene,
-                UnityObjectLinkKind.Runtime => Game.Kernel.Boot.UnityObjectLinkKind.Runtime,
-                UnityObjectLinkKind.Selection => Game.Kernel.Boot.UnityObjectLinkKind.Selection,
-                UnityObjectLinkKind.Unknown => Game.Kernel.Boot.UnityObjectLinkKind.Unknown,
+                UnityObjectLinkKind.Asset => KernelRuntimeUnityObjectLinkKind.Asset,
+                UnityObjectLinkKind.Scene => KernelRuntimeUnityObjectLinkKind.Scene,
+                UnityObjectLinkKind.Runtime => KernelRuntimeUnityObjectLinkKind.Runtime,
+                UnityObjectLinkKind.Selection => KernelRuntimeUnityObjectLinkKind.Selection,
+                UnityObjectLinkKind.Unknown => KernelRuntimeUnityObjectLinkKind.Unknown,
                 _ => throw new System.ArgumentOutOfRangeException(nameof(kind), kind, "Unsupported unity object link kind."),
             };
         }

@@ -44,6 +44,32 @@ namespace Game.Scalar
     public interface IUIElementScalarService : IBaseScalarService, IScalarTelemetry { }
     public interface IRuntimeScalarService : IBaseScalarService, IScalarTelemetry { }
 
+    public interface IScalarRuntimeShell
+    {
+        IScopeNode OwnerScope { get; }
+        IScopeNode Scope { get; }
+        bool IsStarted { get; }
+        bool TryInstallDeclarations(IReadOnlyList<ScalarDeclarationInput> declarations, out string failureReason);
+        bool TryReadLocal(ScalarKey key, out float value, out string failureReason);
+    }
+
+    public interface IScalarEndpointSource
+    {
+        ScalarOwnerIdentity OwnerIdentity { get; }
+        bool HasOwnerIdentity { get; }
+        bool TryGetOwnedEndpoint(ScalarKey key, out ScalarBindingEndpoint endpoint);
+    }
+
+    public interface IScalarInheritedRuntimeTopology
+    {
+        void RegisterRuntime(ScalarOwnerIdentity owner, ScalarRuntimeService service);
+        void UnregisterRuntime(ScalarOwnerIdentity owner, ScalarRuntimeService service);
+        void SetInheritedOwner(ScalarOwnerIdentity owner, ScalarOwnerIdentity inheritedOwner);
+        void ClearInheritedOwner(ScalarOwnerIdentity owner);
+        bool TryResolveRuntime(ScalarBindingEndpoint endpoint, out ScalarRuntimeService service);
+        bool TryResolveInheritedRuntime(ScalarOwnerIdentity owner, ScalarKey key, out ScalarBindingEndpoint endpoint, out ScalarRuntimeService service);
+    }
+
     public enum ScalarMulPhase
     {
         /// <summary>((Base+LocalBase) * PreMul) のフェーズ。</summary>

@@ -30,7 +30,7 @@ namespace Game.StatusEffect
         IRichTextRefService? _richTextRefService;
         ICommandListRuntimeMutationService? _mutationService;
         IEntityEventService? _eventService;
-        IBlackboardService? _blackboardService;
+        IVarStore? _blackboardVars;
         bool _disposed;
         bool _isActive;
         bool _hasInitializedGlobalState;
@@ -88,7 +88,7 @@ namespace Game.StatusEffect
         internal IRichTextRefService? RichTextRefService => _richTextRefService ??= ResolveOptional<IRichTextRefService>();
         internal ICommandListRuntimeMutationService? MutationService => _mutationService ??= ResolveOptional<ICommandListRuntimeMutationService>();
         internal IEntityEventService? EventService => _eventService ??= ResolveOptional<IEntityEventService>();
-        internal IBlackboardService? BlackboardService => _blackboardService ??= ResolveOptional<IBlackboardService>();
+        internal IVarStore? BlackboardVars => _blackboardVars ??= ResolveOptional<IVarStore>();
         internal float GlobalLifetimeRemaining => _globalLifetimeRemaining;
         internal float GlobalLifetimeTotal => _globalLifetimeTotal;
         internal float GlobalCooldownRemaining => _globalCooldownRemaining;
@@ -684,7 +684,7 @@ namespace Game.StatusEffect
             _richTextRefService = null;
             _mutationService = null;
             _eventService = null;
-            _blackboardService = null;
+            _blackboardVars = null;
 
             UpdateGlobalCanUse();
             WriteGlobalStateToBlackboard(force: true);
@@ -703,7 +703,7 @@ namespace Game.StatusEffect
             _richTextRefService = null;
             _mutationService = null;
             _eventService = null;
-            _blackboardService = null;
+            _blackboardVars = null;
             _blackboardBindingSourceCache = default;
         }
 
@@ -1187,7 +1187,7 @@ namespace Game.StatusEffect
         IVarStore? TryResolveGlobalBlackboardVars()
         {
             if (_blackboardBindingOptions == null)
-                return BlackboardService?.LocalVars;
+                return BlackboardVars;
 
             if (!_blackboardBindingOptions.UseBlackboardBinding)
                 return null;
@@ -1199,10 +1199,10 @@ namespace Game.StatusEffect
             if (targetScope?.Resolver == null)
                 return null;
 
-            if (!targetScope.Resolver.TryResolve<IBlackboardService>(out var blackboard) || blackboard == null)
+            if (!targetScope.Resolver.TryResolve<IVarStore>(out var blackboard) || blackboard == null)
                 return null;
 
-            return blackboard.LocalVars;
+            return blackboard;
         }
 
         void SyncAllRuntimeGlobalState(bool applyActions)

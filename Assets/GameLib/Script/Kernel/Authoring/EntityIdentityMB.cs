@@ -4,22 +4,13 @@ using System;
 using System.Collections.Generic;
 using Game.Kernel.Abstractions;
 using Game.Kernel.Authoring;
+using Game.Kernel.IR;
 using Game.Times;
 using UnityEngine;
 using UnityEngine.Serialization;
 
 namespace Game
 {
-    public interface ILTSIdentityService
-    {
-        LifetimeScopeKind Kind { get; }
-        string Id { get; }
-        string Category { get; }
-        bool IsActive { get; set; }
-        Transform SelfTransform { get; }
-        float Radius { get; }
-        TimeScaleBehavior TimeScaleBehavior { get; }
-    }
 
     [DisallowMultipleComponent]
     [ExecuteAlways]
@@ -64,7 +55,7 @@ namespace Game
         [SerializeField]
         [HideInInspector]
         [FormerlySerializedAs("registerToDynamicRegistry")]
-        bool registerToDynamicRegistry = true;
+        bool legacyRegisterToDynamicRegistry = true;
 
         [SerializeField]
         [HideInInspector]
@@ -113,7 +104,7 @@ namespace Game
             set => legacyTimeScaleBehavior = value;
         }
 
-        public bool RegisterToDynamicRegistry => registerToDynamicRegistry;
+        public bool LegacyDynamicRegistryOptIn => legacyRegisterToDynamicRegistry;
 
         public float Radius => radius;
 

@@ -27,6 +27,7 @@ namespace Game
         UniTask WarmupAsync(BaseRuntimeTemplateSO template, int count, CancellationToken ct = default);
 
         void Release(RuntimeLifetimeScope scope);
+        int ReleaseMatching(Predicate<RuntimeLifetimeScope> predicate);
         bool TryEnqueueOnNextAcquire(RuntimeLifetimeScope scope, CommandListData commands, CommandRunOptions options);
     }
 
@@ -236,7 +237,7 @@ namespace Game
 
             ct.ThrowIfCancellationRequested();
 
-            var key = new RuntimeLifetimeScopePoolKey(template.Prefab, parent);
+            var key = new RuntimeLifetimeScopePoolKey(template.Prefab);
             var acquireStartRealtime = Time.realtimeSinceStartupAsDouble;
 
             if (!template.UsePooling)
@@ -318,19 +319,7 @@ namespace Game
             if (!template.UsePooling)
                 return UniTask.CompletedTask;
 
-            // NOTE:
-            // Pool is keyed by (Parent Transform, Prefab). Warmup does not know the intended parent,
-            // so we can only warm a "default" parent pool when one is available.
-            // If no suitable parent is available, warmup becomes a no-op to avoid mismatching pools.
-            var warmupParent = _poolRoot != null
-                ? _poolRoot
-                : _buildParent is Component buildParentComponent
-                    ? buildParentComponent.transform
-                    : null;
-            if (warmupParent == null)
-                return UniTask.CompletedTask;
-
-            var key = new RuntimeLifetimeScopePoolKey(template.Prefab, warmupParent);
+            var key = new RuntimeLifetimeScopePoolKey(template.Prefab);
             var pool = GetOrCreatePool(key);
             var bucket = GetOrCreateTelemetryBucket(key);
             RecordWarmupRequestTelemetry(bucket, template, count);
@@ -462,8 +451,8 @@ namespace Game
                 return;
             }
 
-            // Return to the exact pool used at Acquire time (parent + prefab).
-            // This prevents "parent jumping" and guarantees same-parent reuse only.
+            // Return to the prefab-family pool recorded at acquire time.
+            // Explicit attachment can change across leases without changing the pool family.
             var key = scope.PoolKey;
             if (key == null || !_pools.TryGetValue(key.Value, out var pool))
             {
@@ -509,6 +498,40 @@ namespace Game
             finally
             {
                 EndRelease(scope);
+            }
+        }
+
+        public int ReleaseMatching(Predicate<RuntimeLifetimeScope> predicate)
+        {
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate));
+
+            if (_activeScopeTelemetry.Count == 0)
+                return 0;
+
+            var matches = ListPool<RuntimeLifetimeScope>.Get();
+            try
+            {
+                foreach (var pair in _activeScopeTelemetry)
+                {
+                    var scope = pair.Key;
+                    if (scope == null || !scope)
+                        continue;
+
+                    if (!predicate(scope))
+                        continue;
+
+                    matches.Add(scope);
+                }
+
+                for (int index = 0; index < matches.Count; index++)
+                    Release(matches[index]);
+
+                return matches.Count;
+            }
+            finally
+            {
+                ListPool<RuntimeLifetimeScope>.Release(matches);
             }
         }
 
@@ -681,7 +704,7 @@ namespace Game
             if (template == null || parent == null || scope == null || !scope)
                 return;
 
-            var key = new RuntimeLifetimeScopePoolKey(template.Prefab, parent);
+            var key = new RuntimeLifetimeScopePoolKey(template.Prefab);
             RecordAcquireTelemetry(
                 key,
                 template,
@@ -981,10 +1004,10 @@ namespace Game
         {
             bucket.PrefabName = key.PrefabKey != null ? key.PrefabKey.name : "null";
             bucket.PrefabInstanceId = key.PrefabKey != null ? key.PrefabKey.GetInstanceID() : 0;
-            bucket.ParentName = key.Parent != null ? key.Parent.name : "null";
-            bucket.ParentPath = GetTransformPath(key.Parent);
-            bucket.ParentInstanceId = key.Parent != null ? key.Parent.GetInstanceID() : 0;
-            bucket.KeyLabel = $"{bucket.PrefabName} @ {bucket.ParentPath}";
+            bucket.ParentName = "(explicit attach)";
+            bucket.ParentPath = "(prefab-family pool)";
+            bucket.ParentInstanceId = 0;
+            bucket.KeyLabel = $"{bucket.PrefabName} @ prefab-family";
         }
 
         static string GetTransformPath(Transform? transform)
@@ -1443,34 +1466,27 @@ namespace Game
     }
 
     // ================================================================
-    // Pool Key (Parent Transform + Prefab)
+    // Pool Key (Prefab Family)
     // ================================================================
 
     internal readonly struct RuntimeLifetimeScopePoolKey
     {
         public readonly GameObject PrefabKey;
-        public readonly Transform Parent;
 
-        public RuntimeLifetimeScopePoolKey(GameObject prefabKey, Transform parent)
+        public RuntimeLifetimeScopePoolKey(GameObject prefabKey)
         {
             PrefabKey = prefabKey;
-            Parent = parent;
         }
     }
 
     sealed class RuntimeLifetimeScopePoolKeyComparer : IEqualityComparer<RuntimeLifetimeScopePoolKey>
     {
         public bool Equals(RuntimeLifetimeScopePoolKey x, RuntimeLifetimeScopePoolKey y)
-            => ReferenceEquals(x.PrefabKey, y.PrefabKey) && ReferenceEquals(x.Parent, y.Parent);
+            => ReferenceEquals(x.PrefabKey, y.PrefabKey);
 
         public int GetHashCode(RuntimeLifetimeScopePoolKey obj)
         {
-            unchecked
-            {
-                int h1 = obj.PrefabKey != null ? RuntimeHelpers.GetHashCode(obj.PrefabKey) : 0;
-                int h2 = obj.Parent != null ? RuntimeHelpers.GetHashCode(obj.Parent) : 0;
-                return (h1 * 397) ^ h2;
-            }
+            return obj.PrefabKey != null ? RuntimeHelpers.GetHashCode(obj.PrefabKey) : 0;
         }
     }
 

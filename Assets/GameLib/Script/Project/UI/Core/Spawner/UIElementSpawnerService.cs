@@ -1,8 +1,10 @@
 #nullable enable
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Game.DI;
+using Game.Kernel.Layers;
 using Game.Spawn;
 using Game.Project.Scene.Runtime;
 using UnityEngine;
@@ -11,7 +13,7 @@ using VContainer;
 namespace Game.UI
 {
     // ================================================================
-    // UIElementSpawner - BaseLifetimeScopeSpawner経由のUIElement生�E
+    // UIElementSpawner - BaseLifetimeScopeSpawner経由のUIElement生�E
     // ================================================================
 
     public interface IUIElementSpawnerService : IAsyncSpawnerService
@@ -82,17 +84,20 @@ namespace Game.UI
 
     public interface IUIElementRuntimeSpawnerService : IAsyncSpawnerService { }
 
-    public sealed class UIElementRuntimeSpawnerService : IUIElementRuntimeSpawnerService
+    public sealed class UIElementRuntimeSpawnerService : IUIElementRuntimeSpawnerService, IFilteredReleaseSpawnerService, ISceneKernelSpawnPool, ISceneKernelSpawnRouteHandler
     {
-        readonly IRuntimeLifetimeScopeSpawnerService _runtimeSpawner;
+        readonly IAsyncSpawnerService _runtimeSpawner;
         readonly Transform _root;
         readonly ISceneSpawnerRegistry _registry;
+        bool _sceneKernelRegistered;
 
         public SpawnerKind Kind => SpawnerKind.RuntimeUIElement;
         public string Tag { get; }
+        public SceneKernelSpawnRouteId RouteId => SceneKernelSpawnRouteId.FromParts(Kind.ToString(), Tag);
+        public SceneKernelSpawnPoolId PoolId => SceneKernelSpawnPoolId.FromParts(Kind.ToString(), Tag);
 
         public UIElementRuntimeSpawnerService(
-            IRuntimeLifetimeScopeSpawnerService runtimeSpawner,
+            IAsyncSpawnerService runtimeSpawner,
             Transform root,
             string tag,
             ISceneSpawnerRegistry registry)
@@ -102,11 +107,13 @@ namespace Game.UI
             Tag = tag ?? string.Empty;
             _registry = registry ?? throw new ArgumentNullException(nameof(registry));
             _registry.Register(this);
+            EnsureSceneKernelBinding();
             //try { Debug.Log($"[MataUIElementRuntimeSpawnerService] Registered RuntimeUIElement spawner (Tag='{Tag}')"); } catch { }
         }
 
         public UniTask<IRuntimeResolver?> SpawnAsync(SpawnParams p, CancellationToken ct = default)
         {
+            EnsureSceneKernelBinding();
             if (p.TransformParent == null)
                 p.TransformParent = _root;
 
@@ -116,5 +123,47 @@ namespace Game.UI
         public UniTask WarmupAsync<T>(T template, int count, CancellationToken ct = default)
             where T : BaseRuntimeTemplateSO
             => _runtimeSpawner.WarmupAsync(template, count, ct);
+
+        public int ReleaseAll(RuntimeLifetimeScopeDeleteFilter filter)
+        {
+            EnsureSceneKernelBinding();
+            if (_runtimeSpawner is IFilteredReleaseSpawnerService releaseSpawner)
+                return releaseSpawner.ReleaseAll(filter);
+
+            throw new InvalidOperationException($"{nameof(UIElementRuntimeSpawnerService)} backing spawner does not support filtered release.");
+        }
+
+        int ISceneKernelSpawnPool.ReleaseAll(object filter)
+        {
+            if (filter is RuntimeLifetimeScopeDeleteFilter typedFilter)
+                return ReleaseAll(typedFilter);
+
+            throw new ArgumentException($"{nameof(UIElementRuntimeSpawnerService)} requires {nameof(RuntimeLifetimeScopeDeleteFilter)}.", nameof(filter));
+        }
+
+        async ValueTask<object?> ISceneKernelSpawnRouteHandler.SpawnAsync(object spawnRequest, CancellationToken cancellationToken)
+        {
+            if (spawnRequest is not SpawnParams spawnParams)
+                throw new ArgumentException($"{nameof(UIElementRuntimeSpawnerService)} requires {nameof(SpawnParams)}.", nameof(spawnRequest));
+
+            return await SpawnAsync(spawnParams, cancellationToken);
+        }
+
+        async ValueTask ISceneKernelSpawnRouteHandler.WarmupAsync(object template, int count, CancellationToken cancellationToken)
+        {
+            if (template is not BaseRuntimeTemplateSO runtimeTemplate)
+                throw new ArgumentException($"{nameof(UIElementRuntimeSpawnerService)} requires {nameof(BaseRuntimeTemplateSO)}.", nameof(template));
+
+            await _runtimeSpawner.WarmupAsync(runtimeTemplate, count, cancellationToken);
+        }
+
+        void EnsureSceneKernelBinding()
+        {
+            if (_sceneKernelRegistered)
+                return;
+
+            SceneKernelSpawnBindingHub.Register(this, this);
+            _sceneKernelRegistered = true;
+        }
     }
 }

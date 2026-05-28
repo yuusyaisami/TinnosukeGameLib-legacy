@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using AuthoringUnitySourceLocation = Game.Kernel.Authoring.UnitySourceLocation;
 using Game.Kernel.Authoring;
 using Game.Kernel.Contributions;
 using Game.Kernel.IR;
@@ -200,9 +201,9 @@ namespace Game.Kernel.Boot
         }
 #endif
 
-        public UnitySourceLocation CreateSourceLocation()
+        public AuthoringUnitySourceLocation CreateSourceLocation()
         {
-            return new UnitySourceLocation(
+            return new AuthoringUnitySourceLocation(
                 sourceKind,
                 assetGuid,
                 assetPath,

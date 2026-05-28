@@ -24,6 +24,8 @@
 // - FootTransformMB: Entity 雜ｳ菴咲ｽｮ/ Z 繧ｪ繝輔そ繝・ヨ
 // ================================================================================
 
+using System;
+using Game.Commands;
 using UnityEngine;
 using Game.Input;
 using Game.Profile;
@@ -33,7 +35,6 @@ namespace Game.Entity
 {
     [RequireComponent(typeof(Commands.CommandRunnerMB))]
     [RequireComponent(typeof(Scalar.BaseScalarMB))]
-    [RequireComponent(typeof(BlackboardMB))]
     [RequireComponent(typeof(Common.EventMB))]
     [RequireComponent(typeof(ActionBlockMB))]
     [RequireComponent(typeof(FootTransformMB))]
@@ -49,6 +50,15 @@ namespace Game.Entity
         // 閾ｪ蜍・Build 縺ｯ荳崎ｦ・ｼ郁ｦｪ縺九ｉ縺ｮ蜊碑ｪｿ繝薙Ν繝・or Spawner 縺碁擇蛟偵ｒ隕九ｋ・・
         protected override bool AutoBuildOnAwake => false;
         protected override LifetimeScopeKind RequiredParentKind => LifetimeScopeKind.Field;
+
+        protected override void AwakeConfigure(IRuntimeContainerBuilder builder)
+        {
+            var commandRunner = GetComponent<CommandRunnerMB>();
+            if (commandRunner == null)
+                throw new InvalidOperationException($"{nameof(EntityLifetimeScope)} requires {nameof(CommandRunnerMB)}.");
+
+            commandRunner.InstallRuntime(builder, this);
+        }
 
         protected override void ConfigureBase(IRuntimeContainerBuilder builder)
         {

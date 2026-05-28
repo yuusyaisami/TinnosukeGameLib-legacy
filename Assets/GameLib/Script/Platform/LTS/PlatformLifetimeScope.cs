@@ -1,4 +1,6 @@
-﻿using Game;
+﻿using System;
+using Game;
+using Game.Commands;
 using Game.Common;
 using UnityEngine;
 // 繝励Λ繝・ヨ繝輔か繝ｼ繝蝗ｺ譛峨・萓晏ｭ倬未菫ゅｒ逋ｻ骭ｲ縺吶ｋ縺溘ａ縺ｮLifetimeScope
@@ -10,13 +12,21 @@ namespace Game.Platform
     [RequireComponent(typeof(PlatformMB))]
     [RequireComponent(typeof(Game.Commands.CommandRunnerMB))]
     [RequireComponent(typeof(Game.Scalar.BaseScalarMB))]
-    [RequireComponent(typeof(BlackboardMB))] // Platform Blackboard
     [RequireComponent(typeof(Game.Common.EventMB))] // Project Event Service
     public class PlatformLifetimeScope : RuntimeLifetimeScopeBase
     {
         protected override bool UseBuildCoordinator => true; // 譎ｮ騾壹・ LifetimeScope 縺ｨ縺励※襍ｷ蜍墓凾縺ｫ Build
         protected override bool IsBuildRoot => false;
         protected override LifetimeScopeKind RequiredParentKind => LifetimeScopeKind.Project;
+
+        protected override void AwakeConfigure(IRuntimeContainerBuilder builder)
+        {
+            var commandRunner = GetComponent<CommandRunnerMB>();
+            if (commandRunner == null)
+                throw new InvalidOperationException($"{nameof(PlatformLifetimeScope)} requires {nameof(CommandRunnerMB)}.");
+
+            commandRunner.InstallRuntime(builder, this);
+        }
 
         protected override void ConfigureBase(IRuntimeContainerBuilder builder)
         {
